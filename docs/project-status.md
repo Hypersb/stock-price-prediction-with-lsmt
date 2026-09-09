@@ -6,6 +6,8 @@ Project foundation: complete
 
 Historical market-data ingestion and validation: complete
 
+Quantitative analysis and exploratory data analysis: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -20,9 +22,15 @@ Completed in this prompt:
 - Added request validation, OHLCV validation, normalization, and local CSV persistence.
 - Added an injectable ingestion service with offline unit tests.
 - Added a manual market-data fetch script for arbitrary ticker symbols.
+- Added simple, logarithmic, and compounded cumulative return calculations.
+- Added trailing rolling statistics, historical volatility, wealth, and drawdown analysis.
+- Added descriptive return statistics using pandas conventions.
+- Added date-aligned return correlation analysis for multiple assets.
+- Added reusable matplotlib market-analysis visualizations.
+- Added the unexecuted `01_market_data_eda.ipynb` research notebook.
 
 No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-exploratory data analysis and quantitative feature engineering
+quantitative feature engineering
