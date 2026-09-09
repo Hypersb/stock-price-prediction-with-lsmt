@@ -14,8 +14,8 @@ def test_simple_returns_use_close_and_preserve_first_missing_value() -> None:
     result = simple_returns(data)
 
     assert np.isnan(result.iloc[0])
-    assert result.iloc[1] == 0.1
-    assert result.iloc[2] == -0.1
+    assert np.isclose(result.iloc[1], 0.1)
+    assert np.isclose(result.iloc[2], -0.1)
     assert list(data.columns) == ["close"]
 
 
