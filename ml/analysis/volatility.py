@@ -15,7 +15,7 @@ def daily_rolling_volatility(returns: pd.Series, window: int) -> pd.Series:
 def annualized_rolling_volatility(
     returns: pd.Series,
     window: int,
-    periods_per_year: int | float = 252,
+    periods_per_year: float = 252,
 ) -> pd.Series:
     """Annualize daily volatility using sqrt(periods_per_year).
 
