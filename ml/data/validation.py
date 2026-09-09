@@ -20,7 +20,7 @@ def validate_ohlcv(data: object) -> None:
     if missing_columns:
         columns = ", ".join(sorted(missing_columns))
         raise MarketDataValidationError(f"market data is missing required columns: {columns}")
-    if data[REQUIRED_COLUMNS].isna().any().any():
+    if data[list(REQUIRED_COLUMNS)].isna().any().any():
         raise MarketDataValidationError("market data contains missing required values")
 
     parsed_dates = pd.to_datetime(data["date"], errors="coerce")
