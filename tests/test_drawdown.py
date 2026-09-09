@@ -13,7 +13,7 @@ from ml.analysis.drawdown import (
 def test_rising_prices_have_no_drawdown() -> None:
     returns = pd.Series([np.nan, 0.1, 0.1])
 
-    assert wealth_index(returns).tolist() == [1.0, 1.1, 1.21]
+    assert np.allclose(wealth_index(returns), [1.0, 1.1, 1.21])
     assert maximum_drawdown(returns) == 0.0
 
 
