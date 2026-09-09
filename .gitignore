@@ -34,3 +34,16 @@ out/
 build/
 dist/
 *.egg-info/
+
+# Generated market data and machine learning artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+models/
+artifacts/
+checkpoints/
+*.pt
+*.pth
+*.keras
+*.h5
