@@ -1,7 +1,7 @@
 """Local persistence for normalized historical market data."""
 
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pandas as pd
 
