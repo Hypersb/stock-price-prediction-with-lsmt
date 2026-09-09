@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+scikit-learn
+jupyter
+yfinance
+fastapi
+uvicorn
+sqlalchemy
+pydantic
