@@ -2,7 +2,7 @@
 
 ## Status
 
-Early development. This repository currently contains project foundations and documentation only. LSTM forecasting, backtesting, backend APIs, frontend features, and market-data functionality are planned but not implemented.
+Early development. Historical market-data ingestion and validation are implemented. LSTM forecasting, backtesting, backend APIs, and frontend features remain planned.
 
 ## Project
 
@@ -16,7 +16,7 @@ This project is intended to become a full-stack quantitative finance and machine
 - Generate research signals and evaluate strategies with realistic assumptions.
 - Expose research workflows through a backend API and frontend application.
 
-These are goals for the wider project. They do not represent functionality available in the current repository.
+These are goals for the wider project. Only the initial market-data ingestion and validation layer is currently available.
 
 ## Planned Architecture
 

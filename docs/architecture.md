@@ -1,6 +1,6 @@
 # Planned System Architecture
 
-**Status: planned documentation only.** The components described here are not implemented yet.
+**Status: planned architecture.** The initial market-data ingestion and validation layer is implemented; downstream components remain planned.
 
 ## Planned Flow
 
@@ -36,7 +36,7 @@ Next.js frontend
 
 ### Data Layer
 
-Planned responsibility: acquire historical market data, preserve source metadata, validate schemas and timestamps, and produce clean datasets. Raw and processed data locations exist, but ingestion and validation are not implemented.
+Planned responsibility: acquire historical market data, preserve source metadata, validate schemas and timestamps, and produce clean datasets. The initial provider abstraction, Yahoo Finance provider, normalization, validation, persistence, and ingestion service are implemented.
 
 ### Quantitative Research Layer
 

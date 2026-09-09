@@ -4,6 +4,8 @@
 
 Project foundation: complete
 
+Historical market-data ingestion and validation: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -14,9 +16,13 @@ Completed in this prompt:
 - Added README, planned architecture, and development standards documentation.
 - Validated tracked files for credentials and generated machine-learning artifacts.
 - Confirmed the existing Windows virtual environment has a working Python executable.
+- Added a provider abstraction and Yahoo Finance implementation for historical OHLCV data.
+- Added request validation, OHLCV validation, normalization, and local CSV persistence.
+- Added an injectable ingestion service with offline unit tests.
+- Added a manual market-data fetch script for arbitrary ticker symbols.
 
-No market-data ingestion, validation, modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
+No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-market data ingestion and validation
+exploratory data analysis and quantitative feature engineering
