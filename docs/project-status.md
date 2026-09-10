@@ -10,6 +10,8 @@ Quantitative analysis and exploratory data analysis: complete
 
 Quantitative feature engineering: complete
 
+Supervised dataset construction: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -34,9 +36,15 @@ Completed in this prompt:
 - Added configurable feature orchestration and feature-quality validation.
 - Added prefix-invariance tests proving future rows do not change historical feature values.
 - Added the unexecuted `02_feature_engineering.ipynb` research notebook.
+- Added future-return regression and direction classification targets.
+- Added target integrity validation and explicit feature-target separation.
+- Added transparent feature warm-up and unavailable-target-tail handling.
+- Added chronological train, validation, and test splitting with temporal validation.
+- Added train-only StandardScaler preprocessing.
+- Added the supervised dataset orchestration pipeline and unexecuted `03_supervised_dataset.ipynb` notebook.
 
 No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-supervised learning target construction and chronological dataset splitting
+baseline machine learning models and evaluation metrics
