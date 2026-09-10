@@ -20,6 +20,8 @@ LSTM training and experiment system: complete
 
 Walk-forward validation and time-series evaluation: complete
 
+Historical backtesting and risk analytics: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -69,9 +71,14 @@ Completed in this prompt:
 - Added baseline and LSTM walk-forward evaluation with per-fold predictions and metrics.
 - Added aggregate stability statistics and out-of-sample prediction collection.
 - Added the unexecuted `07_walk_forward_validation.ipynb` research notebook.
+- Added out-of-sample prediction signals, forward execution alignment, and no-lookahead tests.
+- Added turnover, transaction-cost, slippage, gross/net return, and compounded equity calculations.
+- Added Sharpe, Sortino, annualized return/volatility, drawdown, hit-rate, exposure, and trade analytics.
+- Added exact-date buy-and-hold benchmark comparison and structured backtest results.
+- Added the unexecuted `08_backtesting.ipynb` research notebook.
 
-No trading backtest, API, database, or frontend functionality exists yet.
+No brokerage connectivity, live orders, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-realistic trading backtesting and risk analytics
+fastapi quantitative research backend
