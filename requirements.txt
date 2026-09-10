@@ -7,5 +7,7 @@ yfinance
 fastapi
 uvicorn
 sqlalchemy
+alembic
+psycopg[binary]
 pydantic
 torch

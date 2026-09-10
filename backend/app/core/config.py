@@ -32,6 +32,7 @@ class Settings:
     )
     max_market_data_days: int = 3650
     max_feature_rows: int = 500
+    database_url: str = ""
 
 
 @lru_cache(maxsize=1)
@@ -63,6 +64,7 @@ def get_settings() -> Settings:
         in {"1", "true", "yes"},
         max_market_data_days=int(os.getenv("MAX_MARKET_DATA_DAYS", "3650")),
         max_feature_rows=int(os.getenv("MAX_FEATURE_ROWS", "500")),
+        database_url=os.getenv("DATABASE_URL", "").strip(),
     )
 
 
