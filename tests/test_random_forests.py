@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from ml.models.ensemble import RandomForestClassificationModel, RandomForestRegressionModel
+from ml.models.ensemble import (
+    RandomForestClassificationModel,
+    RandomForestRegressionModel,
+)
 
 
 def test_random_forest_regression_is_reproducible() -> None:
