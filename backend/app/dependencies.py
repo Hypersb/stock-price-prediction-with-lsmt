@@ -9,6 +9,7 @@ from fastapi import Request
 from backend.app.services.analysis import AnalysisService
 from backend.app.services.features import FeatureService
 from backend.app.services.market_data import MarketDataService, default_market_data_service
+from backend.app.services.models import ModelService
 
 
 def get_market_data_service(request: Request) -> MarketDataService:
@@ -39,3 +40,13 @@ def get_feature_service(request: Request) -> FeatureService:
     if override is not None:
         return override()
     return FeatureService(market_data_service=get_market_data_service(request))
+
+
+def get_model_service(request: Request) -> ModelService:
+    """Resolve model/prediction service with optional test overrides."""
+    override: Callable[[], ModelService] | None = getattr(
+        request.app.state, "model_service_factory", None
+    )
+    if override is not None:
+        return override()
+    return ModelService()
