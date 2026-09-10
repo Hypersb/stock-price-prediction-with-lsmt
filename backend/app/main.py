@@ -23,7 +23,9 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    """Configure logging on startup and emit a quiet shutdown signal."""
+    """Configure logging and optional database on startup."""
+    from backend.app.db.session import configure_database, reset_database
+
     settings = get_settings()
     configure_logging("DEBUG" if settings.app_env == "development" else "INFO")
     logger.info(
@@ -32,8 +34,15 @@ async def lifespan(_: FastAPI):
         settings.app_version,
         settings.app_env,
     )
-    yield
-    logger.info("api_shutdown service=%s", settings.app_name)
+    if settings.database_url:
+        configure_database(settings=settings)
+        logger.info("database_configured")
+    try:
+        yield
+    finally:
+        if settings.database_url:
+            reset_database()
+        logger.info("api_shutdown service=%s", settings.app_name)
 
 
 def create_app() -> FastAPI:
