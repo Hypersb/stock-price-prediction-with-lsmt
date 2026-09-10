@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { TimeSeriesChart } from "@/components/charts/TimeSeriesChart";
 import { ResearchControls } from "@/components/research/ResearchControls";
@@ -9,16 +10,110 @@ import { appConfig } from "@/lib/env";
 import {
   defaultDateRange,
   formatDate,
-  formatNumber,
   formatPercent,
   formatPrice,
 } from "@/lib/format";
 import { ApiError } from "@/types/api";
-import type { Metadata } from "next";
+import type { AnalysisSummaryResponse, MarketDataResponse } from "@/types/api";
 
 export const metadata: Metadata = { title: "Market" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function buildCumulativeSeries(market: MarketDataResponse) {
+  const values: { date: string; value: number }[] = [];
+  let cumulative = 0;
+  for (let index = 0; index < market.data.length; index += 1) {
+    const row = market.data[index];
+    if (index === 0) {
+      values.push({ date: row.date, value: 0 });
+      continue;
+    }
+    const previous = market.data[index - 1].close;
+    const ret = previous === 0 ? 0 : row.close / previous - 1;
+    cumulative = (1 + cumulative) * (1 + ret) - 1;
+    values.push({ date: row.date, value: cumulative });
+  }
+  return values;
+}
+
+function MarketSuccess({
+  market,
+  analysis,
+}: {
+  market: MarketDataResponse;
+  analysis: AnalysisSummaryResponse;
+}) {
+  const closes = market.data.map((row) => ({ date: row.date, value: row.close }));
+  const cumulativeSeries = buildCumulativeSeries(market);
+  const latest = market.data[market.data.length - 1];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Symbol" value={market.symbol} />
+        <MetricCard
+          label="Latest close"
+          value={formatPrice(latest.close)}
+          hint={`As of ${formatDate(latest.date)}`}
+        />
+        <MetricCard
+          label="Observations"
+          value={String(analysis.observation_count)}
+          hint={`${formatDate(analysis.start_date)} → ${formatDate(analysis.end_date)}`}
+        />
+        <MetricCard
+          label="Cumulative return"
+          value={formatPercent(analysis.cumulative_return)}
+          hint="Historical, not a forecast"
+        />
+        <MetricCard
+          label="Volatility"
+          value={formatPercent(analysis.volatility)}
+          hint="Return sample standard deviation"
+        />
+        <MetricCard
+          label="Maximum drawdown"
+          value={formatPercent(analysis.maximum_drawdown)}
+        />
+        <MetricCard label="Mean return" value={formatPercent(analysis.mean_return)} />
+        <MetricCard
+          label="Median return"
+          value={formatPercent(analysis.median_return)}
+        />
+      </div>
+
+      <section className="rounded-md border border-border bg-surface p-4">
+        <h3 className="text-sm font-semibold">Closing price</h3>
+        <p className="mt-1 text-xs text-muted">
+          Historical closes for the selected range. This is not a forecast chart.
+        </p>
+        <div className="mt-4">
+          <TimeSeriesChart
+            data={closes}
+            valueLabel="Close"
+            valueFormatter={(value) => formatPrice(value)}
+          />
+        </div>
+      </section>
+
+      <section className="rounded-md border border-border bg-surface p-4">
+        <h3 className="text-sm font-semibold">Cumulative return</h3>
+        <p className="mt-1 text-xs text-muted">
+          Compounded simple returns derived from closing prices.
+        </p>
+        <div className="mt-4">
+          <TimeSeriesChart
+            data={cumulativeSeries}
+            valueLabel="Cumulative return"
+            valueFormatter={(value) => formatPercent(value)}
+            color="var(--positive)"
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
 
 async function MarketContent({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
@@ -27,118 +122,34 @@ async function MarketContent({ searchParams }: { searchParams: SearchParams }) {
   const start = String(params.start ?? defaults.startDate);
   const end = String(params.end ?? defaults.endDate);
 
+  let market: MarketDataResponse | null = null;
+  let analysis: AnalysisSummaryResponse | null = null;
+  let loadError: string | null = null;
   try {
-    const [market, analysis] = await Promise.all([
+    [market, analysis] = await Promise.all([
       getMarketData(symbol, start, end),
       getAnalysisSummary(symbol, start, end),
     ]);
-
-    if (market.count === 0) {
-      return (
-        <StatePanel
-          title="No market data"
-          message={`The API returned no observations for ${symbol} between ${start} and ${end}.`}
-        />
-      );
-    }
-
-    const closes = market.data.map((row) => ({
-      date: row.date,
-      value: row.close,
-    }));
-    let cumulative = 0;
-    const cumulativeSeries = market.data.map((row, index) => {
-      if (index === 0) {
-        return { date: row.date, value: 0 };
-      }
-      const previous = market.data[index - 1].close;
-      const ret = previous === 0 ? 0 : row.close / previous - 1;
-      cumulative = (1 + cumulative) * (1 + ret) - 1;
-      return { date: row.date, value: cumulative };
-    });
-    const latest = market.data[market.data.length - 1];
-
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard label="Symbol" value={market.symbol} />
-          <MetricCard
-            label="Latest close"
-            value={formatPrice(latest.close)}
-            hint={`As of ${formatDate(latest.date)}`}
-          />
-          <MetricCard
-            label="Observations"
-            value={String(analysis.observation_count)}
-            hint={`${formatDate(analysis.start_date)} → ${formatDate(analysis.end_date)}`}
-          />
-          <MetricCard
-            label="Cumulative return"
-            value={formatPercent(analysis.cumulative_return)}
-            hint="Historical, not a forecast"
-          />
-          <MetricCard
-            label="Volatility"
-            value={formatPercent(analysis.volatility)}
-            hint="Return sample standard deviation"
-          />
-          <MetricCard
-            label="Maximum drawdown"
-            value={formatPercent(analysis.maximum_drawdown)}
-          />
-          <MetricCard
-            label="Mean return"
-            value={formatPercent(analysis.mean_return)}
-          />
-          <MetricCard
-            label="Median return"
-            value={formatNumber(analysis.median_return, 4)}
-            hint="Decimal daily return"
-          />
-        </div>
-
-        <section className="rounded-md border border-border bg-surface p-4">
-          <h3 className="text-sm font-semibold">Closing price</h3>
-          <p className="mt-1 text-xs text-muted">
-            Historical closes for the selected range. This is not a forecast chart.
-          </p>
-          <div className="mt-4">
-            <TimeSeriesChart
-              data={closes}
-              valueLabel="Close"
-              valueFormatter={(value) => formatPrice(value)}
-            />
-          </div>
-        </section>
-
-        <section className="rounded-md border border-border bg-surface p-4">
-          <h3 className="text-sm font-semibold">Cumulative return</h3>
-          <p className="mt-1 text-xs text-muted">
-            Compounded simple returns derived from closing prices.
-          </p>
-          <div className="mt-4">
-            <TimeSeriesChart
-              data={cumulativeSeries}
-              valueLabel="Cumulative return"
-              valueFormatter={(value) => formatPercent(value)}
-              color="var(--positive)"
-            />
-          </div>
-        </section>
-      </div>
-    );
   } catch (error) {
-    const message =
+    loadError =
       error instanceof ApiError
         ? error.detail ?? error.message
         : "Unexpected error while loading market research data.";
+  }
+
+  if (loadError) {
+    return <StatePanel title="Market data unavailable" message={loadError} />;
+  }
+  if (!market || !analysis || market.count === 0) {
     return (
       <StatePanel
-        title="Market data unavailable"
-        message={message}
+        title="No market data"
+        message={`The API returned no observations for ${symbol} between ${start} and ${end}.`}
       />
     );
   }
+
+  return <MarketSuccess market={market} analysis={analysis} />;
 }
 
 export default function MarketPage({
