@@ -1,7 +1,5 @@
 """Forecast-horizon purging for walk-forward temporal folds."""
 
-import numpy as np
-
 from ml.validation.config import WalkForwardConfig
 from ml.validation.folds import WalkForwardFold
 
