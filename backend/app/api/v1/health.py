@@ -1,5 +1,7 @@
 """Health check schemas and routes."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
@@ -18,7 +20,9 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
-def get_health(settings: Settings = Depends(get_settings)) -> HealthResponse:
+def get_health(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> HealthResponse:
     """Return a lightweight readiness signal for the API service."""
     return HealthResponse(
         status="ok",

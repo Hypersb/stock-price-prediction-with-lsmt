@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from backend.app.core.config import Settings, get_settings
 from backend.app.core.errors import BadRequestError, NotFoundError
@@ -93,4 +93,4 @@ def ensure_default_end_date(end_date: date | None) -> date:
     """Default the exclusive-style end bound to tomorrow when omitted."""
     if end_date is not None:
         return end_date
-    return date.today() + timedelta(days=1)
+    return datetime.now(timezone.utc).date() + timedelta(days=1)

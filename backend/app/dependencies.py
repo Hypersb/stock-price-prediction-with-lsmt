@@ -9,7 +9,10 @@ from fastapi import Request
 from backend.app.services.analysis import AnalysisService
 from backend.app.services.backtests import BacktestService
 from backend.app.services.features import FeatureService
-from backend.app.services.market_data import MarketDataService, default_market_data_service
+from backend.app.services.market_data import (
+    MarketDataService,
+    default_market_data_service,
+)
 from backend.app.services.models import ModelService
 
 

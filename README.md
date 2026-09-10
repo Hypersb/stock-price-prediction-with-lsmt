@@ -2,7 +2,7 @@
 
 ## Status
 
-Early development. Historical market-data ingestion and validation are implemented. LSTM forecasting, backtesting, backend APIs, and frontend features remain planned.
+Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, and a FastAPI research backend are implemented. PostgreSQL persistence and the Next.js frontend remain planned.
 
 ## Project
 
@@ -16,31 +16,29 @@ This project is intended to become a full-stack quantitative finance and machine
 - Generate research signals and evaluate strategies with realistic assumptions.
 - Expose research workflows through a backend API and frontend application.
 
-These are goals for the wider project. Only the initial market-data ingestion and validation layer is currently available.
-
 ## Planned Architecture
 
-Market data will flow through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, and presentation layers. The planned backend is a FastAPI service with PostgreSQL storage, and the planned frontend is a Next.js and TypeScript application.
+Market data flows through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, and presentation layers. The backend is a FastAPI service; PostgreSQL persistence and a Next.js frontend remain planned.
 
 ## Planned Technology Stack
 
 - Python for data, quantitative research, and machine learning workflows.
 - pandas and NumPy for data manipulation and numerical work.
-- scikit-learn and, later, an appropriate deep-learning framework for models.
-- FastAPI, SQLAlchemy, and PostgreSQL for the planned service and persistence layers.
+- scikit-learn and PyTorch for baseline and LSTM modeling.
+- FastAPI for the research API boundary; SQLAlchemy and PostgreSQL remain planned for persistence.
 - Next.js and TypeScript for the planned frontend.
 - Jupyter for exploration and research notebooks.
 
 ## Directory Structure
 
 ```text
-backend/       Planned backend and API code
+backend/       FastAPI research API
 data/          Raw and processed data locations
 docs/          Project documentation
 frontend/      Planned frontend application
-ml/            Planned reusable machine-learning code
-notebooks/     Planned exploratory notebooks
-tests/         Planned automated tests
+ml/            Reusable quantitative and machine-learning code
+notebooks/     Exploratory notebooks
+tests/         Automated tests
 ```
 
 ## Local Python Environment
@@ -54,6 +52,18 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
+
+## Backend API
+
+Start the research API from the repository root:
+
+```powershell
+uvicorn backend.app.main:app --reload
+```
+
+- Health: `GET /api/v1/health`
+- OpenAPI docs: `http://127.0.0.1:8000/docs`
+- Backend notes: [docs/backend.md](docs/backend.md)
 
 The local environment and generated data are excluded from Git. Do not create or commit real credentials; use `.env.example` as the safe template for local configuration.
 

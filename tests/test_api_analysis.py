@@ -1,6 +1,5 @@
-from datetime import date
-
 import math
+from datetime import date
 
 import pandas as pd
 from fastapi.testclient import TestClient

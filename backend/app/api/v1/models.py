@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query
 
 from backend.app.dependencies import get_model_service
@@ -14,7 +16,7 @@ router = APIRouter(prefix="/models", tags=["models"])
 
 @router.get("", response_model=ModelCatalogResponse)
 def list_models(
-    service: ModelService = Depends(get_model_service),
+    service: Annotated[ModelService, Depends(get_model_service)],
 ) -> ModelCatalogResponse:
     """List supported research model families without claiming trained artifacts."""
     return service.list_models()
@@ -24,8 +26,8 @@ def list_models(
 def get_model_predictions(
     model: str,
     symbol: str,
-    task: TaskType = Query(..., description="regression or classification"),
-    service: ModelService = Depends(get_model_service),
+    task: Annotated[TaskType, Query(description="regression or classification")],
+    service: Annotated[ModelService, Depends(get_model_service)],
 ) -> PredictionResponse:
     """Return stored predictions only; never trains models on GET."""
     return service.get_predictions(symbol, model, task)

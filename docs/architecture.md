@@ -52,7 +52,7 @@ Planned responsibility: turn model outputs into testable strategy rules and calc
 
 ### Backend/API Layer
 
-Planned responsibility: expose data, research, model, and backtest workflows through FastAPI and coordinate persistence through PostgreSQL. No API, database, or authentication components exist.
+Implemented responsibility: expose market data, research summaries, features, model metadata, stored-prediction lookups, and out-of-sample backtests through a versioned FastAPI boundary. PostgreSQL persistence and authentication are not implemented yet.
 
 ### Frontend Layer
 

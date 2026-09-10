@@ -22,6 +22,8 @@ Walk-forward validation and time-series evaluation: complete
 
 Historical backtesting and risk analytics: complete
 
+FastAPI quantitative research backend: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -76,9 +78,13 @@ Completed in this prompt:
 - Added Sharpe, Sortino, annualized return/volatility, drawdown, hit-rate, exposure, and trade analytics.
 - Added exact-date buy-and-hold benchmark comparison and structured backtest results.
 - Added the unexecuted `08_backtesting.ipynb` research notebook.
+- Added FastAPI application factory, environment configuration, and CORS controls.
+- Added `/api/v1` health, market-data, analysis, features, models, and backtests endpoints.
+- Added typed Pydantic schemas, JSON-safe numeric serialization, and stable error envelopes.
+- Added request-id middleware, access logging, OpenAPI contract tests, and backend documentation.
 
-No brokerage connectivity, live orders, API, database, or frontend functionality exists yet.
+No brokerage connectivity, live orders, database persistence, authentication, or frontend functionality exists yet.
 
 ## Next Milestone
 
-fastapi quantitative research backend
+postgresql persistence and experiment storage

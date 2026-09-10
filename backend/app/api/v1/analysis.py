@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
@@ -17,11 +18,13 @@ router = APIRouter(prefix="/analysis", tags=["analysis"])
 @router.get("/{symbol}/summary", response_model=AnalysisSummaryResponse)
 def get_analysis_summary(
     symbol: str,
-    start_date: date = Query(..., description="Inclusive range start (YYYY-MM-DD)"),
-    end_date: date | None = Query(
-        None, description="Exclusive-style range end (YYYY-MM-DD)"
-    ),
-    service: AnalysisService = Depends(get_analysis_service),
+    start_date: Annotated[
+        date, Query(description="Inclusive range start (YYYY-MM-DD)")
+    ],
+    service: Annotated[AnalysisService, Depends(get_analysis_service)],
+    end_date: Annotated[
+        date | None, Query(description="Exclusive-style range end (YYYY-MM-DD)")
+    ] = None,
 ) -> AnalysisSummaryResponse:
     """Return key quantitative statistics for a symbol and date range."""
     return service.summarize(symbol, start_date, ensure_default_end_date(end_date))

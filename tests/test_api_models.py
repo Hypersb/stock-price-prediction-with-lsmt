@@ -4,7 +4,6 @@ from fastapi.testclient import TestClient
 
 from backend.app.core.config import clear_settings_cache
 from backend.app.main import create_app
-from backend.app.schemas.common import TaskType
 from backend.app.schemas.models import PredictionPoint
 from backend.app.services.models import ModelService, PredictionStore
 

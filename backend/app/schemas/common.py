@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import date
 from enum import Enum
 from typing import Any
@@ -68,7 +69,7 @@ class MetricValue(BaseModel):
             number = float(value)
         except (TypeError, ValueError) as exc:
             raise ValueError("metric value must be numeric") from exc
-        if number != number or number in (float("inf"), float("-inf")):
+        if math.isnan(number) or math.isinf(number):
             return None
         return number
 

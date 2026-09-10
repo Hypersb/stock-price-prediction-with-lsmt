@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
@@ -17,14 +18,16 @@ router = APIRouter(prefix="/features", tags=["features"])
 @router.get("/{symbol}", response_model=FeatureResponse)
 def get_features(
     symbol: str,
-    start_date: date = Query(..., description="Inclusive range start (YYYY-MM-DD)"),
-    end_date: date | None = Query(
-        None, description="Exclusive-style range end (YYYY-MM-DD)"
-    ),
-    limit: int | None = Query(
-        None, ge=1, description="Maximum number of feature rows to return"
-    ),
-    service: FeatureService = Depends(get_feature_service),
+    start_date: Annotated[
+        date, Query(description="Inclusive range start (YYYY-MM-DD)")
+    ],
+    service: Annotated[FeatureService, Depends(get_feature_service)],
+    end_date: Annotated[
+        date | None, Query(description="Exclusive-style range end (YYYY-MM-DD)")
+    ] = None,
+    limit: Annotated[
+        int | None, Query(ge=1, description="Maximum number of feature rows to return")
+    ] = None,
 ) -> FeatureResponse:
     """Return engineered features for research inspection without targets."""
     return service.get_features(
