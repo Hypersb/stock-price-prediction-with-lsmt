@@ -22,6 +22,22 @@ function metricMap(detail: PersistedBacktestDetail): Record<string, number | nul
   );
 }
 
+function buildDrawdownSeries(
+  equityPoints: { date: string; equity: number | null }[],
+): { date: string; value: number }[] {
+  const values: { date: string; value: number }[] = [];
+  let peak = Number.NEGATIVE_INFINITY;
+  for (const point of equityPoints) {
+    if (point.equity === null) {
+      continue;
+    }
+    peak = Math.max(peak, point.equity);
+    const dd = peak === 0 ? 0 : point.equity / peak - 1;
+    values.push({ date: point.date, value: dd });
+  }
+  return values;
+}
+
 function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
   const metrics = metricMap(detail);
   const equityPoints = detail.equity_curve.filter((point) => point.equity !== null);
@@ -29,13 +45,7 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
     date: point.date,
     value: point.equity as number,
   }));
-  let peak = Number.NEGATIVE_INFINITY;
-  const drawdown = equityPoints.map((point) => {
-    const equityValue = point.equity as number;
-    peak = Math.max(peak, equityValue);
-    const dd = peak === 0 ? 0 : equityValue / peak - 1;
-    return { date: point.date, value: dd };
-  });
+  const drawdown = buildDrawdownSeries(detail.equity_curve);
 
   return (
     <div className="space-y-6">
