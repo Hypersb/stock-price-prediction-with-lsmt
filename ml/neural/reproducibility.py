@@ -13,7 +13,7 @@ def set_random_seed(seed: int) -> None:
     financial results deterministic across every platform and backend.
     """
     if isinstance(seed, bool) or not isinstance(seed, int):
-        raise ValueError("seed must be an integer")
+        raise TypeError("seed must be an integer")
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
