@@ -7,6 +7,7 @@ from collections.abc import Callable
 from fastapi import Request
 
 from backend.app.services.analysis import AnalysisService
+from backend.app.services.features import FeatureService
 from backend.app.services.market_data import MarketDataService, default_market_data_service
 
 
@@ -28,3 +29,13 @@ def get_analysis_service(request: Request) -> AnalysisService:
     if override is not None:
         return override()
     return AnalysisService(market_data_service=get_market_data_service(request))
+
+
+def get_feature_service(request: Request) -> FeatureService:
+    """Resolve feature service with optional test overrides."""
+    override: Callable[[], FeatureService] | None = getattr(
+        request.app.state, "feature_service_factory", None
+    )
+    if override is not None:
+        return override()
+    return FeatureService(market_data_service=get_market_data_service(request))
