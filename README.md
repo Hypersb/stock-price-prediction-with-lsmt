@@ -2,7 +2,7 @@
 
 ## Status
 
-Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, and a FastAPI research backend are implemented. PostgreSQL persistence and the Next.js frontend remain planned.
+Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, a FastAPI research backend, and PostgreSQL-oriented experiment persistence are implemented. The Next.js frontend remains planned.
 
 ## Project
 
@@ -18,21 +18,22 @@ This project is intended to become a full-stack quantitative finance and machine
 
 ## Planned Architecture
 
-Market data flows through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, and presentation layers. The backend is a FastAPI service; PostgreSQL persistence and a Next.js frontend remain planned.
+Market data flows through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, API, and presentation layers. The backend is FastAPI with SQLAlchemy/Alembic persistence targeting PostgreSQL. The planned frontend is Next.js.
 
 ## Planned Technology Stack
 
 - Python for data, quantitative research, and machine learning workflows.
 - pandas and NumPy for data manipulation and numerical work.
 - scikit-learn and PyTorch for baseline and LSTM modeling.
-- FastAPI for the research API boundary; SQLAlchemy and PostgreSQL remain planned for persistence.
+- FastAPI for the research API boundary; SQLAlchemy, Alembic, and PostgreSQL for persistence.
 - Next.js and TypeScript for the planned frontend.
 - Jupyter for exploration and research notebooks.
 
 ## Directory Structure
 
 ```text
-backend/       FastAPI research API
+backend/       FastAPI research API and persistence layer
+alembic/       Database migrations
 data/          Raw and processed data locations
 docs/          Project documentation
 frontend/      Planned frontend application
@@ -64,6 +65,15 @@ uvicorn backend.app.main:app --reload
 - Health: `GET /api/v1/health`
 - OpenAPI docs: `http://127.0.0.1:8000/docs`
 - Backend notes: [docs/backend.md](docs/backend.md)
+- Database notes: [docs/database.md](docs/database.md)
+
+Optional local PostgreSQL:
+
+```powershell
+docker compose up -d postgres
+$env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/quant_research"
+.\.venv\Scripts\python.exe -m alembic upgrade head
+```
 
 The local environment and generated data are excluded from Git. Do not create or commit real credentials; use `.env.example` as the safe template for local configuration.
 

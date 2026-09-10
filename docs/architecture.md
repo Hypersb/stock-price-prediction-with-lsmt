@@ -52,7 +52,7 @@ Planned responsibility: turn model outputs into testable strategy rules and calc
 
 ### Backend/API Layer
 
-Implemented responsibility: expose market data, research summaries, features, model metadata, stored-prediction lookups, and out-of-sample backtests through a versioned FastAPI boundary. PostgreSQL persistence and authentication are not implemented yet.
+Implemented responsibility: expose market data, research summaries, features, model metadata, stored-prediction lookups, and out-of-sample backtests through a versioned FastAPI boundary, with SQLAlchemy repositories and Alembic migrations targeting PostgreSQL for experiment/result persistence. Authentication is not implemented yet.
 
 ### Frontend Layer
 

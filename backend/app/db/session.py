@@ -41,7 +41,7 @@ def create_engine_from_url(database_url: str, *, echo: bool = False) -> Engine:
     if database_url.startswith("sqlite"):
 
         @event.listens_for(engine, "connect")
-        def _set_sqlite_fk(dbapi_connection, connection_record) -> None:  # noqa: ARG001
+        def _set_sqlite_fk(dbapi_connection, connection_record) -> None:
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()

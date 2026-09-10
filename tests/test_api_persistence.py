@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from backend.app.core.config import clear_settings_cache
 from backend.app.db.base import Base
-from backend.app.db.session import build_database, configure_database, reset_database
+from backend.app.db.session import configure_database, reset_database
 from backend.app.main import create_app
 from backend.app.repositories.backtests import (
     BacktestCreate,

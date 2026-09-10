@@ -24,6 +24,8 @@ Historical backtesting and risk analytics: complete
 
 FastAPI quantitative research backend: complete
 
+PostgreSQL research persistence layer: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -82,9 +84,14 @@ Completed in this prompt:
 - Added `/api/v1` health, market-data, analysis, features, models, and backtests endpoints.
 - Added typed Pydantic schemas, JSON-safe numeric serialization, and stable error envelopes.
 - Added request-id middleware, access logging, OpenAPI contract tests, and backend documentation.
+- Added SQLAlchemy engine/session foundation and environment-driven `DATABASE_URL` configuration.
+- Added ORM models for experiments, metrics, walk-forward runs/folds, OOS predictions, and backtests.
+- Added Alembic initial migration and repository abstractions with transaction-safe tests.
+- Added database-backed experiment, walk-forward, and backtest read APIs with pagination.
+- Added database documentation and optional PostgreSQL Docker Compose service.
 
-No brokerage connectivity, live orders, database persistence, authentication, or frontend functionality exists yet.
+No brokerage connectivity, live orders, authentication, or frontend functionality exists yet.
 
 ## Next Milestone
 
-postgresql persistence and experiment storage
+nextjs quantitative research dashboard
