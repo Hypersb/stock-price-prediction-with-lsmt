@@ -55,10 +55,10 @@ def test_walk_forward_run_persists_fold_metadata() -> None:
         )
         session.commit()
         loaded = session.get(WalkForwardRun, run.id)
+        assert loaded is not None
+        assert loaded.window_type == "expanding"
+        assert len(loaded.folds) == 1
+        assert loaded.folds[0].fold_number == 1
+        assert loaded.folds[0].fold_metrics == {"rmse": 0.05, "mae": None}
 
-    assert loaded is not None
-    assert loaded.window_type == "expanding"
-    assert len(loaded.folds) == 1
-    assert loaded.folds[0].fold_number == 1
-    assert loaded.folds[0].fold_metrics == {"rmse": 0.05, "mae": None}
     database.engine.dispose()
