@@ -12,6 +12,8 @@ Quantitative feature engineering: complete
 
 Supervised dataset construction: complete
 
+Baseline machine-learning models and evaluation: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -42,9 +44,13 @@ Completed in this prompt:
 - Added chronological train, validation, and test splitting with temporal validation.
 - Added train-only StandardScaler preprocessing.
 - Added the supervised dataset orchestration pipeline and unexecuted `03_supervised_dataset.ipynb` notebook.
+- Added naive, linear, logistic, random-forest, and gradient-boosting baseline models.
+- Added regression and binary-classification predictive evaluation metrics.
+- Added validation-only model comparison infrastructure that preserves the test holdout.
+- Added the unexecuted `04_baseline_models.ipynb` research notebook.
 
 No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-baseline machine learning models and evaluation metrics
+lstm sequence construction and neural network architecture
