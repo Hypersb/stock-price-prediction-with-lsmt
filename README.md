@@ -2,7 +2,7 @@
 
 ## Status
 
-Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, a FastAPI research backend, and PostgreSQL-oriented experiment persistence are implemented. The Next.js frontend remains planned.
+Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, a FastAPI research backend, PostgreSQL-oriented experiment persistence, and a Next.js quantitative research dashboard are implemented.
 
 ## Project
 
@@ -18,7 +18,7 @@ This project is intended to become a full-stack quantitative finance and machine
 
 ## Planned Architecture
 
-Market data flows through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, API, and presentation layers. The backend is FastAPI with SQLAlchemy/Alembic persistence targeting PostgreSQL. The planned frontend is Next.js.
+Market data flows through ingestion, validation and preprocessing, feature engineering, model training and evaluation, backtesting, API, persistence, and the Next.js research dashboard.
 
 ## Planned Technology Stack
 
@@ -26,7 +26,7 @@ Market data flows through ingestion, validation and preprocessing, feature engin
 - pandas and NumPy for data manipulation and numerical work.
 - scikit-learn and PyTorch for baseline and LSTM modeling.
 - FastAPI for the research API boundary; SQLAlchemy, Alembic, and PostgreSQL for persistence.
-- Next.js and TypeScript for the planned frontend.
+- Next.js and TypeScript for the research dashboard.
 - Jupyter for exploration and research notebooks.
 
 ## Directory Structure
@@ -34,9 +34,9 @@ Market data flows through ingestion, validation and preprocessing, feature engin
 ```text
 backend/       FastAPI research API and persistence layer
 alembic/       Database migrations
+frontend/      Next.js quantitative research dashboard
 data/          Raw and processed data locations
 docs/          Project documentation
-frontend/      Planned frontend application
 ml/            Reusable quantitative and machine-learning code
 notebooks/     Exploratory notebooks
 tests/         Automated tests
@@ -53,6 +53,19 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
+
+## Frontend Dashboard
+
+```powershell
+cd frontend
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+- App: `http://localhost:3000`
+- Frontend notes: [docs/frontend.md](docs/frontend.md)
+- Requires FastAPI at `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`)
 
 ## Backend API
 

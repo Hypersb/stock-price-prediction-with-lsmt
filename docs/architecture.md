@@ -56,7 +56,7 @@ Implemented responsibility: expose market data, research summaries, features, mo
 
 ### Frontend Layer
 
-Planned responsibility: provide a Next.js and TypeScript interface for market data, model comparisons, signals, and evaluation results. No frontend components exist.
+Implemented responsibility: provide a Next.js and TypeScript research dashboard for market data, features, experiments, walk-forward analytics, and backtests via the FastAPI boundary. Authentication and trading screens are not implemented.
 
 ## Design Boundaries
 

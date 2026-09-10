@@ -26,6 +26,8 @@ FastAPI quantitative research backend: complete
 
 PostgreSQL research persistence layer: complete
 
+Next.js quantitative research dashboard: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -89,9 +91,14 @@ Completed in this prompt:
 - Added Alembic initial migration and repository abstractions with transaction-safe tests.
 - Added database-backed experiment, walk-forward, and backtest read APIs with pagination.
 - Added database documentation and optional PostgreSQL Docker Compose service.
+- Added Next.js App Router TypeScript dashboard with research navigation shell.
+- Added typed FastAPI client matching backend contracts.
+- Added market, feature, model/experiment, walk-forward, and backtest views with empty/error states.
+- Added Recharts time-series visualizations and frontend lint/type/test/build validation.
+- Added frontend documentation.
 
-No brokerage connectivity, live orders, authentication, or frontend functionality exists yet.
+No brokerage connectivity, live orders, or authentication functionality exists yet.
 
 ## Next Milestone
 
-nextjs quantitative research dashboard
+full stack integration and production hardening
