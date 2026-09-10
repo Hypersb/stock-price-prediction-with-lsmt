@@ -17,5 +17,5 @@ def test_random_seed_repeats_python_numpy_and_torch_values() -> None:
 
 
 def test_random_seed_requires_integer() -> None:
-    with pytest.raises(ValueError, match="integer"):
+    with pytest.raises(TypeError, match="integer"):
         set_random_seed("42")
