@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 
 from ml.neural.dataset import FinancialSequenceDataset
 from ml.neural.loaders import create_sequence_loader
@@ -16,7 +15,7 @@ def test_lstm_regression_evaluation_uses_existing_metrics() -> None:
     )
 
     assert result.dataset_split == "validation"
-    assert set(("mae", "rmse", "directional_accuracy")).issubset(result.metrics)
+    assert {"mae", "rmse", "directional_accuracy"}.issubset(result.metrics)
 
 
 def test_lstm_classification_evaluation_converts_logits_to_probabilities() -> None:
