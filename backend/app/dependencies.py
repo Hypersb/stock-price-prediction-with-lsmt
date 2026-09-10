@@ -7,6 +7,7 @@ from collections.abc import Callable
 from fastapi import Request
 
 from backend.app.services.analysis import AnalysisService
+from backend.app.services.backtests import BacktestService
 from backend.app.services.features import FeatureService
 from backend.app.services.market_data import MarketDataService, default_market_data_service
 from backend.app.services.models import ModelService
@@ -50,3 +51,13 @@ def get_model_service(request: Request) -> ModelService:
     if override is not None:
         return override()
     return ModelService()
+
+
+def get_backtest_service(request: Request) -> BacktestService:
+    """Resolve backtest service with optional test overrides."""
+    override: Callable[[], BacktestService] | None = getattr(
+        request.app.state, "backtest_service_factory", None
+    )
+    if override is not None:
+        return override()
+    return BacktestService()
