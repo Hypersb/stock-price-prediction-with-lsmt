@@ -10,7 +10,7 @@ from ml.data.schema import REQUIRED_COLUMNS
 
 
 class YahooFinanceProvider(MarketDataProvider):
-    """Retrieve historical OHLCV data from Yahoo Finance."""
+    """This helps Retrieve historical OHLCV data from Yahoo Finance."""
 
     def get_historical_data(
         self,
