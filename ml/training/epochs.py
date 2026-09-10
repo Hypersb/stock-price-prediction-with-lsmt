@@ -34,3 +34,31 @@ def train_epoch(
     if total_samples == 0:
         raise ValueError("training loader must contain at least one sample")
     return total_loss / total_samples
+
+
+def validate_epoch(
+    model: nn.Module,
+    loader: DataLoader,
+    criterion: nn.Module,
+    device: torch.device,
+) -> tuple[float, torch.Tensor, torch.Tensor]:
+    """Evaluate one loader without gradients or parameter updates."""
+    model.eval()
+    total_loss = 0.0
+    total_samples = 0
+    predictions: list[torch.Tensor] = []
+    targets_seen: list[torch.Tensor] = []
+    with torch.no_grad():
+        for features, targets in loader:
+            features = features.to(device)
+            targets = targets.to(device)
+            batch_predictions = model(features)
+            loss = criterion(batch_predictions, targets)
+            batch_size = len(features)
+            total_loss += loss.item() * batch_size
+            total_samples += batch_size
+            predictions.append(batch_predictions.detach().cpu())
+            targets_seen.append(targets.detach().cpu())
+    if total_samples == 0:
+        raise ValueError("validation loader must contain at least one sample")
+    return total_loss / total_samples, torch.cat(predictions), torch.cat(targets_seen)
