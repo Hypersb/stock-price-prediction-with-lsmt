@@ -40,7 +40,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-models/
+/models/
 artifacts/
 checkpoints/
 *.pt
