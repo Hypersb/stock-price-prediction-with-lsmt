@@ -1,7 +1,7 @@
 import pandas as pd
 
 from ml.validation.config import WalkForwardConfig
-from ml.validation.folds import generate_expanding_folds
+from ml.validation.folds import generate_expanding_folds, generate_rolling_folds
 
 
 def test_expanding_folds_grow_training_window() -> None:
@@ -10,9 +10,25 @@ def test_expanding_folds_grow_training_window() -> None:
 
     folds = generate_expanding_folds(13, config, dates)
 
-    assert len(folds) == 2
+    assert len(folds) == 3
     assert folds[0].train_indices.tolist() == [0, 1, 2, 3, 4]
     assert folds[0].validation_indices.tolist() == [5, 6]
     assert folds[0].test_indices.tolist() == [7, 8]
     assert folds[1].train_indices.tolist() == list(range(7))
     assert folds[1].test_dates[0] == dates[9]
+
+
+def test_rolling_folds_advance_fixed_training_window() -> None:
+    config = WalkForwardConfig(
+        window_type="rolling",
+        initial_train_size=5,
+        validation_size=2,
+        test_size=2,
+        step_size=2,
+        maximum_train_size=5,
+    )
+
+    folds = generate_rolling_folds(13, config)
+
+    assert folds[0].train_indices.tolist() == [0, 1, 2, 3, 4]
+    assert folds[1].train_indices.tolist() == [2, 3, 4, 5, 6]

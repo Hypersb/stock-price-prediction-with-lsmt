@@ -56,6 +56,42 @@ def generate_expanding_folds(
     return folds
 
 
+def generate_rolling_folds(
+    observation_count: int,
+    config: WalkForwardConfig,
+    dates: pd.Series | pd.Index | None = None,
+) -> list[WalkForwardFold]:
+    """Generate fixed-length rolling training windows."""
+    if config.window_type != "rolling":
+        raise ValueError("rolling fold generation requires rolling configuration")
+    date_index = _dates(dates, observation_count)
+    folds: list[WalkForwardFold] = []
+    train_start = 0
+    fold_number = 1
+    while True:
+        train_end = train_start + config.maximum_train_size
+        validation_start = train_end + config.gap
+        validation_end = validation_start + config.validation_size
+        test_start = validation_end + config.gap
+        test_end = test_start + config.test_size
+        if test_end > observation_count:
+            break
+        folds.append(
+            _make_fold(
+                fold_number,
+                np.arange(train_start, train_end),
+                np.arange(validation_start, validation_end),
+                np.arange(test_start, test_end),
+                date_index,
+            )
+        )
+        fold_number += 1
+        train_start += config.step_size
+    if not folds:
+        raise ValueError("observation_count cannot produce a complete fold")
+    return folds
+
+
 def _dates(dates: pd.Series | pd.Index | None, count: int) -> pd.DatetimeIndex | None:
     if dates is None:
         return None
