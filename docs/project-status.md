@@ -18,6 +18,8 @@ LSTM sequence and architecture foundation: complete
 
 LSTM training and experiment system: complete
 
+Walk-forward validation and time-series evaluation: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -62,9 +64,14 @@ Completed in this prompt:
 - Added structured checkpoint and training-history utilities.
 - Added LSTM training and evaluation orchestration for regression and classification.
 - Added the unexecuted `06_lstm_training.ipynb` experiment notebook.
+- Added expanding and rolling walk-forward fold generation.
+- Added forecast-horizon purging, configurable temporal gaps, and per-fold preprocessing.
+- Added baseline and LSTM walk-forward evaluation with per-fold predictions and metrics.
+- Added aggregate stability statistics and out-of-sample prediction collection.
+- Added the unexecuted `07_walk_forward_validation.ipynb` research notebook.
 
-No walk-forward validation, backtesting, API, database, or frontend functionality exists yet.
+No trading backtest, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-walk forward validation and time series model evaluation
+realistic trading backtesting and risk analytics
