@@ -1,0 +1,19 @@
+"""Shared FastAPI dependencies for the research API."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+
+from fastapi import Request
+
+from backend.app.services.market_data import MarketDataService, default_market_data_service
+
+
+def get_market_data_service(request: Request) -> MarketDataService:
+    """Resolve a market-data service, allowing test overrides via app.state."""
+    override: Callable[[], MarketDataService] | None = getattr(
+        request.app.state, "market_data_service_factory", None
+    )
+    if override is not None:
+        return override()
+    return default_market_data_service()
