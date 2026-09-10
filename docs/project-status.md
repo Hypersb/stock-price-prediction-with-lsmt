@@ -16,6 +16,8 @@ Baseline machine-learning models and evaluation: complete
 
 LSTM sequence and architecture foundation: complete
 
+LSTM training and experiment system: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -55,9 +57,14 @@ Completed in this prompt:
 - Added configurable LSTM regression and direction-classification architectures.
 - Added neural configuration and CPU-safe device resolution.
 - Added the unexecuted `05_lstm_architecture.ipynb` forward-pass notebook.
+- Added training configuration, task-aware losses, Adam optimization, and gradient clipping.
+- Added train/validation epochs, validation-only early stopping, and best-state restoration.
+- Added structured checkpoint and training-history utilities.
+- Added LSTM training and evaluation orchestration for regression and classification.
+- Added the unexecuted `06_lstm_training.ipynb` experiment notebook.
 
-No LSTM training loop, checkpointing, backtesting, API, database, or frontend functionality exists yet.
+No walk-forward validation, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-lstm training, checkpointing, early stopping, and experiment tracking
+walk forward validation and time series model evaluation
