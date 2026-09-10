@@ -8,6 +8,8 @@ Historical market-data ingestion and validation: complete
 
 Quantitative analysis and exploratory data analysis: complete
 
+Quantitative feature engineering: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -28,9 +30,13 @@ Completed in this prompt:
 - Added date-aligned return correlation analysis for multiple assets.
 - Added reusable matplotlib market-analysis visualizations.
 - Added the unexecuted `01_market_data_eda.ipynb` research notebook.
+- Added leakage-aware lag, momentum, moving-average, EMA, volatility, volume, RSI, MACD, and ATR features.
+- Added configurable feature orchestration and feature-quality validation.
+- Added prefix-invariance tests proving future rows do not change historical feature values.
+- Added the unexecuted `02_feature_engineering.ipynb` research notebook.
 
 No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-quantitative feature engineering
+supervised learning target construction and chronological dataset splitting
