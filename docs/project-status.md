@@ -14,6 +14,8 @@ Supervised dataset construction: complete
 
 Baseline machine-learning models and evaluation: complete
 
+LSTM sequence and architecture foundation: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -48,9 +50,14 @@ Completed in this prompt:
 - Added regression and binary-classification predictive evaluation metrics.
 - Added validation-only model comparison infrastructure that preserves the test holdout.
 - Added the unexecuted `04_baseline_models.ipynb` research notebook.
+- Added PyTorch reproducibility, sequence, dataset, and DataLoader utilities.
+- Added temporal sequence/date alignment and leakage validation.
+- Added configurable LSTM regression and direction-classification architectures.
+- Added neural configuration and CPU-safe device resolution.
+- Added the unexecuted `05_lstm_architecture.ipynb` forward-pass notebook.
 
-No modeling, LSTM forecasting, backtesting, API, database, or frontend functionality exists yet.
+No LSTM training loop, checkpointing, backtesting, API, database, or frontend functionality exists yet.
 
 ## Next Milestone
 
-lstm sequence construction and neural network architecture
+lstm training, checkpointing, early stopping, and experiment tracking
