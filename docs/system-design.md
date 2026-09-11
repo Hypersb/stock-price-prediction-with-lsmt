@@ -186,8 +186,8 @@ labels.
 
 - Overlapping prediction dates across folds **reject** a combined continuous
   backtest.
-- Discontinuous calendars omit combined continuous annualization (no inventing
-  continuity across gaps).
+- Discontinuous trading-day calendars omit combined continuous annualization
+  (weekend/holiday gaps allowed; missing business days are not).
 - Per-fold backtests remain valid regardless of stitching.
 
 API surface:
