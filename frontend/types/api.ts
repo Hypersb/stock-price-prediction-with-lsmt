@@ -7,6 +7,17 @@ export type HealthResponse = {
   environment: string;
 };
 
+export type DependencyCheck = {
+  status: "ok" | "unavailable" | "unconfigured";
+  detail: string;
+};
+
+export type ReadinessResponse = {
+  status: "ready" | "not_ready";
+  service: string;
+  checks: Record<string, DependencyCheck>;
+};
+
 export type OhlcvObservation = {
   date: string;
   open: number;

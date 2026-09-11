@@ -31,6 +31,12 @@ FRONTEND_API_CONTRACTS: tuple[FrontendEndpointContract, ...] = (
     ),
     FrontendEndpointContract(
         method="get",
+        path="/api/v1/ready",
+        response_schema="ReadinessResponse",
+        required_properties=("status", "service", "checks"),
+    ),
+    FrontendEndpointContract(
+        method="get",
         path="/api/v1/market-data/{symbol}",
         response_schema="MarketDataResponse",
         required_properties=(

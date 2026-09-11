@@ -3,10 +3,15 @@ import type {
   AnalysisSummaryResponse,
   HealthResponse,
   MarketDataResponse,
+  ReadinessResponse,
 } from "@/types/api";
 
 export function getHealth() {
   return apiFetch<HealthResponse>("/health");
+}
+
+export function getReady() {
+  return apiFetch<ReadinessResponse>("/ready");
 }
 
 export function getMarketData(symbol: string, startDate: string, endDate: string) {

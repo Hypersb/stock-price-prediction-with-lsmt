@@ -4,6 +4,7 @@
  */
 export const FRONTEND_API_ROUTES = [
   { method: "GET", path: "/api/v1/health" },
+  { method: "GET", path: "/api/v1/ready" },
   { method: "GET", path: "/api/v1/market-data/{symbol}" },
   { method: "GET", path: "/api/v1/analysis/{symbol}/summary" },
   { method: "GET", path: "/api/v1/features/{symbol}" },
