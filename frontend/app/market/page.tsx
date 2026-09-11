@@ -6,13 +6,16 @@ import { ResearchControls } from "@/components/research/ResearchControls";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { LoadingPanel, StatePanel } from "@/components/ui/StatePanel";
 import { getAnalysisSummary, getMarketData } from "@/lib/api";
-import { appConfig } from "@/lib/env";
 import {
   defaultDateRange,
   formatDate,
   formatPercent,
   formatPrice,
 } from "@/lib/format";
+import {
+  resolveResearchSymbol,
+  resolveSearchDate,
+} from "@/lib/searchParams";
 import { ApiError } from "@/types/api";
 import type { AnalysisSummaryResponse, MarketDataResponse } from "@/types/api";
 
@@ -127,9 +130,9 @@ function MarketSuccess({
 async function MarketContent({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const defaults = defaultDateRange();
-  const symbol = String(params.symbol ?? appConfig.defaultSymbol).toUpperCase();
-  const start = String(params.start ?? defaults.startDate);
-  const end = String(params.end ?? defaults.endDate);
+  const symbol = resolveResearchSymbol(params.symbol);
+  const start = resolveSearchDate(params.start, defaults.startDate);
+  const end = resolveSearchDate(params.end, defaults.endDate);
 
   let market: MarketDataResponse | null = null;
   let analysis: AnalysisSummaryResponse | null = null;

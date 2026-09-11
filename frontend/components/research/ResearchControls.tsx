@@ -16,22 +16,24 @@ export function ResearchControls({
   const defaults = useMemo(() => defaultDateRange(), []);
   const [pending, startTransition] = useTransition();
 
-  const [symbol, setSymbol] = useState(
-    searchParams.get("symbol") ?? appConfig.defaultSymbol,
-  );
+  const [symbol, setSymbol] = useState(() => {
+    const raw = searchParams.get("symbol");
+    return raw && raw.trim() ? raw.trim().toUpperCase() : appConfig.defaultSymbol;
+  });
   const [startDate, setStartDate] = useState(
-    searchParams.get("start") ?? defaults.startDate,
+    () => searchParams.get("start")?.trim() || defaults.startDate,
   );
   const [endDate, setEndDate] = useState(
-    searchParams.get("end") ?? defaults.endDate,
+    () => searchParams.get("end")?.trim() || defaults.endDate,
   );
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const params = new URLSearchParams();
-    params.set("symbol", symbol.trim().toUpperCase());
-    params.set("start", startDate);
-    params.set("end", endDate);
+    const nextSymbol = symbol.trim().toUpperCase() || appConfig.defaultSymbol;
+    params.set("symbol", nextSymbol);
+    params.set("start", startDate || defaults.startDate);
+    params.set("end", endDate || defaults.endDate);
     startTransition(() => {
       router.push(`${basePath}?${params.toString()}`);
     });

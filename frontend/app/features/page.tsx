@@ -6,8 +6,11 @@ import { ResearchControls } from "@/components/research/ResearchControls";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { LoadingPanel, StatePanel } from "@/components/ui/StatePanel";
 import { getFeatures } from "@/lib/api";
-import { appConfig } from "@/lib/env";
 import { defaultDateRange, formatDate } from "@/lib/format";
+import {
+  resolveResearchSymbol,
+  resolveSearchDate,
+} from "@/lib/searchParams";
 import { ApiError } from "@/types/api";
 import type { FeatureResponse } from "@/types/api";
 
@@ -18,9 +21,9 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 async function FeaturesContent({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const defaults = defaultDateRange();
-  const symbol = String(params.symbol ?? appConfig.defaultSymbol).toUpperCase();
-  const start = String(params.start ?? defaults.startDate);
-  const end = String(params.end ?? defaults.endDate);
+  const symbol = resolveResearchSymbol(params.symbol);
+  const start = resolveSearchDate(params.start, defaults.startDate);
+  const end = resolveSearchDate(params.end, defaults.endDate);
 
   let data: FeatureResponse | null = null;
   let loadError: string | null = null;
