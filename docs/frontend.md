@@ -1,6 +1,7 @@
 # Frontend Dashboard
 
-Phase 13 provides a Next.js + TypeScript quantitative research dashboard for the FastAPI backend.
+Next.js + TypeScript quantitative research dashboard over the FastAPI backend.
+The research pipeline is offline; pages primarily **read persisted artifacts**.
 
 ## Architecture
 
@@ -30,49 +31,48 @@ Open `http://localhost:3000`.
 | Variable | Purpose |
 |----------|---------|
 | `NEXT_PUBLIC_API_BASE_URL` | FastAPI origin, e.g. `http://localhost:8000` |
+| `API_INTERNAL_BASE_URL` | Optional Docker SSR override (server-only) |
 
 Only `NEXT_PUBLIC_*` values are available in the browser. Never put database passwords or private keys in frontend environment variables.
 
-## Development Server
-
-```powershell
-npm run dev
-```
-
 ## FastAPI Connection
 
-Start the backend from the repository root:
+The dashboard calls (among others):
 
-```powershell
-uvicorn backend.app.main:app --reload
-```
-
-The dashboard calls:
-
-- `GET /api/v1/health`
-- `GET /api/v1/market-data/{symbol}`
+- `GET /api/v1/health` · `GET /api/v1/ready`
+- `GET /api/v1/market-data/{symbol}` (limit/offset + pagination metadata)
 - `GET /api/v1/analysis/{symbol}/summary`
-- `GET /api/v1/features/{symbol}`
+- `GET /api/v1/features/{symbol}` (limit/offset)
 - `GET /api/v1/models`
-- `GET /api/v1/experiments`
-- `GET /api/v1/experiments/{id}`
-- `GET /api/v1/experiments/{id}/metrics`
+- `GET /api/v1/models/{model}/predictions/{symbol}` (persisted OOS only; never trains)
+- `GET /api/v1/experiments` · `/{id}` · `/{id}/metrics` · `/{id}/related`
 - `GET /api/v1/walk-forward/{run_id}`
-- `GET /api/v1/backtests`
-- `GET /api/v1/backtests/{id}`
+- `GET /api/v1/backtests` · `/{id}`
 
 ## Page Structure
 
 | Route | Purpose |
 |-------|---------|
 | `/` | Overview and backend health |
-| `/market` | Market summary and charts |
+| `/market` | Market OHLCV summary/charts; shows pagination metadata (`limit` / `offset`) |
 | `/features` | Feature explorer |
 | `/models` | Supported model catalog |
 | `/experiments` | Experiment history |
-| `/experiments/[id]` | Experiment detail and metrics |
-| `/walk-forward` | Walk-forward fold analytics |
-| `/backtests` | Backtest and risk dashboard |
+| `/experiments/[id]` | Experiment detail, metrics, and **related** walk-forward / backtest links |
+| `/walk-forward` | Walk-forward fold analytics for a persisted run id |
+| `/backtests` | Backtest and risk dashboard for persisted (or selectable) runs |
+
+## Distinguishing Data Views
+
+| View | What it is | What it is not |
+|------|------------|----------------|
+| Market | Historical OHLCV inspection | Model forecasts |
+| Predictions | Persisted OOS model outputs from PostgreSQL | On-demand training |
+| Walk-forward / OOS | Fold structure and true OOS collections | Continuous live streaming |
+| Backtests | Historical strategy simulation on OOS inputs / stored runs | Live trading or brokerage |
+
+Experiment detail loads `GET /experiments/{id}/related` and links to
+`/walk-forward?run_id=…` and `/backtests?id=…` when artifacts exist.
 
 ## Charting Library
 

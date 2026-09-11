@@ -2,70 +2,59 @@
 
 ## Purpose
 
-This project is a full-stack **quantitative ML research platform**. It is **not** a claim that an LSTM can magically predict the stock market.
-
-It acquires historical market data, engineers leakage-aware features, builds supervised targets, compares simple and complex models, performs chronological and walk-forward evaluation, collects true out-of-sample predictions, evaluates economic usefulness with realistic backtests, persists experiments, exposes them through FastAPI, and visualizes them in Next.js.
+This project is a full-stack **quantitative ML research platform**. It is **not**
+a claim that an LSTM can magically predict the stock market, and it makes **no**
+promise of profitable trading.
 
 A scientifically valid conclusion includes:
 
 > The evidence does not demonstrate that the LSTM consistently outperforms simpler models.
 
+## Recruiter-Useful Summary
+
+Honest capabilities of the shipped platform (not trading performance claims):
+
+- Leakage-safe chronological time-series ML (features, targets, splits, purging)
+- Baseline models compared against a PyTorch LSTM under the same rules
+- Walk-forward validation with true out-of-sample prediction collection
+- Transaction-cost-aware historical strategy backtesting and risk analytics
+- FastAPI + PostgreSQL persistence, Next.js dashboard, Docker Compose, and CI
+
+The final engineering pass focused on **research integrity** (direction-label
+semantics, LSTM context-aware sequences, fold-aware OOS stitching, horizon=1
+strategy backtests, prediction GET-from-DB, documentation aligned to the real
+system)—not on inventing empirical wins.
+
+Architecture detail: [docs/system-design.md](docs/system-design.md) ·
+[docs/architecture.md](docs/architecture.md)
+
 ## Status
 
-**All 15 core phases are complete**, including final multi-asset robustness, regime analysis, explainability, ablation, complexity comparison, statistical comparison, backtest sensitivity, the final research pipeline, and research reporting.
+**All 15 core phases are complete**, including final multi-asset robustness,
+regime analysis, explainability, ablation, complexity comparison, statistical
+comparison, backtest sensitivity, the final research pipeline, and research
+reporting. Empirical report sections remain placeholders until a legitimate
+experiment is executed and rendered.
 
 ## Architecture
 
 ```mermaid
-flowchart TD
-    A[Market Data] --> B[Validation]
-    B --> C[Feature Engineering]
-    C --> D[Targets]
-    D --> E[Temporal ML Pipeline]
-    E --> F[Baseline ML]
-    E --> G[PyTorch LSTM]
-    F --> H[Walk-Forward OOS Predictions]
-    G --> H
-    H --> I[Model Evaluation]
-    I --> J[Backtesting]
-    J --> K[Risk Analytics]
-    K --> L[PostgreSQL]
-    L --> M[FastAPI]
-    M --> N[Next.js Dashboard]
-    I --> O[Final Research Layer]
-    O --> P[Regimes / Ablation / Stats / Sensitivity / Report]
+flowchart LR
+    User[User] --> FE[Next.js]
+    FE --> API[FastAPI]
+    API --> Svc[Services]
+    Svc --> Repo[Repositories]
+    Repo --> DB[(PostgreSQL)]
+    Svc --> Eng[Quant / ML Engine]
+    Eng --> Repo
 ```
 
-Conceptual flow:
+Conceptual research flow:
 
 ```text
-Market Data
-    ↓
-Validation
-    ↓
-Feature Engineering
-    ↓
-Targets
-    ↓
-Temporal ML Pipeline
-    ↓
-┌───────────────┬────────────────┐
-│ Baseline ML   │ PyTorch LSTM   │
-└───────┬───────┴───────┬────────┘
-        ↓               ↓
-      Walk-Forward OOS Predictions
-                 ↓
-          Model Evaluation
-                 ↓
-             Backtesting
-                 ↓
-           Risk Analytics
-                 ↓
-            PostgreSQL
-                 ↓
-              FastAPI
-                 ↓
-          Next.js Dashboard
+Market Data → Validation → Features → Targets → Temporal ML
+  → Baseline + LSTM → Walk-Forward OOS → Evaluation
+  → Backtesting / Risk → PostgreSQL → FastAPI → Next.js
 ```
 
 ## Research Methodology
@@ -173,6 +162,7 @@ Naive, linear/logistic, random forest, gradient boosting (`ml/models/`).
 
 PyTorch sequence datasets, LSTM regression/classification, training with
 validation-only early stopping and checkpointing (`ml/neural/`, `ml/training/`).
+Sequences may use prior within-fold features as lookback context only.
 
 ## Walk-Forward Validation
 
@@ -181,13 +171,15 @@ collection, stability aggregates (`ml/validation/`).
 
 ## Backtesting
 
-Signals, forward execution alignment, transaction costs/slippage, equity curves,
-Sharpe/Sortino/drawdown/turnover, benchmark comparison (`ml/backtesting/`).
+Signals, forward execution alignment (`forecast_horizon=1`), transaction
+costs/slippage, equity curves, Sharpe/Sortino/drawdown/turnover, fold-aware OOS
+stitching, benchmark comparison (`ml/backtesting/`).
 
 ## FastAPI / PostgreSQL / Next.js
 
 Versioned research APIs, SQLAlchemy models, Alembic migrations, and a Next.js
 dashboard for market, features, experiments, walk-forward, and backtests.
+Prediction GET endpoints read persisted OOS rows and never train.
 
 ## Docker and CI
 
@@ -244,6 +236,7 @@ Labeled **future work only** (not implemented):
 
 ## Docs
 
+- [system design](docs/system-design.md)
 - [architecture](docs/architecture.md)
 - [development](docs/development.md)
 - [project status](docs/project-status.md)

@@ -19,8 +19,12 @@ A negative answer is scientifically valid.
 
 ## Target Definitions
 
-- Regression: future simple return at horizon `h`.
-- Classification: direction of the future return at horizon `h`.
+- Regression: future simple return at horizon `h` (`future_return_{h}`).
+- Classification: binary direction of the future return at horizon `h`
+  (`direction_{h}`).
+  - When a future return is defined: `1` if `future_return > 0`, else `0`
+    (flat / non-positive are non-up).
+  - Missing future returns remain NA and are **not** coerced to class 0.
 - Targets are constructed separately from features and validated for integrity.
 
 ## Features
@@ -55,6 +59,10 @@ future rows to rewrite historical feature values.
 - Random forest
 - Gradient boosting
 - PyTorch LSTM regression / classification
+
+LSTM lookback sequences for a fold partition may include earlier **within-fold**
+feature rows as context only. Targets and target dates come from the evaluation
+partition; context-partition targets are never used as labels.
 
 ## Chronological Splits and Walk-Forward Validation
 
@@ -97,9 +105,22 @@ confidence interval covering zero does **not** prove models are identical.
 
 - Signals from OOS predictions only
 - Forward execution alignment (no lookahead)
+- Strategy backtesting / execution alignment supports **`forecast_horizon=1`
+  only**
 - Configurable transaction costs and slippage in basis points
 - Gross/net returns, equity curve, Sharpe, Sortino, drawdown, turnover, exposure
 - Exact-date buy-and-hold benchmark on the matching OOS realization window
+
+### Fold-aware OOS stitching
+
+Walk-forward OOS series are not silently treated as one continuous daily
+portfolio when folds leave gaps or overlapping realization dates:
+
+- Overlapping prediction dates across folds **reject** a combined continuous
+  backtest.
+- Discontinuous calendars omit combined continuous annualization (no inventing
+  continuity across gaps).
+- Per-fold backtests remain valid regardless of stitching.
 
 ## Transaction Costs and Sensitivity
 

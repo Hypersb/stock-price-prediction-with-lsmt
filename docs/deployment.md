@@ -24,9 +24,10 @@ Copy `.env.example` to a local `.env` (never commit secrets).
 | `DATABASE_URL` | backend | Required when `APP_ENV=production` |
 | `FRONTEND_ORIGIN` / `CORS_ORIGINS` | backend | Trusted browser origins; empty by default in production |
 | `MAX_MARKET_DATA_DAYS` | backend | Caps historical range size |
+| `MAX_MARKET_ROWS` | backend | Caps OHLCV rows returned per market-data request |
 | `MAX_FEATURE_ROWS` | backend | Caps feature JSON payload rows |
 | `MAX_PAGE_SIZE` | backend | Caps list pagination |
-| `MAX_REQUEST_BODY_BYTES` | backend | Rejects oversized POST bodies |
+| `MAX_REQUEST_BODY_BYTES` | backend | Rejects oversized POST bodies (streaming enforcement) |
 | `MARKET_DATA_CACHE_TTL_SECONDS` | backend | In-process market-data cache TTL |
 | `MARKET_DATA_API_KEY` | backend | Optional provider credential; never expose publicly |
 | `NEXT_PUBLIC_API_BASE_URL` | frontend | Browser-visible API origin only |
@@ -44,6 +45,9 @@ uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Frontend Build
+
+The Compose/production frontend image is **multi-stage**: install deps →
+`npm run build` → `npm run start` on the runner stage (not `next dev`).
 
 ```powershell
 cd frontend
@@ -104,12 +108,16 @@ CI does not require local `.env`, Yahoo Finance, GPUs, or production secrets.
 
 ## Security Assumptions
 
+**Security boundary = local / private research**, not a public multi-user
+trading product.
+
+- No authentication (intentional for single-operator research).
 - CORS allowlists trusted origins.
 - Security headers: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`.
-- Request body size limits and market/feature/pagination caps.
+- Streaming request body size limits and market/feature/pagination caps (`MAX_MARKET_ROWS` included).
 - Ticker path validation.
 - Unexpected errors return generic envelopes (no stack traces to clients).
-- No authentication, brokerage, or live order execution in this phase.
+- No brokerage connectivity or live order execution.
 
 ## Artifact Handling
 
