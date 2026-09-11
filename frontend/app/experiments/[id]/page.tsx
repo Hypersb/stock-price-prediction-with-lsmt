@@ -164,7 +164,7 @@ export default async function ExperimentDetailPage({
                 </span>
                 <Link
                   className="font-mono text-xs text-accent underline"
-                  href={`/backtests?backtest_id=${encodeURIComponent(item.id)}`}
+                  href={`/backtests?id=${encodeURIComponent(item.id)}`}
                 >
                   {item.id.slice(0, 8)}…
                 </Link>
