@@ -13,15 +13,29 @@ This project is built incrementally in small, understandable, testable steps.
 
 Or run the full Compose stack:
 
-```powershell
+```bash
 docker compose up --build
 ```
 
 See [deployment.md](deployment.md) for environment variables, health checks, and CI.
 
+## Final Research Evaluation
+
+```bash
+# Prefer Python 3.12 for local research tooling
+source .venv/bin/activate
+PYTHONPATH=. python -c "from ml.research.report import render_final_research_report; print(render_final_research_report(None).markdown[:400])"
+```
+
+Use `ml.research.config.FinalResearchConfig` explicitly. Do not silently rely on
+scientifically material defaults. Tiny fixtures belong in tests only.
+
+Methodology: [research-methodology.md](research-methodology.md)  
+Report template: [final-research-report.md](final-research-report.md)
+
 ## Quality Checks
 
-```powershell
+```bash
 # Python
 ruff check backend tests ml
 pytest -q
@@ -32,6 +46,9 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+
+# Docker
+docker compose config
 ```
 
 ## Engineering Rules
@@ -44,12 +61,12 @@ npm run build
 - Do not normally commit generated datasets.
 - Never commit secrets, credentials, or tokens.
 - Add tests alongside important reusable functionality.
-- Use notebooks for exploration.
-- Move reusable production logic from notebooks into modules.
+- Use notebooks for exploration; keep core logic in Python modules.
 - Evaluate model performance out of sample.
 - Account for transaction costs in trading performance evaluation.
 - Make no claims of profitability without evidence.
 - Prefer empty research states over fabricated financial results.
+- Do not cherry-pick dates, assets, folds, costs, or thresholds after seeing holdout results.
 
 ## Git Convention
 

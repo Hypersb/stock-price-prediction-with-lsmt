@@ -30,85 +30,39 @@ Next.js quantitative research dashboard: complete
 
 Full stack integration and production hardening: complete
 
-Completed in this prompt:
+Advanced quantitative research and final project evaluation: complete
 
-- Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
-- Added exclusions for generated raw and processed data, model files, artifacts, and checkpoints while preserving empty data directories.
-- Created the empty `data/raw/` and `data/processed/` directories with `.gitkeep` markers.
-- Added minimal runtime and development Python dependency files.
-- Added a safe `.env.example` configuration template.
-- Added README, planned architecture, and development standards documentation.
-- Validated tracked files for credentials and generated machine-learning artifacts.
-- Confirmed the existing Windows virtual environment has a working Python executable.
-- Added a provider abstraction and Yahoo Finance implementation for historical OHLCV data.
-- Added request validation, OHLCV validation, normalization, and local CSV persistence.
-- Added an injectable ingestion service with offline unit tests.
-- Added a manual market-data fetch script for arbitrary ticker symbols.
-- Added simple, logarithmic, and compounded cumulative return calculations.
-- Added trailing rolling statistics, historical volatility, wealth, and drawdown analysis.
-- Added descriptive return statistics using pandas conventions.
-- Added date-aligned return correlation analysis for multiple assets.
-- Added reusable matplotlib market-analysis visualizations.
-- Added the unexecuted `01_market_data_eda.ipynb` research notebook.
-- Added leakage-aware lag, momentum, moving-average, EMA, volatility, volume, RSI, MACD, and ATR features.
-- Added configurable feature orchestration and feature-quality validation.
-- Added prefix-invariance tests proving future rows do not change historical feature values.
-- Added the unexecuted `02_feature_engineering.ipynb` research notebook.
-- Added future-return regression and direction classification targets.
-- Added target integrity validation and explicit feature-target separation.
-- Added transparent feature warm-up and unavailable-target-tail handling.
-- Added chronological train, validation, and test splitting with temporal validation.
-- Added train-only StandardScaler preprocessing.
-- Added the supervised dataset orchestration pipeline and unexecuted `03_supervised_dataset.ipynb` notebook.
-- Added naive, linear, logistic, random-forest, and gradient-boosting baseline models.
-- Added regression and binary-classification predictive evaluation metrics.
-- Added validation-only model comparison infrastructure that preserves the test holdout.
-- Added the unexecuted `04_baseline_models.ipynb` research notebook.
-- Added PyTorch reproducibility, sequence, dataset, and DataLoader utilities.
-- Added temporal sequence/date alignment and leakage validation.
-- Added configurable LSTM regression and direction-classification architectures.
-- Added neural configuration and CPU-safe device resolution.
-- Added the unexecuted `05_lstm_architecture.ipynb` forward-pass notebook.
-- Added training configuration, task-aware losses, Adam optimization, and gradient clipping.
-- Added train/validation epochs, validation-only early stopping, and best-state restoration.
-- Added structured checkpoint and training-history utilities.
-- Added LSTM training and evaluation orchestration for regression and classification.
-- Added the unexecuted `06_lstm_training.ipynb` experiment notebook.
-- Added expanding and rolling walk-forward fold generation.
-- Added forecast-horizon purging, configurable temporal gaps, and per-fold preprocessing.
-- Added baseline and LSTM walk-forward evaluation with per-fold predictions and metrics.
-- Added aggregate stability statistics and out-of-sample prediction collection.
-- Added the unexecuted `07_walk_forward_validation.ipynb` research notebook.
-- Added out-of-sample prediction signals, forward execution alignment, and no-lookahead tests.
-- Added turnover, transaction-cost, slippage, gross/net return, and compounded equity calculations.
-- Added Sharpe, Sortino, annualized return/volatility, drawdown, hit-rate, exposure, and trade analytics.
-- Added exact-date buy-and-hold benchmark comparison and structured backtest results.
-- Added the unexecuted `08_backtesting.ipynb` research notebook.
-- Added FastAPI application factory, environment configuration, and CORS controls.
-- Added `/api/v1` health, market-data, analysis, features, models, and backtests endpoints.
-- Added typed Pydantic schemas, JSON-safe numeric serialization, and stable error envelopes.
-- Added request-id middleware, access logging, OpenAPI contract tests, and backend documentation.
-- Added SQLAlchemy engine/session foundation and environment-driven `DATABASE_URL` configuration.
-- Added ORM models for experiments, metrics, walk-forward runs/folds, OOS predictions, and backtests.
-- Added Alembic initial migration and repository abstractions with transaction-safe tests.
-- Added database-backed experiment, walk-forward, and backtest read APIs with pagination.
-- Added database documentation and optional PostgreSQL Docker Compose service.
-- Added Next.js App Router TypeScript dashboard with research navigation shell.
-- Added typed FastAPI client matching backend contracts.
-- Added market, feature, model/experiment, walk-forward, and backtest views with empty/error states.
-- Added Recharts time-series visualizations and frontend lint/type/test/build validation.
-- Added frontend documentation.
-- Added unified full-stack configuration validation and environment documentation.
-- Added OpenAPI/frontend contract drift checks and readiness endpoint.
-- Added research persistence orchestration with atomic session commits.
-- Added Docker Compose services for Postgres, FastAPI, and Next.js.
-- Added security headers, request size limits, ticker validation, and pagination caps.
-- Added bounded in-process market-data caching and no-train prediction guarantees.
-- Added full-stack integration tests and GitHub Actions CI.
-- Added deployment and development runbooks.
+## Core Phases
 
-No brokerage connectivity, live orders, or authentication functionality exists yet.
+All **15 core phases** are complete.
+
+## Completed in Phase 15
+
+- Multi-asset robustness evaluation with configurable universes and per-asset results
+- Causal rule-based market regime labeling and regime-conditional metrics
+- Model explainability (tree native, linear coefficients, permutation, LSTM sensitivity)
+- Feature-group ablation studies on aligned chronological splits
+- Model complexity versus performance comparison
+- Block-bootstrap statistical comparison of paired OOS predictions
+- Backtest cost/threshold sensitivity analysis
+- Final research evaluation pipeline with configuration fingerprints
+- Research methodology documentation and final report template/renderer
+- Final project documentation and architecture updates
+
+## Future Extensions
+
+Labeled future work only — **not implemented**:
+
+- Licensed real-time market feeds
+- News/NLP sentiment
+- Transformer sequence models
+- Portfolio optimization
+- Multi-asset allocation
+- Paper trading
+- Model monitoring
+
+No brokerage connectivity, live orders, or authentication functionality exists.
 
 ## Next Milestone
 
-advanced quantitative research and final project evaluation
+Awaiting operator approval. Do not begin optional Phase 16 extensions until approved.
