@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/TimeSeriesChart";
 import { describeFeature } from "@/lib/featureNotes";
-import { formatNumber } from "@/lib/format";
 import type { FeatureResponse } from "@/types/api";
 
 export function FeatureExplorerClient({ data }: { data: FeatureResponse }) {
@@ -70,7 +69,7 @@ export function FeatureExplorerClient({ data }: { data: FeatureResponse }) {
           <TimeSeriesChart
             data={series}
             valueLabel={selected}
-            valueFormatter={(value) => formatNumber(value, 4)}
+            valueFormat="number4"
           />
         </div>
       </section>

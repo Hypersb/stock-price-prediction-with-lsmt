@@ -101,7 +101,7 @@ function MarketSuccess({
           <TimeSeriesChart
             data={closes}
             valueLabel="Close"
-            valueFormatter={(value) => formatPrice(value)}
+            valueFormat="price"
           />
         </div>
       </section>
@@ -115,7 +115,7 @@ function MarketSuccess({
           <TimeSeriesChart
             data={cumulativeSeries}
             valueLabel="Cumulative return"
-            valueFormatter={(value) => formatPercent(value)}
+            valueFormat="percent"
             color="var(--positive)"
           />
         </div>

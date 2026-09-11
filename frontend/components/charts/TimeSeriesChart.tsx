@@ -10,17 +10,39 @@ import {
   YAxis,
 } from "recharts";
 
+import { formatNumber, formatPercent, formatPrice } from "@/lib/format";
+
 type Point = { date: string; value: number };
+
+export type ChartValueFormat = "raw" | "price" | "percent" | "number" | "number3" | "number4";
+
+function formatChartValue(value: number, format: ChartValueFormat): string {
+  switch (format) {
+    case "price":
+      return formatPrice(value);
+    case "percent":
+      return formatPercent(value);
+    case "number":
+      return formatNumber(value);
+    case "number3":
+      return formatNumber(value, 3);
+    case "number4":
+      return formatNumber(value, 4);
+    default:
+      return String(value);
+  }
+}
 
 export function TimeSeriesChart({
   data,
   valueLabel,
-  valueFormatter,
+  valueFormat = "raw",
   color = "var(--accent)",
 }: {
   data: Point[];
   valueLabel: string;
-  valueFormatter?: (value: number) => string;
+  /** Serializable format kind — do not pass functions from Server Components. */
+  valueFormat?: ChartValueFormat;
   color?: string;
 }) {
   if (data.length === 0) {
@@ -38,13 +60,11 @@ export function TimeSeriesChart({
           <YAxis
             tick={{ fontSize: 11 }}
             width={64}
-            tickFormatter={(value: number) =>
-              valueFormatter ? valueFormatter(value) : String(value)
-            }
+            tickFormatter={(value: number) => formatChartValue(value, valueFormat)}
           />
           <Tooltip
             formatter={(value) => [
-              valueFormatter ? valueFormatter(Number(value)) : String(value),
+              formatChartValue(Number(value), valueFormat),
               valueLabel,
             ]}
             labelFormatter={(label) => `Date: ${label}`}

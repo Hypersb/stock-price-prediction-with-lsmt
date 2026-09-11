@@ -148,7 +148,7 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
           <TimeSeriesChart
             data={equity}
             valueLabel="Equity"
-            valueFormatter={(value) => formatNumber(value, 3)}
+            valueFormat="number3"
           />
         </div>
       </section>
@@ -162,7 +162,7 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
           <TimeSeriesChart
             data={drawdown}
             valueLabel="Drawdown"
-            valueFormatter={(value) => formatPercent(value)}
+            valueFormat="percent"
             color="var(--negative)"
           />
         </div>
