@@ -33,6 +33,14 @@ scientifically material defaults. Tiny fixtures belong in tests only.
 Methodology: [research-methodology.md](research-methodology.md)  
 Report template: [final-research-report.md](final-research-report.md)
 
+## Dependency Strategy
+
+Pin important direct dependencies in `requirements.txt` and
+`requirements-dev.txt` with compatible lower bounds (`~=` / modest ranges). Do
+not freeze the full transitive tree. CI installs `torch` from the PyTorch CPU
+index first, then installs the remaining requirements with the `torch` line
+excluded.
+
 ## Quality Checks
 
 ```bash
