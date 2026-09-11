@@ -5,10 +5,10 @@ from __future__ import annotations
 import os
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import inspect, text
 
+from alembic import command
 from backend.app.db.base import Base
 from backend.app.db.session import build_database
 

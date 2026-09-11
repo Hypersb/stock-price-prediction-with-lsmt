@@ -28,6 +28,8 @@ PostgreSQL research persistence layer: complete
 
 Next.js quantitative research dashboard: complete
 
+Full stack integration and production hardening: complete
+
 Completed in this prompt:
 
 - Added root Git ignore rules for Python, Jupyter, environments, editors, Node/Next.js output, and Python build artifacts.
@@ -96,9 +98,17 @@ Completed in this prompt:
 - Added market, feature, model/experiment, walk-forward, and backtest views with empty/error states.
 - Added Recharts time-series visualizations and frontend lint/type/test/build validation.
 - Added frontend documentation.
+- Added unified full-stack configuration validation and environment documentation.
+- Added OpenAPI/frontend contract drift checks and readiness endpoint.
+- Added research persistence orchestration with atomic session commits.
+- Added Docker Compose services for Postgres, FastAPI, and Next.js.
+- Added security headers, request size limits, ticker validation, and pagination caps.
+- Added bounded in-process market-data caching and no-train prediction guarantees.
+- Added full-stack integration tests and GitHub Actions CI.
+- Added deployment and development runbooks.
 
 No brokerage connectivity, live orders, or authentication functionality exists yet.
 
 ## Next Milestone
 
-full stack integration and production hardening
+advanced quantitative research and final project evaluation

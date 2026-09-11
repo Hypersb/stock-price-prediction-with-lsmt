@@ -2,7 +2,7 @@
 
 ## Status
 
-Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, a FastAPI research backend, PostgreSQL-oriented experiment persistence, and a Next.js quantitative research dashboard are implemented.
+Historical market-data ingestion, quantitative analysis, feature engineering, supervised datasets, baseline models, LSTM training, walk-forward validation, backtesting, a FastAPI research backend, PostgreSQL persistence, a Next.js research dashboard, Docker Compose orchestration, readiness checks, security safeguards, and CI are implemented.
 
 ## Project
 
@@ -54,6 +54,34 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
+## Quick Start (Full Stack)
+
+```powershell
+copy .env.example .env
+docker compose up --build
+```
+
+- Dashboard: `http://localhost:3000`
+- API docs: `http://localhost:8000/docs`
+- Health: `GET /api/v1/health`
+- Ready: `GET /api/v1/ready`
+
+Manual alternative:
+
+```powershell
+docker compose up -d postgres
+$env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/quant_research"
+alembic upgrade head
+uvicorn backend.app.main:app --reload
+# separate terminal
+cd frontend
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+Docs: [docs/development.md](docs/development.md) · [docs/deployment.md](docs/deployment.md) · [docs/frontend.md](docs/frontend.md) · [docs/backend.md](docs/backend.md) · [docs/database.md](docs/database.md)
+
 ## Frontend Dashboard
 
 ```powershell
@@ -76,9 +104,11 @@ uvicorn backend.app.main:app --reload
 ```
 
 - Health: `GET /api/v1/health`
+- Ready: `GET /api/v1/ready`
 - OpenAPI docs: `http://127.0.0.1:8000/docs`
 - Backend notes: [docs/backend.md](docs/backend.md)
 - Database notes: [docs/database.md](docs/database.md)
+- Deployment notes: [docs/deployment.md](docs/deployment.md)
 
 Optional local PostgreSQL:
 

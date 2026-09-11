@@ -50,7 +50,7 @@ def _check_database(settings: Settings) -> DependencyCheck:
         database = get_database()
         with database.engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-    except Exception:
+    except Exception:  # noqa: BLE001 - readiness must not leak dependency errors
         logger.warning("readiness_database_unavailable")
         return DependencyCheck(
             status="unavailable",

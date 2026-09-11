@@ -4,7 +4,8 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# Prefer lockfile install; fall back when host/linux optional-deps differ.
+RUN npm ci || npm install
 
 COPY . .
 

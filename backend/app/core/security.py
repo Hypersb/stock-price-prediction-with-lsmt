@@ -17,7 +17,7 @@ _TICKER_PATTERN = re.compile(r"^[A-Z][A-Z0-9.\-]{0,15}$")
 def validate_ticker_symbol(symbol: str) -> str:
     """Normalize and reject unsafe ticker path values."""
     if not isinstance(symbol, str):
-        raise ValueError("symbol must be a string")
+        raise TypeError("symbol must be a string")
     normalized = symbol.strip().upper()
     if not _TICKER_PATTERN.fullmatch(normalized):
         raise ValueError(
