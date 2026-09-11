@@ -17,6 +17,11 @@ class BacktestPredictionInput(BaseModel):
     task: TaskType
     predicted: float | None = None
     probability: float | None = None
+    fold: int | None = Field(
+        default=None,
+        ge=0,
+        description="optional walk-forward fold id; required for honest multi-fold stitching",
+    )
 
     @model_validator(mode="after")
     def validate_task_fields(self) -> BacktestPredictionInput:

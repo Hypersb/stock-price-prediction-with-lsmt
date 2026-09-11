@@ -89,3 +89,82 @@ def test_backtest_rejects_mixed_models(monkeypatch) -> None:
     response = client.post("/api/v1/backtests", json=payload)
     assert response.status_code == 400
     assert "one model" in response.json()["detail"]
+
+
+def test_backtest_rejects_discontinuous_untagged_series(monkeypatch) -> None:
+    client = build_client(monkeypatch)
+    payload = oos_payload()
+    payload["predictions"] = [
+        {
+            "date": "2020-01-02",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": 0.1,
+        },
+        {
+            "date": "2020-01-03",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": -0.1,
+        },
+        {
+            "date": "2020-01-10",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": 0.1,
+        },
+    ]
+    payload["market_returns"] = [
+        {"date": "2020-01-02", "realized_return": 0.01},
+        {"date": "2020-01-03", "realized_return": -0.01},
+        {"date": "2020-01-10", "realized_return": 0.02},
+        {"date": "2020-01-13", "realized_return": 0.0},
+    ]
+    response = client.post("/api/v1/backtests", json=payload)
+    assert response.status_code == 400
+    assert "trading-day contiguous" in response.json()["detail"]
+
+
+def test_backtest_accepts_fold_tagged_trading_day_contiguous_series(monkeypatch) -> None:
+    client = build_client(monkeypatch)
+    payload = oos_payload()
+    payload["predictions"] = [
+        {
+            "date": "2020-01-02",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": 0.1,
+            "fold": 0,
+        },
+        {
+            "date": "2020-01-03",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": -0.1,
+            "fold": 0,
+        },
+        {
+            "date": "2020-01-06",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": 0.05,
+            "fold": 1,
+        },
+        {
+            "date": "2020-01-07",
+            "model": "oos_model",
+            "task": "regression",
+            "predicted": -0.05,
+            "fold": 1,
+        },
+    ]
+    payload["market_returns"] = [
+        {"date": "2020-01-02", "realized_return": 0.01},
+        {"date": "2020-01-03", "realized_return": -0.01},
+        {"date": "2020-01-06", "realized_return": 0.02},
+        {"date": "2020-01-07", "realized_return": -0.02},
+        {"date": "2020-01-08", "realized_return": 0.0},
+    ]
+    response = client.post("/api/v1/backtests", json=payload)
+    assert response.status_code == 200
+    assert response.json()["observations"] == 4

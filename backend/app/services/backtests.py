@@ -14,7 +14,8 @@ from backend.app.schemas.backtests import (
     EquityPoint,
 )
 from ml.backtesting.config import BacktestConfig
-from ml.backtesting.engine import run_backtest
+from ml.backtesting.engine import BacktestResult
+from ml.backtesting.fold_aware import run_fold_aware_backtest
 
 
 class BacktestService:
@@ -30,11 +31,17 @@ class BacktestService:
             raise BadRequestError("predictions must share one model and one task")
 
         prediction_rows = []
+        fold_values = {item.fold for item in request.predictions}
+        has_fold_labels = any(item.fold is not None for item in request.predictions)
+        if has_fold_labels and None in fold_values:
+            raise BadRequestError("fold must be provided on every prediction when used")
+
         for item in request.predictions:
             row = {
                 "date": item.date,
                 "model": item.model,
                 "task": item.task.value,
+                "fold": int(item.fold) if item.fold is not None else 0,
             }
             if item.predicted is not None:
                 row["predicted"] = item.predicted
@@ -62,7 +69,7 @@ class BacktestService:
         )
 
         try:
-            result = run_backtest(predictions, market_returns, config)
+            result = self._run_engine(predictions, market_returns, config, has_fold_labels)
         except ValueError as exc:
             raise BadRequestError(str(exc)) from exc
 
@@ -121,3 +128,35 @@ class BacktestService:
             benchmark_metrics=benchmark,
             equity_curve=equity_curve,
         )
+
+    def _run_engine(
+        self,
+        predictions: pd.DataFrame,
+        market_returns: pd.DataFrame,
+        config: BacktestConfig,
+        has_fold_labels: bool,
+    ) -> BacktestResult:
+        """Prefer fold-aware evaluation so discontinuous OOS series are not annualized silently."""
+        fold_count = int(predictions["fold"].nunique())
+        if has_fold_labels or fold_count > 1:
+            fold_aware = run_fold_aware_backtest(predictions, market_returns, config)
+            if fold_aware.combined is not None:
+                return fold_aware.combined
+            if len(fold_aware.fold_results) == 1:
+                return fold_aware.fold_results[0].result
+            raise ValueError(
+                "discontinuous or overlapping multi-fold OOS predictions cannot be returned "
+                "as one continuous annualized backtest; provide a trading-day-contiguous "
+                "series or a single fold"
+            )
+
+        # Untagged single series: still reject missing business days before annualizing.
+        tagged = predictions.copy()
+        tagged["fold"] = 0
+        fold_aware = run_fold_aware_backtest(tagged, market_returns, config)
+        if fold_aware.combined is None:
+            raise ValueError(
+                "prediction dates are not trading-day contiguous; combined annualized "
+                "metrics would be misleading"
+            )
+        return fold_aware.combined
