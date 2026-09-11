@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from ml.neural.alignment import create_dated_sequences, create_dated_sequences_with_context
+from ml.neural.alignment import (
+    create_dated_sequences,
+    create_dated_sequences_with_context,
+)
 
 
 def test_dated_sequences_align_target_dates_to_window_end() -> None:
