@@ -134,6 +134,12 @@ export type ExperimentMetricsResponse = {
   metrics: ExperimentMetricResponse[];
 };
 
+export type ExperimentRelatedResponse = {
+  experiment_id: string;
+  walk_forward_runs: WalkForwardRunResponse[];
+  backtests: PersistedBacktestSummary[];
+};
+
 export type WalkForwardFoldResponse = {
   fold_number: number;
   train_start: string;

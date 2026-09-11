@@ -224,6 +224,15 @@ def test_workflow_walk_forward_and_oos_predictions(monkeypatch, tmp_path) -> Non
     assert payload["folds"][0]["fold_metrics"]["rmse"] == 0.2
     assert payload["folds"][0]["fold_metrics"]["directional_accuracy"] is None
     assert payload["experiment_id"] == str(result.experiment_id)
+
+    related = client.get(f"/api/v1/experiments/{result.experiment_id}/related")
+    assert related.status_code == 200
+    related_payload = related.json()
+    _assert_frontend_shape("ExperimentRelatedResponse", related_payload)
+    assert related_payload["experiment_id"] == str(result.experiment_id)
+    assert len(related_payload["walk_forward_runs"]) == 1
+    assert related_payload["walk_forward_runs"][0]["id"] == str(run_id)
+    assert related_payload["backtests"] == []
     reset_database()
 
 

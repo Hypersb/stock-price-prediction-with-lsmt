@@ -3,6 +3,7 @@ import type {
   ExperimentDetail,
   ExperimentListResponse,
   ExperimentMetricsResponse,
+  ExperimentRelatedResponse,
   WalkForwardRunResponse,
 } from "@/types/api";
 
@@ -21,6 +22,12 @@ export function getExperiment(experimentId: string) {
 export function getExperimentMetrics(experimentId: string) {
   return apiFetch<ExperimentMetricsResponse>(
     `/experiments/${encodeURIComponent(experimentId)}/metrics`,
+  );
+}
+
+export function getExperimentRelated(experimentId: string) {
+  return apiFetch<ExperimentRelatedResponse>(
+    `/experiments/${encodeURIComponent(experimentId)}/related`,
   );
 }
 

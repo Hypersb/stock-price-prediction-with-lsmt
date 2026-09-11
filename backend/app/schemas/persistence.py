@@ -103,6 +103,14 @@ class PersistedBacktestSummary(BaseModel):
     end_date: date | None = None
 
 
+class ExperimentRelatedResponse(BaseModel):
+    """Persisted research artifacts linked to one experiment."""
+
+    experiment_id: UUID
+    walk_forward_runs: list[WalkForwardRunResponse]
+    backtests: list[PersistedBacktestSummary]
+
+
 class PersistedBacktestListResponse(BaseModel):
     items: list[PersistedBacktestSummary]
     total: int

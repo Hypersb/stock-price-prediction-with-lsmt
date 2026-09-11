@@ -42,11 +42,12 @@ def list_persisted_backtests(
     limit: Annotated[int, Query(ge=1)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
     symbol: Annotated[str | None, Query()] = None,
+    experiment_id: Annotated[UUID | None, Query()] = None,
 ) -> PersistedBacktestListResponse:
     """List stored research backtests with pagination."""
     capped = min(limit, settings.max_page_size)
     items, total = BacktestRepository(session).list(
-        limit=capped, offset=offset, symbol=symbol
+        limit=capped, offset=offset, symbol=symbol, experiment_id=experiment_id
     )
     return PersistedBacktestListResponse(
         items=[

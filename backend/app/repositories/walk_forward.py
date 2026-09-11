@@ -128,6 +128,24 @@ class WalkForwardRepository:
         )
         return self.session.scalar(statement)
 
+    def list_by_experiment(
+        self,
+        experiment_id: uuid.UUID,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[WalkForwardRun]:
+        """List walk-forward runs linked to one experiment (newest first)."""
+        statement = (
+            select(WalkForwardRun)
+            .where(WalkForwardRun.experiment_id == experiment_id)
+            .order_by(WalkForwardRun.created_at.desc())
+            .offset(max(0, offset))
+            .limit(max(1, limit))
+            .options(selectinload(WalkForwardRun.folds))
+        )
+        return list(self.session.scalars(statement))
+
 
 class PredictionRepository:
     """Persist out-of-sample prediction observations only."""

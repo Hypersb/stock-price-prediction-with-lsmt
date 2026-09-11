@@ -119,10 +119,13 @@ class BacktestRepository:
         limit: int = 50,
         offset: int = 0,
         symbol: str | None = None,
+        experiment_id: uuid.UUID | None = None,
     ) -> tuple[list[BacktestRun], int]:
         filters = []
         if symbol:
             filters.append(BacktestRun.symbol == symbol.strip().upper())
+        if experiment_id is not None:
+            filters.append(BacktestRun.experiment_id == experiment_id)
         total = self.session.scalar(
             select(func.count()).select_from(BacktestRun).where(*filters)
         ) or 0

@@ -126,6 +126,12 @@ FRONTEND_API_CONTRACTS: tuple[FrontendEndpointContract, ...] = (
     ),
     FrontendEndpointContract(
         method="get",
+        path="/api/v1/experiments/{experiment_id}/related",
+        response_schema="ExperimentRelatedResponse",
+        required_properties=("experiment_id", "walk_forward_runs", "backtests"),
+    ),
+    FrontendEndpointContract(
+        method="get",
         path="/api/v1/walk-forward/{run_id}",
         response_schema="WalkForwardRunResponse",
         required_properties=(
@@ -145,7 +151,7 @@ FRONTEND_API_CONTRACTS: tuple[FrontendEndpointContract, ...] = (
         path="/api/v1/backtests",
         response_schema="PersistedBacktestListResponse",
         required_properties=("items", "total", "limit", "offset"),
-        query_parameters=("limit", "offset", "symbol"),
+        query_parameters=("limit", "offset", "symbol", "experiment_id"),
     ),
     FrontendEndpointContract(
         method="get",

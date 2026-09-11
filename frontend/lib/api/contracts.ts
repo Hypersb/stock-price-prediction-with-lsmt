@@ -12,6 +12,7 @@ export const FRONTEND_API_ROUTES = [
   { method: "GET", path: "/api/v1/experiments" },
   { method: "GET", path: "/api/v1/experiments/{experiment_id}" },
   { method: "GET", path: "/api/v1/experiments/{experiment_id}/metrics" },
+  { method: "GET", path: "/api/v1/experiments/{experiment_id}/related" },
   { method: "GET", path: "/api/v1/walk-forward/{run_id}" },
   { method: "GET", path: "/api/v1/backtests" },
   { method: "GET", path: "/api/v1/backtests/{backtest_id}" },
