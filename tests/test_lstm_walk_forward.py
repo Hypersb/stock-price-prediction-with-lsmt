@@ -46,7 +46,7 @@ def test_lstm_test_sequences_use_prior_partition_feature_context() -> None:
     X = pd.DataFrame({"feature": np.linspace(0.0, 1.0, 24)})
     y = pd.Series(np.linspace(-0.1, 0.1, 24))
     dates = pd.date_range("2020-01-01", periods=24)
-    train_idx = list(range(0, 12))
+    train_idx = list(range(12))
     val_idx = list(range(12, 18))
     test_idx = list(range(18, 24))
     transformed = preprocess_fold(X.iloc[train_idx], X.iloc[val_idx], X.iloc[test_idx])
