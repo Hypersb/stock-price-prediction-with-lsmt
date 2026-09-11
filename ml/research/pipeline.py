@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from ml.backtesting.engine import BacktestResult, run_backtest
+from ml.backtesting.fold_aware import FoldAwareBacktestResult, run_fold_aware_backtest
 from ml.dataset import SupervisedFrame
 from ml.models.regression import LinearRegressionModel
 from ml.research.ablation import AblationResult, run_feature_ablation_study
@@ -54,7 +54,7 @@ class FinalResearchResult:
     complexity: ComplexityComparisonResult | None
     explainability: tuple[FeatureImportanceResult, ...]
     statistical_comparisons: tuple[StatisticalComparisonResult, ...]
-    backtests: tuple[tuple[str, str, BacktestResult], ...]
+    backtests: tuple[tuple[str, str, FoldAwareBacktestResult], ...]
     sensitivity: tuple[tuple[str, str, SensitivityResult], ...]
     notes: tuple[str, ...]
 
@@ -96,7 +96,7 @@ def run_final_research_evaluation(
     explainability: list[FeatureImportanceResult] = []
     complexity: ComplexityComparisonResult | None = None
     statistical_comparisons: list[StatisticalComparisonResult] = []
-    backtests: list[tuple[str, str, BacktestResult]] = []
+    backtests: list[tuple[str, str, FoldAwareBacktestResult]] = []
     sensitivity: list[tuple[str, str, SensitivityResult]] = []
 
     primary_symbol = config.symbols[0]
@@ -189,15 +189,29 @@ def run_final_research_evaluation(
         )
         for model_name, group in asset.predictions.groupby("model"):
             try:
-                backtest = run_backtest(group, frame.market_returns, config.backtest)
+                if config.horizon != 1:
+                    raise ValueError(
+                        "strategy backtesting currently supports forecast_horizon=1 only"
+                    )
+                backtest = run_fold_aware_backtest(group, frame.market_returns, config.backtest)
                 backtests.append((asset.symbol, str(model_name), backtest))
+                # Sensitivity uses contiguous per-fold series only when combined is valid;
+                # otherwise run on the first fold as a diagnostic, never invent continuity.
+                sensitivity_frame = group
+                if (
+                    config.include_sensitivity
+                    and backtest.combined is None
+                    and backtest.fold_results
+                ):
+                    first_fold = backtest.fold_results[0].fold
+                    sensitivity_frame = group[group["fold"] == first_fold]
                 if config.include_sensitivity:
                     sensitivity.append(
                         (
                             asset.symbol,
                             str(model_name),
                             run_backtest_sensitivity(
-                                group,
+                                sensitivity_frame,
                                 frame.market_returns,
                                 base_config=config.backtest,
                                 cost_scenarios_bps=config.cost_scenarios_bps,
@@ -207,7 +221,7 @@ def run_final_research_evaluation(
                         )
                     )
             except ValueError:
-                # Insufficient realization alignment for tiny fixtures is reported via notes.
+                # Insufficient realization alignment / overlaps / horizon mismatch.
                 continue
 
     notes = (
@@ -215,6 +229,8 @@ def run_final_research_evaluation(
         "configuration fingerprint identifies the reproducible experiment",
         "negative or inconclusive LSTM results are valid scientific outcomes",
         "do not cherry-pick assets, folds, costs, or thresholds after seeing holdout results",
+        "combined continuous backtest annualization requires contiguous non-overlapping oos dates",
+        "strategy backtesting is limited to forecast horizon 1",
     )
     return FinalResearchResult(
         experiment_id=config.fingerprint(),

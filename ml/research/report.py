@@ -186,9 +186,9 @@ def _template_with_results(result: FinalResearchResult) -> str:
     ] or ["_No statistical comparisons._"]
     backtest_lines = [
         (
-            f"- {symbol}/{model}: total_return={backtest.metrics.get('total_return')}, "
-            f"sharpe={backtest.metrics.get('sharpe_ratio')}, "
-            f"max_dd={backtest.metrics.get('maximum_drawdown')}"
+            f"- {symbol}/{model}: folds={len(backtest.fold_results)}, "
+            f"combined={'yes' if backtest.combined is not None else 'no'}, "
+            f"aggregate={backtest.aggregate_metrics}"
         )
         for symbol, model, backtest in result.backtests
     ] or ["_No backtests produced._"]
