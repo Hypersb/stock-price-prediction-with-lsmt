@@ -16,7 +16,10 @@ def align_execution(
     is supported until overlapping multi-day accounting is specified.
     """
     if forecast_horizon != 1:
-        raise ValueError("execution alignment currently supports forecast_horizon=1 only")
+        raise ValueError(
+            "execution alignment currently supports forecast_horizon=1 only; "
+            "multi-period strategy backtesting is not implemented"
+        )
     required_signal = {"date", "signal"}
     required_returns = {"date", "realized_return"}
     if not required_signal.issubset(signals.columns) or not required_returns.issubset(market_returns.columns):

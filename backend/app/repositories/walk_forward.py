@@ -167,3 +167,40 @@ class PredictionRepository:
             .order_by(OutOfSamplePrediction.prediction_date)
         )
         return list(self.session.scalars(statement))
+
+    def list_filtered(
+        self,
+        *,
+        symbol: str,
+        model_name: str,
+        task: str,
+        experiment_id: uuid.UUID | None = None,
+        walk_forward_run_id: uuid.UUID | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        limit: int = 500,
+        offset: int = 0,
+    ) -> list[OutOfSamplePrediction]:
+        """List persisted OOS predictions with explicit research filters."""
+        statement = select(OutOfSamplePrediction).where(
+            OutOfSamplePrediction.symbol == symbol.strip().upper(),
+            OutOfSamplePrediction.model_name == model_name.lower(),
+            OutOfSamplePrediction.task == task.lower(),
+            OutOfSamplePrediction.sample_kind == "out_of_sample",
+        )
+        if experiment_id is not None:
+            statement = statement.where(OutOfSamplePrediction.experiment_id == experiment_id)
+        if walk_forward_run_id is not None:
+            statement = statement.where(
+                OutOfSamplePrediction.walk_forward_run_id == walk_forward_run_id
+            )
+        if start_date is not None:
+            statement = statement.where(OutOfSamplePrediction.prediction_date >= start_date)
+        if end_date is not None:
+            statement = statement.where(OutOfSamplePrediction.prediction_date <= end_date)
+        statement = (
+            statement.order_by(OutOfSamplePrediction.prediction_date)
+            .offset(max(0, offset))
+            .limit(max(1, limit))
+        )
+        return list(self.session.scalars(statement))

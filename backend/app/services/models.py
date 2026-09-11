@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+from datetime import date
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
 from backend.app.core.errors import NotFoundError
+from backend.app.repositories.walk_forward import PredictionRepository
 from backend.app.schemas.common import TaskType
 from backend.app.schemas.models import (
     ModelCatalogResponse,
@@ -57,37 +63,11 @@ SUPPORTED_MODELS: tuple[SupportedModel, ...] = (
 )
 
 
-class PredictionStore:
-    """In-memory placeholder for future persisted experiment predictions."""
-
-    def __init__(self) -> None:
-        self._predictions: dict[tuple[str, str, str], list[PredictionPoint]] = {}
-
-    def list_predictions(
-        self, symbol: str, model: str, task: str
-    ) -> list[PredictionPoint]:
-        key = (symbol.upper(), model.lower(), task.lower())
-        return list(self._predictions.get(key, []))
-
-    def store_predictions(
-        self,
-        symbol: str,
-        model: str,
-        task: str,
-        predictions: list[PredictionPoint],
-    ) -> None:
-        key = (symbol.upper(), model.lower(), task.lower())
-        self._predictions[key] = list(predictions)
-
-
-_DEFAULT_STORE = PredictionStore()
-
-
 class ModelService:
-    """Expose model metadata and stored prediction lookups without training."""
+    """Expose model metadata and persisted OOS prediction lookups without training."""
 
-    def __init__(self, store: PredictionStore | None = None) -> None:
-        self.store = store or _DEFAULT_STORE
+    def __init__(self, session: Session | None = None) -> None:
+        self.session = session
 
     def list_models(self) -> ModelCatalogResponse:
         models = list(SUPPORTED_MODELS)
@@ -98,29 +78,71 @@ class ModelService:
         symbol: str,
         model: str,
         task: TaskType,
+        *,
+        experiment_id: UUID | None = None,
+        walk_forward_run_id: UUID | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        limit: int = 500,
+        offset: int = 0,
     ) -> PredictionResponse:
         known = {item.name for item in SUPPORTED_MODELS}
         if model.lower() not in known:
             raise NotFoundError(f"unsupported model family: {model}")
 
-        stored = self.store.list_predictions(symbol, model, task.value)
-        if not stored:
+        symbol_key = symbol.strip().upper()
+        model_key = model.lower()
+        if self.session is None:
             return PredictionResponse(
-                symbol=symbol.strip().upper(),
-                model=model.lower(),
+                symbol=symbol_key,
+                model=model_key,
                 task=task,
                 available=False,
                 message=(
-                    "no stored prediction artifact is available; "
+                    "database persistence is not configured; "
+                    "this endpoint does not train models and returns only stored oos predictions"
+                ),
+                predictions=[],
+            )
+
+        rows = PredictionRepository(self.session).list_filtered(
+            symbol=symbol_key,
+            model_name=model_key,
+            task=task.value,
+            experiment_id=experiment_id,
+            walk_forward_run_id=walk_forward_run_id,
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+            offset=offset,
+        )
+        if not rows:
+            return PredictionResponse(
+                symbol=symbol_key,
+                model=model_key,
+                task=task,
+                available=False,
+                message=(
+                    "no persisted out-of-sample predictions matched the query; "
                     "this endpoint does not train models"
                 ),
                 predictions=[],
             )
+        points = [
+            PredictionPoint(
+                prediction_date=row.prediction_date,
+                forecast_horizon=None,
+                predicted_return=row.predicted_value,
+                direction_probability=row.predicted_probability,
+                predicted_direction=row.predicted_class,
+            )
+            for row in rows
+        ]
         return PredictionResponse(
-            symbol=symbol.strip().upper(),
-            model=model.lower(),
+            symbol=symbol_key,
+            model=model_key,
             task=task,
             available=True,
-            message="stored research predictions",
-            predictions=stored,
+            message="persisted out-of-sample research predictions",
+            predictions=points,
         )

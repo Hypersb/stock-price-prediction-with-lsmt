@@ -1,10 +1,15 @@
 import numpy as np
 import pandas as pd
+import pytest
 
+from ml.backtesting.config import BacktestConfig
+from ml.backtesting.execution import align_execution
+from ml.backtesting.signals import prediction_signals
 from ml.training.config import TrainingConfig
 from ml.validation.config import WalkForwardConfig
 from ml.validation.folds import generate_expanding_folds
 from ml.validation.lstm import evaluate_lstm_walk_forward
+from ml.validation.predictions import collect_predictions
 
 
 def test_lstm_walk_forward_runs_tiny_regression_fold() -> None:
@@ -14,10 +19,56 @@ def test_lstm_walk_forward_runs_tiny_regression_fold() -> None:
     config = WalkForwardConfig(initial_train_size=12, validation_size=6, test_size=6, step_size=6)
 
     results = evaluate_lstm_walk_forward(
-        X, y, dates, generate_expanding_folds(30, config), task="regression", config=config,
-        lookback=3, hidden_size=4, training_config=TrainingConfig(epochs=1, patience=1, device="cpu")
+        X,
+        y,
+        dates,
+        generate_expanding_folds(30, config),
+        task="regression",
+        config=config,
+        lookback=3,
+        hidden_size=4,
+        training_config=TrainingConfig(epochs=1, patience=1, device="cpu"),
     )
 
     assert len(results) == 2
     assert results[0].model_name == "lstm"
     assert len(results[0].dates) == 4
+
+
+def test_lstm_classification_oos_includes_probabilities() -> None:
+    rng = np.random.default_rng(0)
+    X = pd.DataFrame({"feature": rng.normal(size=40)})
+    y = pd.Series((X["feature"] > 0).astype(int))
+    dates = pd.date_range("2020-01-01", periods=40)
+    config = WalkForwardConfig(initial_train_size=16, validation_size=8, test_size=8, step_size=8)
+
+    results = evaluate_lstm_walk_forward(
+        X,
+        y,
+        dates,
+        generate_expanding_folds(40, config),
+        task="classification",
+        config=config,
+        lookback=3,
+        hidden_size=4,
+        training_config=TrainingConfig(epochs=1, patience=1, device="cpu", seed=1),
+    )
+    assert results
+    assert results[0].probabilities is not None
+    assert len(results[0].probabilities) == len(results[0].predicted)
+    frame = collect_predictions(results)
+    assert "probability" in frame.columns
+    signals = prediction_signals(frame[frame["model"] == "lstm"], BacktestConfig())
+    assert "signal" in signals.columns
+
+
+def test_backtest_execution_rejects_horizon_greater_than_one() -> None:
+    signals = pd.DataFrame({"date": pd.to_datetime(["2020-01-01"]), "signal": [1]})
+    market = pd.DataFrame(
+        {
+            "date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
+            "realized_return": [0.0, 0.1],
+        }
+    )
+    with pytest.raises(ValueError, match="forecast_horizon=1"):
+        align_execution(signals, market, forecast_horizon=2)

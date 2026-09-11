@@ -45,16 +45,27 @@ def evaluate_lstm_walk_forward(
         validation_dates = parsed_dates[safe_fold.validation_indices]
         test_dates = parsed_dates[safe_fold.test_indices]
         train_sequences = create_dated_sequences(
-            transformed.X_train.to_numpy(), y.iloc[safe_fold.train_indices].to_numpy(), train_dates, lookback
+            transformed.X_train.to_numpy(),
+            y.iloc[safe_fold.train_indices].to_numpy(),
+            train_dates,
+            lookback,
         )
         validation_sequences = create_dated_sequences(
-            transformed.X_validation.to_numpy(), y.iloc[safe_fold.validation_indices].to_numpy(), validation_dates, lookback
+            transformed.X_validation.to_numpy(),
+            y.iloc[safe_fold.validation_indices].to_numpy(),
+            validation_dates,
+            lookback,
         )
         test_sequences = create_dated_sequences(
-            transformed.X_test.to_numpy(), y.iloc[safe_fold.test_indices].to_numpy(), test_dates, lookback
+            transformed.X_test.to_numpy(),
+            y.iloc[safe_fold.test_indices].to_numpy(),
+            test_dates,
+            lookback,
         )
         train_loader = create_sequence_loader(FinancialSequenceDataset(*train_sequences), 32)
-        validation_loader = create_sequence_loader(FinancialSequenceDataset(*validation_sequences), 32)
+        validation_loader = create_sequence_loader(
+            FinancialSequenceDataset(*validation_sequences), 32
+        )
         test_loader = create_sequence_loader(FinancialSequenceDataset(*test_sequences), 32)
         model_type = LSTMRegressor if task == "regression" else LSTMClassifier
         model = model_type(input_size=X.shape[1], hidden_size=hidden_size)
@@ -67,6 +78,12 @@ def evaluate_lstm_walk_forward(
             metadata={"fold": safe_fold.fold, "lookback": lookback},
         )
         evaluation = evaluate_lstm(result.model, test_loader, task=task, split="test")
+        predicted, probabilities = _predict_with_probabilities(
+            result.model,
+            test_loader,
+            task,
+            result.configuration.torch_device(),
+        )
         results.append(
             WalkForwardModelResult(
                 safe_fold.fold,
@@ -75,17 +92,22 @@ def evaluate_lstm_walk_forward(
                 evaluation.metrics,
                 test_sequences[2],
                 test_sequences[1],
-                _predictions(result.model, test_loader, task, result.configuration.torch_device()),
+                predicted,
+                probabilities,
             )
         )
     return results
 
 
-def _predictions(model, loader, task, device):
+def _predict_with_probabilities(model, loader, task, device):
+    """Return class/value predictions and classification probabilities when available."""
     from ml.training.epochs import validate_epoch
     from ml.training.optimization import create_loss
 
     _, predictions, _ = validate_epoch(model, loader, create_loss(task), device)
+    logits = predictions.detach().cpu()
     if task == "classification":
-        return (torch.sigmoid(predictions).numpy() >= 0.5).astype(int)
-    return predictions.numpy()
+        probabilities = torch.sigmoid(logits).numpy()
+        classes = (probabilities >= 0.5).astype(int)
+        return classes, probabilities
+    return logits.numpy(), None

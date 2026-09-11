@@ -47,7 +47,7 @@ def get_feature_service(request: Request) -> FeatureService:
 
 
 def get_model_service(request: Request) -> ModelService:
-    """Resolve model/prediction service with optional test overrides."""
+    """Resolve model catalog service with optional test overrides."""
     override: Callable[[], ModelService] | None = getattr(
         request.app.state, "model_service_factory", None
     )
