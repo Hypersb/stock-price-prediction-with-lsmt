@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import date
 
 import pandas as pd
@@ -59,6 +60,65 @@ def test_oversized_request_body_is_rejected(monkeypatch) -> None:
     body = response.json()
     assert body["error"] == "payload_too_large"
     assert "traceback" not in response.text.lower()
+
+
+def test_oversized_body_without_content_length_is_rejected(monkeypatch) -> None:
+    """Chunked / missing Content-Length must still enforce the byte limit."""
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("MAX_REQUEST_BODY_BYTES", "128")
+    clear_settings_cache()
+    application = create_app()
+
+    payload = b'{"sample_kind":"out_of_sample","padding":"' + (b"x" * 200) + b'"}'
+    chunks = [payload[i : i + 40] for i in range(0, len(payload), 40)]
+    chunk_index = 0
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/api/v1/backtests",
+        "raw_path": b"/api/v1/backtests",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [
+            (b"host", b"testserver"),
+            (b"content-type", b"application/json"),
+            # intentionally omit content-length
+        ],
+        "client": ("127.0.0.1", 50000),
+        "server": ("testserver", 80),
+        "state": {},
+    }
+    sent: list[dict] = []
+
+    async def receive() -> dict:
+        nonlocal chunk_index
+        if chunk_index < len(chunks):
+            body = chunks[chunk_index]
+            chunk_index += 1
+            return {
+                "type": "http.request",
+                "body": body,
+                "more_body": chunk_index < len(chunks),
+            }
+        return {"type": "http.disconnect"}
+
+    async def send(message: dict) -> None:
+        sent.append(message)
+
+    asyncio.run(application(scope, receive, send))
+    start = next(message for message in sent if message["type"] == "http.response.start")
+    assert start["status"] == 413
+    body_messages = [
+        message["body"]
+        for message in sent
+        if message["type"] == "http.response.body"
+    ]
+    response_text = b"".join(body_messages).decode()
+    assert "payload_too_large" in response_text
 
 
 def test_invalid_ticker_symbol_is_rejected(monkeypatch) -> None:

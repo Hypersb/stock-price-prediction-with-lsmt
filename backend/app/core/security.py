@@ -26,6 +26,18 @@ def validate_ticker_symbol(symbol: str) -> str:
     return normalized
 
 
+def _payload_too_large_response(max_bytes: int) -> JSONResponse:
+    payload = ErrorResponse(
+        error="payload_too_large",
+        detail=(
+            "request body exceeds configured maximum of "
+            f"{max_bytes} bytes"
+        ),
+        code="payload_too_large",
+    )
+    return JSONResponse(status_code=413, content=payload.model_dump())
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Attach restrained security headers to every response."""
 
@@ -46,26 +58,35 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
-    """Reject oversized request bodies before handlers run."""
+    """Reject oversized request bodies before handlers run.
+
+    Content-Length is checked when present for an early reject, but the body is
+    always streamed with a running byte count so chunked transfer or missing
+    Content-Length cannot bypass ``max_request_body_bytes``.
+    """
 
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
         settings = get_settings()
+        max_bytes = settings.max_request_body_bytes
+
         content_length = request.headers.get("content-length")
         if content_length is not None:
             try:
                 length = int(content_length)
             except ValueError:
                 length = -1
-            if length < 0 or length > settings.max_request_body_bytes:
-                payload = ErrorResponse(
-                    error="payload_too_large",
-                    detail=(
-                        "request body exceeds configured maximum of "
-                        f"{settings.max_request_body_bytes} bytes"
-                    ),
-                    code="payload_too_large",
-                )
-                return JSONResponse(status_code=413, content=payload.model_dump())
-        return await call_next(request)
+            if length < 0 or length > max_bytes:
+                return _payload_too_large_response(max_bytes)
+
+        body = bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body) > max_bytes:
+                return _payload_too_large_response(max_bytes)
+
+        async def receive() -> dict[str, object]:
+            return {"type": "http.request", "body": bytes(body), "more_body": False}
+
+        return await call_next(Request(request.scope, receive))
