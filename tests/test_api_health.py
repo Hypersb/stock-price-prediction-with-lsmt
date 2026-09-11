@@ -27,6 +27,10 @@ def test_health_endpoint_returns_structured_payload(monkeypatch) -> None:
 
 def test_cors_uses_configured_frontend_origin(monkeypatch) -> None:
     monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://user:password@localhost:5432/quant_research",
+    )
     monkeypatch.setenv("FRONTEND_ORIGIN", "https://research.example.com")
     monkeypatch.delenv("CORS_ORIGINS", raising=False)
     clear_settings_cache()
@@ -51,6 +55,10 @@ def test_cors_uses_configured_frontend_origin(monkeypatch) -> None:
 
 def test_production_without_origins_does_not_allow_all(monkeypatch) -> None:
     monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://user:password@localhost:5432/quant_research",
+    )
     monkeypatch.delenv("FRONTEND_ORIGIN", raising=False)
     monkeypatch.delenv("CORS_ORIGINS", raising=False)
     clear_settings_cache()
