@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from ml.backtesting.config import BacktestConfig
 from ml.backtesting.fold_aware import (
@@ -34,7 +33,7 @@ def _market(dates) -> pd.DataFrame:
     )
 
 
-def test_overlapping_fold_dates_are_detected_and_reject_combined_backtest() -> None:
+def test_overlapping_fold_dates_omit_combined_but_keep_per_fold() -> None:
     dates = pd.date_range("2020-01-01", periods=6, freq="D")
     predictions = pd.concat(
         [
@@ -48,12 +47,14 @@ def test_overlapping_fold_dates_are_detected_and_reject_combined_backtest() -> N
     assert report.allows_combined_continuous_backtest is False
 
     market = _market(pd.date_range("2020-01-01", periods=8, freq="D"))
-    with pytest.raises(ValueError, match="overlapping"):
-        run_fold_aware_backtest(predictions, market, BacktestConfig())
+    result = run_fold_aware_backtest(predictions, market, BacktestConfig())
+    assert len(result.fold_results) == 2
+    assert result.combined is None
+    assert result.aggregate_metrics["annualization_valid_for_combined"] == 0.0
 
 
 def test_gapped_folds_run_per_fold_without_combined_annualization() -> None:
-    # Two contiguous folds separated by a gap (step > test).
+    # Two contiguous folds separated by a multi-day gap (step > test).
     fold0_dates = pd.date_range("2020-01-01", periods=4, freq="D")
     fold1_dates = pd.date_range("2020-01-20", periods=4, freq="D")
     predictions = pd.concat(
@@ -65,6 +66,7 @@ def test_gapped_folds_run_per_fold_without_combined_annualization() -> None:
     )
     market = _market(pd.date_range("2020-01-01", periods=40, freq="D"))
     report = analyze_oos_prediction_timeline(predictions)
+    assert report.is_trading_day_contiguous is False
     assert report.is_calendar_contiguous is False
     assert report.max_gap_days >= 2
     assert report.allows_combined_continuous_backtest is False
@@ -74,11 +76,34 @@ def test_gapped_folds_run_per_fold_without_combined_annualization() -> None:
     assert result.combined is None
     assert result.aggregate_metrics["fold_count"] == 2.0
     assert result.aggregate_metrics["annualization_valid_for_combined"] == 0.0
-    assert any("discontinuous" in note for note in result.annualization_assumptions)
+    assert any("trading-day" in note for note in result.annualization_assumptions)
+
+
+def test_business_day_weekend_gap_allows_combined_backtest() -> None:
+    # Fri → Mon is not calendar-contiguous but is trading-day contiguous.
+    dates = pd.to_datetime(
+        ["2020-01-02", "2020-01-03", "2020-01-06", "2020-01-07", "2020-01-08", "2020-01-09"]
+    )
+    predictions = pd.concat(
+        [
+            _preds(dates[:3], [0] * 3),
+            _preds(dates[3:], [1] * 3),
+        ],
+        ignore_index=True,
+    )
+    market = _market(dates.tolist() + [pd.Timestamp("2020-01-10")])
+    report = analyze_oos_prediction_timeline(predictions)
+    assert report.is_calendar_contiguous is False
+    assert report.is_trading_day_contiguous is True
+    assert report.allows_combined_continuous_backtest is True
+
+    result = run_fold_aware_backtest(predictions, market, BacktestConfig())
+    assert result.combined is not None
+    assert result.aggregate_metrics["annualization_valid_for_combined"] == 1.0
 
 
 def test_contiguous_nonoverlapping_folds_allow_combined_backtest() -> None:
-    dates = pd.date_range("2020-01-01", periods=8, freq="D")
+    dates = pd.bdate_range("2020-01-01", periods=8)
     predictions = pd.concat(
         [
             _preds(dates[:4], [0] * 4),
@@ -86,9 +111,13 @@ def test_contiguous_nonoverlapping_folds_allow_combined_backtest() -> None:
         ],
         ignore_index=True,
     )
-    market = _market(pd.date_range("2020-01-01", periods=12, freq="D"))
+    market = _market(pd.bdate_range("2020-01-01", periods=12))
     result = run_fold_aware_backtest(predictions, market, BacktestConfig())
+    assert result.timeline.is_trading_day_contiguous is True
     assert result.timeline.allows_combined_continuous_backtest is True
     assert result.combined is not None
     assert result.aggregate_metrics["annualization_valid_for_combined"] == 1.0
-    assert "prediction_date" in result.combined.timeline.columns or "realization_date" in result.combined.timeline.columns
+    assert (
+        "prediction_date" in result.combined.timeline.columns
+        or "realization_date" in result.combined.timeline.columns
+    )

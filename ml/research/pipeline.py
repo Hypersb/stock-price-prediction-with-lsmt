@@ -165,6 +165,7 @@ def run_final_research_evaluation(
                 )
             )
 
+    skipped_backtests: list[str] = []
     for asset in multi_asset.assets:
         if config.include_statistics:
             models_present = set(asset.predictions["model"])
@@ -195,43 +196,50 @@ def run_final_research_evaluation(
                     )
                 backtest = run_fold_aware_backtest(group, frame.market_returns, config.backtest)
                 backtests.append((asset.symbol, str(model_name), backtest))
-                # Sensitivity uses contiguous per-fold series only when combined is valid;
-                # otherwise run on the first fold as a diagnostic, never invent continuity.
-                sensitivity_frame = group
-                if (
-                    config.include_sensitivity
-                    and backtest.combined is None
-                    and backtest.fold_results
-                ):
-                    first_fold = backtest.fold_results[0].fold
-                    sensitivity_frame = group[group["fold"] == first_fold]
                 if config.include_sensitivity:
-                    sensitivity.append(
-                        (
-                            asset.symbol,
-                            str(model_name),
-                            run_backtest_sensitivity(
-                                sensitivity_frame,
-                                frame.market_returns,
-                                base_config=config.backtest,
-                                cost_scenarios_bps=config.cost_scenarios_bps,
-                                slippage_bps=config.backtest.slippage_bps,
-                                signal_thresholds=config.signal_thresholds,
-                            ),
+                    # Prefer the combined continuous book; otherwise evaluate each fold
+                    # independently so weekend-aware gaps never invent continuity.
+                    if backtest.combined is not None:
+                        sensitivity_frames = [(str(model_name), group)]
+                    else:
+                        sensitivity_frames = [
+                            (
+                                f"{model_name}:fold{item.fold}",
+                                group[group["fold"] == item.fold],
+                            )
+                            for item in backtest.fold_results
+                        ]
+                    for label, sensitivity_frame in sensitivity_frames:
+                        if sensitivity_frame.empty:
+                            continue
+                        sensitivity.append(
+                            (
+                                asset.symbol,
+                                label,
+                                run_backtest_sensitivity(
+                                    sensitivity_frame,
+                                    frame.market_returns,
+                                    base_config=config.backtest,
+                                    cost_scenarios_bps=config.cost_scenarios_bps,
+                                    slippage_bps=config.backtest.slippage_bps,
+                                    signal_thresholds=config.signal_thresholds,
+                                ),
+                            )
                         )
-                    )
-            except ValueError:
-                # Insufficient realization alignment / overlaps / horizon mismatch.
-                continue
+            except ValueError as exc:
+                skipped_backtests.append(f"{asset.symbol}/{model_name}: {exc}")
 
-    notes = (
+    notes_list = [
         "final research pipeline coordinates existing modules without duplicating them",
         "configuration fingerprint identifies the reproducible experiment",
         "negative or inconclusive LSTM results are valid scientific outcomes",
         "do not cherry-pick assets, folds, costs, or thresholds after seeing holdout results",
-        "combined continuous backtest annualization requires contiguous non-overlapping oos dates",
+        "combined continuous backtest annualization requires trading-day-contiguous non-overlapping oos dates",
         "strategy backtesting is limited to forecast horizon 1",
-    )
+        "mean fold metrics are descriptive averages, not a portfolio Sharpe",
+    ]
+    notes_list.extend(skipped_backtests)
+    notes = tuple(notes_list)
     return FinalResearchResult(
         experiment_id=config.fingerprint(),
         configuration=config,
