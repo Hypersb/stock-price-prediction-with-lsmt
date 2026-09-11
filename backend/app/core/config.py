@@ -67,6 +67,8 @@ class Settings:
     max_page_size: int = 100
     default_page_size: int = 20
     max_request_body_bytes: int = 1_048_576
+    market_data_cache_ttl_seconds: float = 60.0
+    market_data_cache_max_size: int = 64
     database_url: str = ""
     market_data_api_key: str = ""
     require_database: bool = False
@@ -132,6 +134,16 @@ def get_settings() -> Settings:
     max_request_body_bytes = _parse_positive_int(
         "MAX_REQUEST_BODY_BYTES", os.getenv("MAX_REQUEST_BODY_BYTES"), 1_048_576
     )
+    market_data_cache_ttl_seconds = float(
+        os.getenv("MARKET_DATA_CACHE_TTL_SECONDS", "60") or "60"
+    )
+    if market_data_cache_ttl_seconds <= 0:
+        raise ConfigurationError("MARKET_DATA_CACHE_TTL_SECONDS must be positive")
+    market_data_cache_max_size = _parse_positive_int(
+        "MARKET_DATA_CACHE_MAX_SIZE",
+        os.getenv("MARKET_DATA_CACHE_MAX_SIZE"),
+        64,
+    )
 
     return Settings(
         app_env=app_env,
@@ -152,6 +164,8 @@ def get_settings() -> Settings:
         max_page_size=max_page_size,
         default_page_size=default_page_size,
         max_request_body_bytes=max_request_body_bytes,
+        market_data_cache_ttl_seconds=market_data_cache_ttl_seconds,
+        market_data_cache_max_size=market_data_cache_max_size,
         database_url=database_url,
         market_data_api_key=os.getenv("MARKET_DATA_API_KEY", "").strip(),
         require_database=require_database,

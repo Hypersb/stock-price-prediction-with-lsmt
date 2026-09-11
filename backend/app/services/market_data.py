@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
 
+from backend.app.core.cache import TtlCache
 from backend.app.core.config import Settings, get_settings
 from backend.app.core.errors import BadRequestError, NotFoundError
 from backend.app.core.json_utils import to_iso_date, to_json_number
@@ -27,10 +28,15 @@ class MarketDataService:
         self,
         provider: MarketDataProvider | None = None,
         settings: Settings | None = None,
+        cache: TtlCache[MarketDataResponse] | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         self.provider = provider or _default_provider()
         self.ingestion = MarketDataIngestionService(self.provider)
+        self._cache = cache or TtlCache[MarketDataResponse](
+            max_size=self.settings.market_data_cache_max_size,
+            ttl_seconds=self.settings.market_data_cache_ttl_seconds,
+        )
 
     def get_ohlcv(
         self,
@@ -49,6 +55,11 @@ class MarketDataService:
                 "requested date range exceeds configured maximum of "
                 f"{self.settings.max_market_data_days} days"
             )
+
+        cache_key = (request.symbol, request.start_date, request.end_date)
+        cached = self._cache.get(cache_key)
+        if cached is not None:
+            return cached
 
         try:
             frame = self.ingestion.ingest(
@@ -75,13 +86,15 @@ class MarketDataService:
             )
             for _, row in frame.iterrows()
         ]
-        return MarketDataResponse(
+        response = MarketDataResponse(
             symbol=request.symbol,
             start_date=request.start_date,
             end_date=request.end_date,
             count=len(observations),
             data=observations,
         )
+        self._cache.set(cache_key, response)
+        return response
 
 
 def default_market_data_service() -> MarketDataService:
