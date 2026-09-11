@@ -24,7 +24,8 @@ def purge_fold(fold: WalkForwardFold, config: WalkForwardConfig) -> WalkForwardF
         train_indices=train_indices,
         validation_indices=validation_indices,
         test_indices=fold.test_indices.copy(),
-        train_dates=None if fold.train_dates is None else fold.train_dates[-len(train_indices) :],
+        # Keep prefixes: purged indices drop unsafe tails, so dates must drop the same tails.
+        train_dates=None if fold.train_dates is None else fold.train_dates[: len(train_indices)],
         validation_dates=None if fold.validation_dates is None else fold.validation_dates[: len(validation_indices)],
         test_dates=fold.test_dates,
     )
