@@ -1,7 +1,9 @@
+import numpy as np
+import pandas as pd
 import pytest
 
 from ml.validation.config import WalkForwardConfig
-from ml.validation.folds import generate_expanding_folds
+from ml.validation.folds import WalkForwardFold, generate_expanding_folds
 from ml.validation.purging import purge_fold
 
 
@@ -32,3 +34,34 @@ def test_configured_gap_is_preserved_by_fold_generation() -> None:
 
     assert fold.validation_indices[0] - fold.train_indices[-1] == 3
     assert fold.test_indices[0] - fold.validation_indices[-1] == 3
+
+
+def test_purged_dates_remain_aligned_with_indices_and_boundaries() -> None:
+    dates = pd.date_range("2020-01-01", periods=20, freq="D")
+    config = WalkForwardConfig(
+        initial_train_size=10,
+        validation_size=4,
+        test_size=4,
+        step_size=4,
+        forecast_horizon=2,
+    )
+    fold = WalkForwardFold(
+        fold=0,
+        train_indices=np.arange(10),
+        validation_indices=np.arange(10, 14),
+        test_indices=np.arange(14, 18),
+        train_dates=dates[:10],
+        validation_dates=dates[10:14],
+        test_dates=dates[14:18],
+    )
+
+    purged = purge_fold(fold, config)
+
+    assert list(purged.train_dates) == list(dates[purged.train_indices])
+    assert list(purged.validation_dates) == list(dates[purged.validation_indices])
+    assert list(purged.test_dates) == list(dates[purged.test_indices])
+    assert purged.train_indices[-1] + config.forecast_horizon < purged.validation_indices[0]
+    assert purged.validation_indices[-1] + config.forecast_horizon < purged.test_indices[0]
+    # Prefix retention: first purged train date remains the original first train date.
+    assert purged.train_dates[0] == fold.train_dates[0]
+    assert purged.validation_dates[0] == fold.validation_dates[0]
