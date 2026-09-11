@@ -29,7 +29,6 @@ from ml.models.regression import LinearRegressionModel
 from ml.neural.dataset import FinancialSequenceDataset
 from ml.neural.loaders import create_sequence_loader
 from ml.neural.lstm import LSTMClassifier, LSTMRegressor
-from ml.neural.sequences import create_sequences
 from ml.preprocessing import TrainOnlyScaler
 from ml.training.config import TrainingConfig
 from ml.training.trainer import train_lstm
@@ -180,8 +179,22 @@ def _evaluate_lstm(
     hidden_size: int,
     training_config: TrainingConfig,
 ) -> ComplexityComparisonRow:
-    train_x, train_y = create_sequences(X_train.to_numpy(), y_train.to_numpy(), lookback)
-    val_x, val_y = create_sequences(X_validation.to_numpy(), y_validation.to_numpy(), lookback)
+    from ml.neural.alignment import create_dated_sequences_with_context
+
+    train_dates = pd.date_range("2000-01-01", periods=len(X_train), freq="D")
+    val_dates = pd.date_range(
+        train_dates[-1] + pd.Timedelta(days=1), periods=len(X_validation), freq="D"
+    )
+    train_x, train_y, _ = create_dated_sequences_with_context(
+        None, X_train.to_numpy(), y_train.to_numpy(), train_dates, lookback
+    )
+    val_x, val_y, _ = create_dated_sequences_with_context(
+        X_train.to_numpy(),
+        X_validation.to_numpy(),
+        y_validation.to_numpy(),
+        val_dates,
+        lookback,
+    )
     train_loader = create_sequence_loader(FinancialSequenceDataset(train_x, train_y), 32)
     validation_loader = create_sequence_loader(FinancialSequenceDataset(val_x, val_y), 32)
     model_type = LSTMRegressor if task == "regression" else LSTMClassifier

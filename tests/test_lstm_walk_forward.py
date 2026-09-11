@@ -32,7 +32,46 @@ def test_lstm_walk_forward_runs_tiny_regression_fold() -> None:
 
     assert len(results) == 2
     assert results[0].model_name == "lstm"
-    assert len(results[0].dates) == 4
+    # With train+validation context, all test_size targets are recoverable.
+    assert len(results[0].dates) == 6
+    assert results[0].dates[0] == pd.Timestamp("2020-01-19")
+    assert results[0].dates[-1] == pd.Timestamp("2020-01-24")
+
+
+def test_lstm_test_sequences_use_prior_partition_feature_context() -> None:
+    """Boundary: first test target may legally use train/val features only."""
+    from ml.neural.alignment import create_dated_sequences_with_context
+    from ml.validation.preprocessing import preprocess_fold
+
+    X = pd.DataFrame({"feature": np.linspace(0.0, 1.0, 24)})
+    y = pd.Series(np.linspace(-0.1, 0.1, 24))
+    dates = pd.date_range("2020-01-01", periods=24)
+    train_idx = list(range(0, 12))
+    val_idx = list(range(12, 18))
+    test_idx = list(range(18, 24))
+    transformed = preprocess_fold(X.iloc[train_idx], X.iloc[val_idx], X.iloc[test_idx])
+    context = np.concatenate(
+        [transformed.X_train.to_numpy(), transformed.X_validation.to_numpy()], axis=0
+    )
+    sequences, targets, target_dates = create_dated_sequences_with_context(
+        context,
+        transformed.X_test.to_numpy(),
+        y.iloc[test_idx].to_numpy(),
+        dates[test_idx],
+        lookback=3,
+    )
+    assert len(targets) == 6
+    assert target_dates[0] == dates[18]
+    # Sequence ending at first test row uses last two context rows + first test row.
+    assert sequences[0].shape == (3, 1)
+    np.testing.assert_allclose(
+        sequences[0][-1, 0],
+        float(transformed.X_test.to_numpy()[0, 0]),
+    )
+    np.testing.assert_allclose(
+        sequences[0][0, 0],
+        float(context[-2, 0]),
+    )
 
 
 def test_lstm_classification_oos_includes_probabilities() -> None:

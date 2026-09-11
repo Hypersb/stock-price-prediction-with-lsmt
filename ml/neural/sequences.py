@@ -28,6 +28,11 @@ def create_sequences(
     return sequences, aligned_targets
 
 
-def _validate_lookback(lookback: int) -> None:
+def validate_lookback(lookback: int) -> None:
+    """Reject non-positive or non-integer lookback windows."""
     if isinstance(lookback, bool) or not isinstance(lookback, int) or lookback <= 0:
         raise ValueError("lookback must be a positive integer")
+
+
+# Backwards-compatible private alias used by older call sites.
+_validate_lookback = validate_lookback

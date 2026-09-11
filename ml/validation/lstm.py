@@ -1,9 +1,10 @@
 """Walk-forward evaluation of independently trained LSTM models."""
 
+import numpy as np
 import pandas as pd
 import torch
 
-from ml.neural.alignment import create_dated_sequences
+from ml.neural.alignment import create_dated_sequences_with_context
 from ml.neural.dataset import FinancialSequenceDataset
 from ml.neural.loaders import create_sequence_loader
 from ml.neural.lstm import LSTMClassifier, LSTMRegressor
@@ -29,7 +30,12 @@ def evaluate_lstm_walk_forward(
     training_config: TrainingConfig | None = None,
     hidden_size: int = 16,
 ) -> list[WalkForwardModelResult]:
-    """Train a fresh LSTM independently for every purged walk-forward fold."""
+    """Train a fresh LSTM independently for every purged walk-forward fold.
+
+    Validation and test sequences may use earlier within-fold feature rows as
+    lookback context (train for validation; train+validation for test). Targets
+    remain strictly within the evaluated partition.
+    """
     if task not in {"regression", "classification"}:
         raise ValueError("task must be 'regression' or 'classification'")
     parsed_dates = pd.DatetimeIndex(pd.to_datetime(dates))
@@ -44,19 +50,30 @@ def evaluate_lstm_walk_forward(
         train_dates = parsed_dates[safe_fold.train_indices]
         validation_dates = parsed_dates[safe_fold.validation_indices]
         test_dates = parsed_dates[safe_fold.test_indices]
-        train_sequences = create_dated_sequences(
+        train_sequences = create_dated_sequences_with_context(
+            None,
             transformed.X_train.to_numpy(),
             y.iloc[safe_fold.train_indices].to_numpy(),
             train_dates,
             lookback,
         )
-        validation_sequences = create_dated_sequences(
+        validation_sequences = create_dated_sequences_with_context(
+            transformed.X_train.to_numpy(),
             transformed.X_validation.to_numpy(),
             y.iloc[safe_fold.validation_indices].to_numpy(),
             validation_dates,
             lookback,
         )
-        test_sequences = create_dated_sequences(
+        test_context = (
+            transformed.X_train.to_numpy()
+            if len(transformed.X_validation) == 0
+            else np.concatenate(
+                [transformed.X_train.to_numpy(), transformed.X_validation.to_numpy()],
+                axis=0,
+            )
+        )
+        test_sequences = create_dated_sequences_with_context(
+            test_context,
             transformed.X_test.to_numpy(),
             y.iloc[safe_fold.test_indices].to_numpy(),
             test_dates,
