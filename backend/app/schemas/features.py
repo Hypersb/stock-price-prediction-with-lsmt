@@ -15,13 +15,15 @@ class FeatureObservation(BaseModel):
 
 
 class FeatureResponse(BaseModel):
-    """Bounded feature-matrix inspection payload."""
+    """Bounded feature-matrix inspection payload with pagination metadata."""
 
     symbol: str
     start_date: date
     end_date: date
     feature_names: list[str]
     feature_count: int = Field(ge=0)
-    observation_count: int = Field(ge=0)
+    observation_count: int = Field(ge=0, description="Total engineered feature rows")
+    limit: int = Field(ge=1)
+    offset: int = Field(ge=0, default=0)
     returned_rows: int = Field(ge=0)
     features: list[FeatureObservation]

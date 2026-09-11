@@ -78,4 +78,24 @@ def test_feature_endpoint_respects_row_limit(monkeypatch) -> None:
     payload = response.json()
     assert payload["returned_rows"] == 5
     assert len(payload["features"]) == 5
+    assert payload["limit"] == 5
+    assert payload["offset"] == payload["observation_count"] - 5
     assert set(payload["features"][0]["values"]) == set(payload["feature_names"])
+
+
+def test_feature_endpoint_offset_uses_chronological_slice(monkeypatch) -> None:
+    client = build_client(FakeProvider(long_frame()), monkeypatch)
+    response = client.get(
+        "/api/v1/features/MSFT",
+        params={
+            "start_date": "2020-01-01",
+            "end_date": "2020-03-21",
+            "limit": 3,
+            "offset": 0,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["offset"] == 0
+    assert payload["returned_rows"] == 3
+    assert payload["features"][0]["date"] < payload["features"][-1]["date"]

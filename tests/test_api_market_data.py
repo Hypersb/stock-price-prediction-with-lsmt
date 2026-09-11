@@ -112,3 +112,36 @@ def test_market_data_validation_error_for_bad_symbol_type_path(monkeypatch) -> N
         params={"start_date": "2020-01-01", "end_date": "2020-01-04"},
     )
     assert response.status_code == 400
+
+
+def test_market_data_pagination_reports_total_and_slice(monkeypatch) -> None:
+    dates = pd.date_range("2020-01-01", periods=10, freq="D")
+    frame = pd.DataFrame(
+        {
+            "Date": dates.strftime("%Y-%m-%d"),
+            "Open": [100.0] * 10,
+            "High": [101.0] * 10,
+            "Low": [99.0] * 10,
+            "Close": [100.0 + index for index in range(10)],
+            "Volume": [1000] * 10,
+        }
+    )
+    client = build_client(FakeProvider(frame), monkeypatch)
+    response = client.get(
+        "/api/v1/market-data/AAPL",
+        params={
+            "start_date": "2020-01-01",
+            "end_date": "2020-01-20",
+            "limit": 3,
+            "offset": 2,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 10
+    assert payload["limit"] == 3
+    assert payload["offset"] == 2
+    assert payload["returned"] == 3
+    assert payload["count"] == 3
+    assert payload["data"][0]["close"] == 102.0
+    assert len(payload["data"]) == 3

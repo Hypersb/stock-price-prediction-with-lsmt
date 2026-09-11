@@ -31,7 +31,11 @@ export type MarketDataResponse = {
   symbol: string;
   start_date: string;
   end_date: string;
+  total: number;
   count: number;
+  limit: number;
+  offset: number;
+  returned: number;
   data: OhlcvObservation[];
 };
 
@@ -60,6 +64,8 @@ export type FeatureResponse = {
   feature_names: string[];
   feature_count: number;
   observation_count: number;
+  limit: number;
+  offset: number;
   returned_rows: number;
   features: FeatureObservation[];
 };

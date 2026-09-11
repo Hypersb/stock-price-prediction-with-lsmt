@@ -37,7 +37,19 @@ class AnalysisService:
         start_date: date,
         end_date: date,
     ) -> AnalysisSummaryResponse:
-        market = self.market_data_service.get_ohlcv(symbol, start_date, end_date)
+        market = self.market_data_service.get_ohlcv(
+            symbol,
+            start_date,
+            end_date,
+            limit=self.market_data_service.settings.max_market_rows,
+            offset=0,
+        )
+        if market.total > market.returned:
+            raise BadRequestError(
+                "analysis summary requires the full market series within "
+                f"MAX_MARKET_ROWS ({self.market_data_service.settings.max_market_rows}); "
+                "narrow the date range"
+            )
         frame = _frame_from_market_response(market)
         returns = simple_returns(frame)
         observed = returns.dropna()
@@ -52,7 +64,7 @@ class AnalysisService:
             symbol=market.symbol,
             start_date=market.start_date,
             end_date=market.end_date,
-            observation_count=market.count,
+            observation_count=market.total,
             return_count=int(stats["count"]),
             mean_return=to_json_number(stats["mean"]),
             median_return=to_json_number(stats["median"]),

@@ -42,8 +42,25 @@ class FeatureService:
         end_date: date,
         *,
         limit: int | None = None,
+        offset: int | None = None,
     ) -> FeatureResponse:
-        market = self.market_data_service.get_ohlcv(symbol, start_date, end_date)
+        if offset is not None and offset < 0:
+            raise BadRequestError("offset must be non-negative")
+
+        # Features need the full chronological series for rolling windows; page after.
+        market = self.market_data_service.get_ohlcv(
+            symbol,
+            start_date,
+            end_date,
+            limit=self.settings.max_market_rows,
+            offset=0,
+        )
+        if market.total > market.returned:
+            raise BadRequestError(
+                "feature engineering requires the full market series within "
+                f"MAX_MARKET_ROWS ({self.settings.max_market_rows}); narrow the date range"
+            )
+
         frame = pd.DataFrame([row.model_dump() for row in market.data])
         try:
             engineered = build_features(frame)
@@ -67,9 +84,15 @@ class FeatureService:
             raise BadRequestError("limit must be at least 1")
         row_limit = min(row_limit, self.settings.max_feature_rows)
 
-        limited = engineered.tail(row_limit)
+        total = len(engineered)
+        if offset is None:
+            # Research-inspection default: latest rows (preserves prior API behavior).
+            effective_offset = max(0, total - row_limit)
+        else:
+            effective_offset = offset
+        page = engineered.iloc[effective_offset : effective_offset + row_limit]
         observations: list[FeatureObservation] = []
-        for _, row in limited.iterrows():
+        for _, row in page.iterrows():
             values = {
                 name: to_json_number(row[name])
                 for name in feature_names
@@ -87,7 +110,9 @@ class FeatureService:
             end_date=market.end_date,
             feature_names=feature_names,
             feature_count=len(feature_names),
-            observation_count=len(engineered),
+            observation_count=total,
+            limit=row_limit,
+            offset=effective_offset,
             returned_rows=len(observations),
             features=observations,
         )

@@ -30,6 +30,16 @@ def get_features(
     limit: Annotated[
         int | None, Query(ge=1, description="Maximum number of feature rows to return")
     ] = None,
+    offset: Annotated[
+        int | None,
+        Query(
+            ge=0,
+            description=(
+                "Zero-based chronological offset. When omitted, the latest "
+                "`limit` rows are returned for research inspection."
+            ),
+        ),
+    ] = None,
 ) -> FeatureResponse:
     """Return engineered features for research inspection without targets."""
     try:
@@ -41,4 +51,5 @@ def get_features(
         start_date,
         ensure_default_end_date(end_date),
         limit=limit,
+        offset=offset,
     )

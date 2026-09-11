@@ -6,10 +6,11 @@ export function getFeatures(
   startDate: string,
   endDate: string,
   limit?: number,
+  offset?: number,
 ) {
   return apiFetch<FeatureResponse>(
     `/features/${encodeURIComponent(symbol)}`,
     {},
-    { start_date: startDate, end_date: endDate, limit },
+    { start_date: startDate, end_date: endDate, limit, offset },
   );
 }

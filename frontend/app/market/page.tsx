@@ -63,6 +63,15 @@ function MarketSuccess({
           hint={`${formatDate(analysis.start_date)} → ${formatDate(analysis.end_date)}`}
         />
         <MetricCard
+          label="Chart rows"
+          value={`${market.returned} / ${market.total}`}
+          hint={
+            market.returned < market.total
+              ? `Paginated (limit=${market.limit}, offset=${market.offset})`
+              : "Full series in response"
+          }
+        />
+        <MetricCard
           label="Cumulative return"
           value={formatPercent(analysis.cumulative_return)}
           hint="Historical, not a forecast"

@@ -14,11 +14,21 @@ export function getReady() {
   return apiFetch<ReadinessResponse>("/ready");
 }
 
-export function getMarketData(symbol: string, startDate: string, endDate: string) {
+export function getMarketData(
+  symbol: string,
+  startDate: string,
+  endDate: string,
+  options?: { limit?: number; offset?: number },
+) {
   return apiFetch<MarketDataResponse>(
     `/market-data/${encodeURIComponent(symbol)}`,
     {},
-    { start_date: startDate, end_date: endDate },
+    {
+      start_date: startDate,
+      end_date: endDate,
+      limit: options?.limit,
+      offset: options?.offset,
+    },
   );
 }
 

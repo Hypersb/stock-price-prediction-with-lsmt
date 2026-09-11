@@ -28,12 +28,12 @@ class MarketDataService:
         self,
         provider: MarketDataProvider | None = None,
         settings: Settings | None = None,
-        cache: TtlCache[MarketDataResponse] | None = None,
+        cache: TtlCache[list[OhlcvObservation]] | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         self.provider = provider or _default_provider()
         self.ingestion = MarketDataIngestionService(self.provider)
-        self._cache = cache or TtlCache[MarketDataResponse](
+        self._cache = cache or TtlCache[list[OhlcvObservation]](
             max_size=self.settings.market_data_cache_max_size,
             ttl_seconds=self.settings.market_data_cache_ttl_seconds,
         )
@@ -43,6 +43,9 @@ class MarketDataService:
         symbol: str,
         start_date: date,
         end_date: date,
+        *,
+        limit: int | None = None,
+        offset: int = 0,
     ) -> MarketDataResponse:
         try:
             request = MarketDataRequest.create(symbol, start_date, end_date)
@@ -55,12 +58,35 @@ class MarketDataService:
                 "requested date range exceeds configured maximum of "
                 f"{self.settings.max_market_data_days} days"
             )
+        if offset < 0:
+            raise BadRequestError("offset must be non-negative")
+
+        row_limit = self.settings.max_market_rows if limit is None else limit
+        if row_limit < 1:
+            raise BadRequestError("limit must be at least 1")
+        row_limit = min(row_limit, self.settings.max_market_rows)
 
         cache_key = (request.symbol, request.start_date, request.end_date)
-        cached = self._cache.get(cache_key)
-        if cached is not None:
-            return cached
+        observations = self._cache.get(cache_key)
+        if observations is None:
+            observations = self._fetch_observations(request)
+            self._cache.set(cache_key, observations)
 
+        total = len(observations)
+        page = observations[offset : offset + row_limit]
+        return MarketDataResponse(
+            symbol=request.symbol,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            total=total,
+            count=len(page),
+            limit=row_limit,
+            offset=offset,
+            returned=len(page),
+            data=page,
+        )
+
+    def _fetch_observations(self, request: MarketDataRequest) -> list[OhlcvObservation]:
         try:
             frame = self.ingestion.ingest(
                 request.symbol, request.start_date, request.end_date
@@ -75,7 +101,7 @@ class MarketDataService:
         except ValueError as exc:
             raise BadRequestError(str(exc)) from exc
 
-        observations = [
+        return [
             OhlcvObservation(
                 date=date.fromisoformat(to_iso_date(row["date"])),
                 open=float(to_json_number(row["open"])),
@@ -86,15 +112,6 @@ class MarketDataService:
             )
             for _, row in frame.iterrows()
         ]
-        response = MarketDataResponse(
-            symbol=request.symbol,
-            start_date=request.start_date,
-            end_date=request.end_date,
-            count=len(observations),
-            data=observations,
-        )
-        self._cache.set(cache_key, response)
-        return response
 
 
 def default_market_data_service() -> MarketDataService:

@@ -63,6 +63,7 @@ class Settings:
         default_factory=lambda: ["Authorization", "Content-Type", "X-Request-ID"]
     )
     max_market_data_days: int = 3650
+    max_market_rows: int = 5000
     max_feature_rows: int = 500
     max_page_size: int = 100
     default_page_size: int = 20
@@ -157,6 +158,9 @@ def get_settings() -> Settings:
         ),
         max_market_data_days=_parse_positive_int(
             "MAX_MARKET_DATA_DAYS", os.getenv("MAX_MARKET_DATA_DAYS"), 3650
+        ),
+        max_market_rows=_parse_positive_int(
+            "MAX_MARKET_ROWS", os.getenv("MAX_MARKET_ROWS"), 5000
         ),
         max_feature_rows=_parse_positive_int(
             "MAX_FEATURE_ROWS", os.getenv("MAX_FEATURE_ROWS"), 500
