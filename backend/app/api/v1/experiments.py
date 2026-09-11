@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from backend.app.core.config import Settings, get_settings
 from backend.app.core.errors import NotFoundError
 from backend.app.db.session import get_db_session
 from backend.app.repositories.experiments import ExperimentRepository
@@ -21,23 +22,23 @@ from backend.app.schemas.persistence import (
 
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
-MAX_LIMIT = 100
-
 
 @router.get("", response_model=ExperimentListResponse)
 def list_experiments(
     session: Annotated[Session, Depends(get_db_session)],
-    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = 50,
+    settings: Annotated[Settings, Depends(get_settings)],
+    limit: Annotated[int, Query(ge=1)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
     symbol: Annotated[str | None, Query()] = None,
 ) -> ExperimentListResponse:
     """List stored research experiments with pagination."""
+    capped = min(limit, settings.max_page_size)
     repo = ExperimentRepository(session)
-    items, total = repo.list(limit=limit, offset=offset, symbol=symbol)
+    items, total = repo.list(limit=capped, offset=offset, symbol=symbol)
     return ExperimentListResponse(
         items=[ExperimentSummary.model_validate(item, from_attributes=True) for item in items],
         total=total,
-        limit=limit,
+        limit=capped,
         offset=offset,
     )
 

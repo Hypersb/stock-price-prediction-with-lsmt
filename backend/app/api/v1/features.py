@@ -7,6 +7,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from backend.app.core.errors import BadRequestError
+from backend.app.core.security import validate_ticker_symbol
 from backend.app.dependencies import get_feature_service
 from backend.app.schemas.features import FeatureResponse
 from backend.app.services.features import FeatureService
@@ -30,8 +32,12 @@ def get_features(
     ] = None,
 ) -> FeatureResponse:
     """Return engineered features for research inspection without targets."""
+    try:
+        safe_symbol = validate_ticker_symbol(symbol)
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
     return service.get_features(
-        symbol,
+        safe_symbol,
         start_date,
         ensure_default_end_date(end_date),
         limit=limit,

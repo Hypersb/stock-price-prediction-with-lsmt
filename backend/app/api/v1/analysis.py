@@ -7,6 +7,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from backend.app.core.errors import BadRequestError
+from backend.app.core.security import validate_ticker_symbol
 from backend.app.dependencies import get_analysis_service
 from backend.app.schemas.analysis import AnalysisSummaryResponse
 from backend.app.services.analysis import AnalysisService
@@ -27,4 +29,10 @@ def get_analysis_summary(
     ] = None,
 ) -> AnalysisSummaryResponse:
     """Return key quantitative statistics for a symbol and date range."""
-    return service.summarize(symbol, start_date, ensure_default_end_date(end_date))
+    try:
+        safe_symbol = validate_ticker_symbol(symbol)
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
+    return service.summarize(
+        safe_symbol, start_date, ensure_default_end_date(end_date)
+    )

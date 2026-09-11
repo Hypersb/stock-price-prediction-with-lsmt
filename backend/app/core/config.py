@@ -66,6 +66,7 @@ class Settings:
     max_feature_rows: int = 500
     max_page_size: int = 100
     default_page_size: int = 20
+    max_request_body_bytes: int = 1_048_576
     database_url: str = ""
     market_data_api_key: str = ""
     require_database: bool = False
@@ -128,6 +129,9 @@ def get_settings() -> Settings:
         raise ConfigurationError(
             "DEFAULT_PAGE_SIZE cannot exceed MAX_PAGE_SIZE"
         )
+    max_request_body_bytes = _parse_positive_int(
+        "MAX_REQUEST_BODY_BYTES", os.getenv("MAX_REQUEST_BODY_BYTES"), 1_048_576
+    )
 
     return Settings(
         app_env=app_env,
@@ -147,6 +151,7 @@ def get_settings() -> Settings:
         ),
         max_page_size=max_page_size,
         default_page_size=default_page_size,
+        max_request_body_bytes=max_request_body_bytes,
         database_url=database_url,
         market_data_api_key=os.getenv("MARKET_DATA_API_KEY", "").strip(),
         require_database=require_database,

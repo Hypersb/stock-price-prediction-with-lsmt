@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from backend.app.core.config import Settings, get_settings
 from backend.app.core.errors import NotFoundError
 from backend.app.db.session import get_db_session
 from backend.app.dependencies import get_backtest_service
@@ -24,8 +25,6 @@ from backend.app.services.backtests import BacktestService
 
 router = APIRouter(prefix="/backtests", tags=["backtests"])
 
-MAX_LIMIT = 100
-
 
 @router.post("", response_model=BacktestResponse)
 def create_backtest(
@@ -39,13 +38,15 @@ def create_backtest(
 @router.get("", response_model=PersistedBacktestListResponse)
 def list_persisted_backtests(
     session: Annotated[Session, Depends(get_db_session)],
-    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = 50,
+    settings: Annotated[Settings, Depends(get_settings)],
+    limit: Annotated[int, Query(ge=1)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
     symbol: Annotated[str | None, Query()] = None,
 ) -> PersistedBacktestListResponse:
     """List stored research backtests with pagination."""
+    capped = min(limit, settings.max_page_size)
     items, total = BacktestRepository(session).list(
-        limit=limit, offset=offset, symbol=symbol
+        limit=capped, offset=offset, symbol=symbol
     )
     return PersistedBacktestListResponse(
         items=[
@@ -53,7 +54,7 @@ def list_persisted_backtests(
             for item in items
         ],
         total=total,
-        limit=limit,
+        limit=capped,
         offset=offset,
     )
 

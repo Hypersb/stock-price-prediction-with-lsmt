@@ -7,6 +7,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from backend.app.core.errors import BadRequestError
+from backend.app.core.security import validate_ticker_symbol
 from backend.app.dependencies import get_market_data_service
 from backend.app.schemas.market_data import MarketDataResponse
 from backend.app.services.market_data import MarketDataService, ensure_default_end_date
@@ -26,4 +28,8 @@ def get_market_data(
     ] = None,
 ) -> MarketDataResponse:
     """Return validated OHLCV observations for a symbol and date range."""
-    return service.get_ohlcv(symbol, start_date, ensure_default_end_date(end_date))
+    try:
+        safe_symbol = validate_ticker_symbol(symbol)
+    except ValueError as exc:
+        raise BadRequestError(str(exc)) from exc
+    return service.get_ohlcv(safe_symbol, start_date, ensure_default_end_date(end_date))

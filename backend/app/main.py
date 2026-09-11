@@ -10,6 +10,10 @@ from backend.app.core.config import get_settings
 from backend.app.core.errors import register_exception_handlers
 from backend.app.core.logging import configure_logging, get_logger
 from backend.app.core.middleware import RequestContextMiddleware
+from backend.app.core.security import (
+    RequestSizeLimitMiddleware,
+    SecurityHeadersMiddleware,
+)
 
 APP_TITLE = "Stock Price Prediction Research API"
 APP_DESCRIPTION = (
@@ -61,6 +65,8 @@ def create_app() -> FastAPI:
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,
     )
+    application.add_middleware(RequestSizeLimitMiddleware)
+    application.add_middleware(SecurityHeadersMiddleware)
     application.add_middleware(RequestContextMiddleware)
     register_exception_handlers(application)
     application.include_router(api_router, prefix=settings.api_v1_prefix)
