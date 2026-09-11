@@ -194,6 +194,12 @@ export type PersistedBacktestDetail = PersistedBacktestSummary & {
   equity_curve: PersistedEquityPoint[];
 };
 
+export type ErrorResponse = {
+  error: string;
+  detail: string;
+  code?: string | null;
+};
+
 export class ApiError extends Error {
   status: number;
   code?: string;

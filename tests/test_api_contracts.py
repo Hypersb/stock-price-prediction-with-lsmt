@@ -60,6 +60,8 @@ def test_openapi_schema_generation_succeeds(monkeypatch) -> None:
     assert "/api/v1/features/{symbol}" in paths
     assert "/api/v1/models" in paths
     assert "/api/v1/backtests" in paths
+    assert "/api/v1/experiments" in paths
+    assert "/api/v1/walk-forward/{run_id}" in paths
     json.dumps(schema)
 
 
