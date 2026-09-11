@@ -1,4 +1,9 @@
-"""Walk-forward evaluation of non-neural baseline models."""
+"""Walk-forward evaluation of non-neural baseline models.
+
+Validation windows are reserved for selection / early-stopping models. Baseline
+walk-forward fits on purged train only, evaluates purged test only, and does
+not use the validation split for fitting.
+"""
 
 from dataclasses import dataclass
 
