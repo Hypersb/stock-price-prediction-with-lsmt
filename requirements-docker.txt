@@ -1,0 +1,12 @@
+# Runtime dependencies for the Dockerized FastAPI research API.
+# Excludes local-only tooling (jupyter) and heavy training stacks (torch).
+pandas
+numpy
+scikit-learn
+yfinance
+fastapi
+uvicorn
+sqlalchemy
+alembic
+psycopg[binary]
+pydantic
