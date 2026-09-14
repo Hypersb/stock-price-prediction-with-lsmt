@@ -115,7 +115,8 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-Frontend (**Node 20+ required**; CI uses Node 22 — Vitest fails on Node 18):
+Frontend (**Node ≥ 20 required**; CI uses Node 22 — Vitest fails on Node 18).
+See `frontend/package.json` `engines` and `frontend/.nvmrc`.
 
 ```bash
 cd frontend
@@ -198,16 +199,19 @@ Prediction GET endpoints read persisted OOS rows and never train.
 
 ```bash
 # Python
-ruff check backend tests ml
+ruff check backend tests ml scripts
 pytest -q
+PYTHONPATH=. python -m scripts.check_repo_health
 
-# Frontend
+# Frontend (Node ≥ 20)
 cd frontend
 npm run lint
 npm run typecheck
 npm test
 npm run build
 ```
+
+Canonical workflow notes: [docs/startup/DEVELOPER_WORKFLOW.md](docs/startup/DEVELOPER_WORKFLOW.md).
 
 ## Final Evaluation
 
@@ -250,6 +254,9 @@ Labeled **PLANNED** (not implemented — see `docs/startup/ROADMAP.md`):
 - [phase 1 tracker](docs/startup/PHASE_1_TRACKER.md)
 - [product definition](docs/startup/PRODUCT_DEFINITION.md)
 - [feature inventory](docs/startup/FEATURE_INVENTORY.md)
+- [repository structure](docs/startup/REPOSITORY_STRUCTURE.md)
+- [entry points](docs/startup/ENTRY_POINTS.md)
+- [developer workflow](docs/startup/DEVELOPER_WORKFLOW.md)
 - [roadmap](docs/startup/ROADMAP.md)
 - [target architecture](docs/startup/TARGET_ARCHITECTURE.md)
 - [ADRs](docs/adr/README.md)

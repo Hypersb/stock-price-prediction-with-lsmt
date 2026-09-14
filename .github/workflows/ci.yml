@@ -33,7 +33,7 @@ jobs:
           python -m pip install -r /tmp/requirements-ci.txt -r requirements-dev.txt
 
       - name: ruff
-        run: ruff check backend tests ml
+        run: ruff check backend tests ml scripts
 
       - name: pytest
         env:

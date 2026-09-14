@@ -41,11 +41,16 @@ npm run build
 ```
 
 **Node requirement:** Vitest failed on Node **v18.20.8** (`ERR_REQUIRE_ESM` loading Vite).  
-Same suite passed on Node **v20.20.2**. CI uses Node **22**. Treat **Node ≥ 20** as required for frontend tests.
+Same suite passed on Node **v20.20.2**. CI uses Node **22**.  
+**Enforced:** `frontend/package.json` `"engines": { "node": ">=20" }` and `frontend/.nvmrc` → `20`.
 
 ### CI
 
-`.github/workflows/ci.yml` jobs: `backend` (ruff + pytest), `frontend` (lint/typecheck/test/build), `database` (alembic + persistence tests against Postgres 16).
+`.github/workflows/ci.yml` jobs: `backend` (ruff including `scripts` + pytest), `frontend` (lint/typecheck/test/build), `database` (alembic + persistence tests against Postgres 16).
+
+### Prompt 2 delta
+
+Architecture boundary tests + repo health check added. Expect pytest count **≥ 300** with new tests; no intentional removals.
 
 ---
 

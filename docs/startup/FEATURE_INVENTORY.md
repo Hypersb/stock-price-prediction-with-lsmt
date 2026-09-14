@@ -133,10 +133,11 @@ Production-ready means safe for multi-user production SaaS without major hardeni
 | Capability | Status | Location | Important files | Current behavior | Tests | Limitations | Prod-ready | Next action |
 |------------|--------|----------|-----------------|------------------|-------|-------------|------------|-------------|
 | Pytest suite | IMPLEMENTED | `tests/` | 301 collected | 300 passed, 1 skipped locally | — | Postgres migration skip without DATABASE_URL | Partial | Keep green |
-| Frontend vitest | PARTIAL | `frontend/` | 14 tests | Pass on Node 20+; fail Node 18 ESM | — | Node version sensitivity | Partial | Document Node ≥20 |
-| Ruff lint | IMPLEMENTED | CI + local | backend/tests/ml | All checks passed | — | — | Partial | Keep |
+| Frontend vitest | PARTIAL | `frontend/` | 14 tests | Pass on Node 20+; fail Node 18 ESM; **engines + .nvmrc enforce ≥20** | — | Node version sensitivity mitigated | Partial | Keep CI on Node 22 |
+| Ruff lint | IMPLEMENTED | CI + local | backend/tests/ml/scripts | All checks passed | — | — | Partial | Keep |
 | GitHub Actions CI | IMPLEMENTED | `.github/workflows/ci.yml` | backend, frontend, database jobs | CI config present | — | Not re-run in this audit against GH | Partial | Verify on PR |
-| Docker Compose | IMPLEMENTED | `docker-compose.yml`, Dockerfiles | postgres + api + frontend | Local stack | — | Dev credentials only | No | Harden for deploy |
+| Docker Compose | IMPLEMENTED | `docker-compose.yml`, Dockerfiles | postgres + api + frontend | Local stack; **docker reqs pinned** | — | Dev credentials only | No | Harden for deploy |
+| Repo health check | IMPLEMENTED | `scripts/check_repo_health.py` | Structural invariants | Local + pytest | — | Not a substitute for CI | Partial | Keep |
 | Logging / metrics / observability | PARTIAL | `core/logging.py`, middleware | Structured-ish logs, request id | some API tests | — | No metrics backend/tracing | No | Phase 8/15 |
 | Security (headers, size limits) | PARTIAL | `core/security.py` | Headers + body limits; no auth | `test_api_security.py` | — | Open endpoints | No | Phase 14 |
 | Model monitoring / drift | NOT IMPLEMENTED | — | Future Phase 5 | — | — | — | No | Phase 5 |
