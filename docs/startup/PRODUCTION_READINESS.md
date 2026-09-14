@@ -1,43 +1,36 @@
-# Production Readiness Scorecard
+# Startup Readiness Scorecard (post-transformation pass)
 
-Audit date: 2026-09-13  
-Scale: **0–5** (0 = absent, 5 = production-grade). Scores are intentionally conservative.
+Scored 0–5. Do not inflate.
 
-| Area | Score | Justification |
-|------|------:|---------------|
-| Market data | 2 | Yahoo historical provider works with validation; unadjusted closes, no PIT universe, no multi-provider, no SLA |
-| Data validation | 3 | Solid OHLCV schema/chrono checks; missing richer OHLC integrity/corporate-action policy |
-| Feature engineering | 3 | Broad leakage-aware feature set + tests; absolute level features and no feature store |
-| ML methodology | 3 | Chronological splits, train-only scaling, WF purge/retrain are real; single-split purge gap; empirics unpublished |
-| Baseline comparison | 3 | Naive/linear/tree/boosting implemented and comparable under shared rules |
-| Walk-forward validation | 4 | Expanding/rolling, purge, fold preprocess, OOS collection, aggregates — strongest area |
-| Backtesting | 3 | Costed h=1 engine + fold-aware guards; simplified costs; multi-horizon blocked |
-| Risk analytics | 2 | Sharpe/Sortino/DD/vol exist; no dedicated risk engine (VaR/ES/factors) |
-| Experiment reproducibility | 2 | Seeds/configs exist; dataset/code provenance incomplete; no attested published run |
-| Artifact provenance | 1 | Partial DB models; contract defined only in Phase 1 docs |
-| Model lifecycle | 1 | Checkpoint helpers + hardcoded catalog; no real registry/promote/rollback |
-| Monitoring | 0 | Not implemented |
-| News | 0 | Not implemented |
-| NLP | 0 | Not implemented |
-| Portfolio analytics | 0 | Not implemented |
-| Backend architecture | 3 | Clean FastAPI modular monolith services/repos; no auth/jobs |
-| Database | 3 | Postgres + Alembic + SQLAlchemy models/tests; SQLite unit path |
-| Caching | 2 | Process TTL only; adequate for single-node research API |
-| Background jobs | 0 | Not implemented |
-| Frontend | 3 | Real Next.js research UI with honest empty states; shallow tests; Node engine caveat |
-| Authentication | 0 | Not implemented |
-| Security | 2 | Headers, body limits, secret redaction tests; open API, dev creds |
-| Testing | 4 | 300 pytest passed; ruff clean; frontend 14 vitest on Node 20+; CI defined |
-| CI/CD | 3 | GitHub Actions for backend/frontend/DB; no deploy pipeline |
-| Observability | 1 | Basic logging + request context; no metrics/tracing/alerting stack |
-| Documentation | 3 | Strong research docs; empirics placeholders honest; new startup docs added |
-| Deployment | 2 | Docker Compose local stack; not cloud-hardened |
+| Category | Score | Notes |
+|----------|------:|-------|
+| market data | 4 | Provider + quality + adj_close optional; still Yahoo-only |
+| data quality | 4 | Strict OHLC + gaps |
+| feature pipeline | 4 | Deterministic + identity helper |
+| ML | 4 | Baselines + LSTM real |
+| validation | 4 | WF purge; single-split purge optional |
+| backtesting | 3 | Solid h=1; multi-horizon blocked |
+| risk | 3 | VaR/ES/Calmar/beta added; not portfolio VaR suite |
+| experiments | 3 | Config fingerprint + empirics artifacts; DB provenance partial |
+| registry | 2 | Filesystem registry; catalog mostly untrained |
+| monitoring | 2 | Helpers exist; no scheduled production monitors |
+| news | 2 | Port + null provider; no live feed configured |
+| NLP | 2 | Keyword lexicon baseline only |
+| AI research | 2 | Tools + safety; no LLM provider wired |
+| portfolio | 2 | Analytics library; no multi-user portfolios |
+| backend | 4 | FastAPI modular |
+| database | 3 | Alembic schema present; provenance gaps |
+| jobs | 2 | In-process queue only |
+| cache | 2 | Process TTL |
+| frontend | 3 | Research UI exists; not full product surface |
+| auth | 2 | Optional API key; no user accounts UI |
+| security | 3 | Headers/limits/secret hygiene; open API default |
+| testing | 4 | Large pytest + vitest + contracts |
+| CI/CD | 3 | GH Actions present |
+| observability | 2 | Logs/request ids; no OTEL |
+| deployment | 2 | Compose/dev; not hardened prod |
+| documentation | 4 | Startup docs + system design + empirics |
 
-**Average (26 areas): ~2.0** — solid research prototype / modular monolith foundation; **not** a production multi-tenant SaaS.
+**Average (approx):** ~2.9 / 5  
 
----
-
-## Interpretation
-
-- **Ready for:** local/research use, continued engineering, recruiter-honest demos of methodology  
-- **Not ready for:** production user accounts, real-time claims, managed model ops, regulated advice surfaces  
+**Release decision:** STARTUP RELEASE CANDIDATE **BLOCKED** — missing multi-user auth, production workers/cache, live news credentials, and hardened deploy despite strong research core + honest empirics.

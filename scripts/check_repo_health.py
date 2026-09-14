@@ -58,10 +58,13 @@ REQUIRED_ENTRY_POINTS = (
     "scripts/fetch_market_data.py",
     "scripts/check_repo_health.py",
     "scripts/print_config.py",
+    "scripts/run_startup_empirical_study.py",
     "alembic.ini",
     "frontend/package.json",
     "docker-compose.yml",
     ".env.example",
+    "docs/architecture/SYSTEM_DESIGN.md",
+    "docs/research/METHODOLOGY.md",
 )
 
 FORBIDDEN_TRACKED_GLOBS = (

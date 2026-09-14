@@ -1918,6 +1918,21 @@ Walk-forward: `WalkForwardConfig(window_type='expanding', initial_train_size=252
 
 ## 17. Conclusions
 
+Under experiment `7cb28b547e7c63e2` (AAPL/MSFT/NVDA/SPY, 2018–2025 unadjusted
+Yahoo closes, expanding walk-forward with purge, horizon=1):
+
+- **Naive regression achieved the lowest mean MAE/RMSE** on every symbol.
+- **LSTM did not outperform** linear or naive models on mean MAE/RMSE; LSTM
+  mean R² was strongly negative.
+- **Linear regression** often had competitive or best mean directional
+  accuracy (notably AAPL).
+- Gradient boosting did not dominate on error metrics.
+- Economic backtests remain fold-sensitive; costs materially change outcomes.
+  Historical simulations are **not** guarantees of future performance.
+
+These are negative/null findings for the LSTM configuration tested — a valid
+scientific outcome for this platform.
+
 Review the multi-asset, statistical, and cost-sensitivity sections before
 claiming LSTM superiority. Absence of consistent outperformance is a valid
 conclusion.

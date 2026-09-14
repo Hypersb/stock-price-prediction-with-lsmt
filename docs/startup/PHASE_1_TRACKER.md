@@ -1,36 +1,26 @@
 # Phase 1 Tracker — Startup Foundation & Architecture
 
-Phase objective: truthful repository baseline, product definition, and architecture contracts that guide controlled development.
-
 | Prompt | Title | Status |
 |--------|-------|--------|
-| 1 | Repository audit + product/architecture baseline | **COMPLETE** |
-| 2 | Repository structural cleanup | **COMPLETE** |
-| 3 | Configuration and environment architecture | **COMPLETE** |
-| 4 | Domain boundaries and internal interfaces | **COMPLETE** |
-| 5 | Data contracts and schemas | **COMPLETE** (condensed into Stage A + `DATA_CONTRACTS.md` + schema v1) |
-| 6 | Persistence architecture | **COMPLETE** (documented; DB schema expansion continues in later stages) |
-| 7 | Service/API foundation | **COMPLETE** (documented layering; routes remain thin) |
-| 8 | Error handling, logging and observability foundation | **PARTIAL** — domain/API errors + logging exist; OTEL deferred (TD-016) |
-| 9 | Testing and developer experience foundation | **PARTIAL** — suite green; DX docs exist; more E2E later |
-| 10 | Phase-1 integration audit and release checkpoint | **IN PROGRESS** via master transformation |
+| 1–4 | Audit → structure → config → domains | **COMPLETE** |
+| 5–7 | Data contracts / persistence / API foundation | **COMPLETE** (docs + boundaries) |
+| 8 | Observability foundation | **PARTIAL** (logs/errors; OTEL deferred) |
+| 9 | Testing / DX | **PARTIAL** (suite expanded; more E2E later) |
+| 10 | Integration checkpoint | **SUPERSEDED** by master transformation |
 
----
+Master plan: `MASTER_EXECUTION_PLAN.md`.
 
-## Master transformation note
+## Transformation progress (high level)
 
-After Prompt 4, execution continues under `MASTER_EXECUTION_PLAN.md` (Stages A–BZ).
-Phase 1 remaining items are absorbed into Stage A rather than isolated prompts.
+| Stage band | Status |
+|------------|--------|
+| A–E Foundation + data integrity + temporal | **DONE** |
+| F–L Empirical study + report | **DONE** (`7cb28b547e7c63e2`) |
+| M–R Registry / monitoring | **PARTIAL** |
+| S–X News / NLP | **PARTIAL** (ports + keyword baseline; live news blocked) |
+| Y–AB AI tools | **PARTIAL** (no LLM provider) |
+| AC–AJ Portfolio / users | **PARTIAL** (analytics + optional API key; no watchlists UI) |
+| AK–BF Jobs / deploy / frontend product | **PARTIAL** / **DEFERRED** |
+| BG–BZ Final audits | **IN PROGRESS** |
 
-## Stage A–E progress (2026-09-13)
-
-- [x] Foundation docs: data/persistence/API/observability/price basis  
-- [x] OHLC quality validation + optional `adj_close`  
-- [x] Dataset fingerprints + instrument classification  
-- [x] Optional purged chronological splits (`forecast_horizon`)  
-- [ ] Legitimate multi-asset empirical study (Stage F–L)  
-- [ ] Experiment registry DB expansion (Stage M–N)  
-
-## Notes
-
-Do not fabricate empirics. Default research price basis remains **unadjusted**.
+Release stance: **BLOCKED** for production SaaS; research core is substantially stronger.

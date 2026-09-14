@@ -26,7 +26,7 @@ IDs are stable. Do not delete historical entries.
 | TD-017 | LOW | Docs confusion | Legacy phases | 1 | **RES** | — | — | — |
 | TD-018 | LOW | Unused API UI | Predictions/POST BT | 7 | RED | DEF | DEF | DEF |
 | TD-019 | LOW | Cache | Process TTL | 14 | DEF | DEF | DEF | DEF |
-| TD-020 | MEDIUM | Empirics empty | Report placeholders | 2 | DEF | DEF | DEF | DEF |
+| TD-020 | MEDIUM | Empirics empty | Report placeholders | 2 | DEF | DEF | DEF | **RESOLVED** (experiment `7cb28b547e7c63e2`) |
 | TD-021 | LOW | Risk split | analysis vs backtest metrics | 9 | NEW | DEF | DEF | DEF |
 | TD-022 | LOW | Timezones | Naive dates | 11 | NEW | DEF | DEF | DEF |
 | TD-023 | LOW | `^INDEX` HTTP | Allow-list | 7/11 | NEW | DEF | DEF | DEF |
@@ -46,9 +46,9 @@ RES=RESOLVED, RED=REDUCED, DEF=DEFERRED, NEW=NEW
 
 ## Stage A–E foundation outcomes
 
-- **RESOLVED:** TD-013 OHLC consistency checks  
-- **REDUCED:** TD-001, TD-003, TD-006  
-- **DEFERRED:** TD-020 empirics (next critical path)  
+- **RESOLVED:** TD-013 OHLC consistency checks; **TD-020** empirics populated (`7cb28b547e7c63e2`)  
+- **REDUCED:** TD-001, TD-003, TD-006, TD-007 (filesystem registry), TD-021 (risk package)  
+- **DEFERRED:** auth productization, Redis/Celery, live news, SOTA NLP, cloud deploy  
 
 ## Priority order
 

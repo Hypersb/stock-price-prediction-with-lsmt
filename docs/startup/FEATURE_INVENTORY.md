@@ -88,8 +88,8 @@ Production-ready means safe for multi-user production SaaS without major hardeni
 | Costs / engine / metrics | IMPLEMENTED | `costs.py`, `engine.py`, `metrics.py`, `returns.py` | Turnover bps costs; Sharpe/Sortino/MDD | cost/metrics/engine tests | numpy | Simplified cost model; default 0 cost | No | Richer cost scenarios |
 | Fold-aware stitching | IMPLEMENTED | `fold_aware.py` | Rejects overlapping OOS; no gap annualization | `test_fold_aware_backtest.py` | — | Conservative | No | Keep |
 | Benchmark compare | IMPLEMENTED | `benchmark.py` | Buy-and-hold on same dates | `test_benchmark.py` | — | Single-asset B&H | No | Keep |
-| Risk analytics (standalone engine) | PARTIAL | `ml/analysis` + backtest metrics | Library metrics exist; no dedicated risk service domain | tests exist | — | Not VaR/ES/factor risk | No | Phase 9 |
-| Portfolio analytics | NOT IMPLEMENTED | — | — | Future work | — | — | — | No | Phase 10 |
+| Risk analytics (standalone engine) | PARTIAL | `ml/risk/` + analysis/backtest | VaR/ES/Calmar/beta + existing Sharpe/DD | `test_risk_metrics.py` | — | Historical VaR; not factor risk | No | Portfolio risk |
+| Portfolio analytics | PARTIAL | `ml/portfolio/` | Weights/HHI helpers (no brokerage) | `test_portfolio_analytics.py` | — | Analytical only | No | Persistence + UI |
 
 ## Research orchestration / reporting
 
@@ -97,21 +97,24 @@ Production-ready means safe for multi-user production SaaS without major hardeni
 |------------|--------|----------|-----------------|------------------|-------|--------------|-------------|------------|-------------|
 | Final research pipeline | IMPLEMENTED | `ml/research/pipeline.py` | Multi-asset WF + diagnostics orchestration | `test_final_research_pipeline.py` | many ml modules | Needs operator-supplied data | No | Persist fingerprints (Phase 2) |
 | Report renderer | IMPLEMENTED | `ml/research/report.py` | Renders markdown; empty when no result | `test_research_report.py` | — | Does not invent metrics | No | Keep discipline |
-| Empirical report doc | PLACEHOLDER | `docs/final-research-report.md` | Explicit awaiting sections | — | — | No executed production experiment in repo | No | Run reproducible experiment (Phase 2) |
+| Empirical report doc | IMPLEMENTED | `docs/final-research-report.md` + `docs/research/empirics/` | Experiment `7cb28b547e7c63e2` | — | Real WF metrics; LSTM negative vs naive MAE | Partial | Keep reproducible runner |
 | Ablation / regimes / explain / stats / sensitivity | IMPLEMENTED | `ml/research/*` | Diagnostic modules with tests | matching tests | — | Diagnostics ≠ causal claims | No | Keep labeling |
 
 ## Backend / persistence / API
 
 | Capability | Status | Location | Important files | Current behavior | Tests | Dependencies | Limitations | Prod-ready | Next action |
 |------------|--------|----------|-----------------|------------------|-------|--------------|-------------|------------|-------------|
-| FastAPI app | IMPLEMENTED | `backend/app/main.py` | Health, CORS, middleware, routers | many API tests | fastapi | No auth | No | Phase 12–14 |
+| FastAPI app | IMPLEMENTED | `backend/app/main.py` | Health, CORS, middleware, routers | many API tests | fastapi | Optional API key | No | Harden auth |
 | PostgreSQL models + Alembic | IMPLEMENTED | `backend/app/db/`, `alembic/` | Experiments, metrics, WF, preds, backtests | db + migration tests | SQLAlchemy, Alembic, psycopg | SQLite used in unit tests | Partial | Expand provenance fields |
-| Research persistence service | IMPLEMENTED | `services/research_persistence.py` | Offline bundle writer | `test_research_persistence.py` | DB | Not full experiment platform | No | Phase 4 |
-| In-process TTL cache | PARTIAL | `core/cache.py` | Market OHLCV cache ~60s | `test_cache_reliability.py` | — | Not Redis; process-local | No | Redis only if multi-instance |
-| Backend configuration | IMPLEMENTED | `backend/app/core/config.py` | Typed env settings, fail-fast, safe summary | `test_fullstack_config.py`, `test_configuration_architecture.py` | — | No pydantic-settings (intentional) | Partial | Extend per future services |
-| Domain contracts | IMPLEMENTED | `ml/contracts/`, `ml/errors.py` | Typed boundary specs + domain errors | `test_domain_contracts.py`, architecture tests | — | Not a feature store/registry | Partial | Wire into persistence in later prompts |
-| Background jobs / scheduler | NOT IMPLEMENTED | — | — | Sync request path / offline scripts | — | Long research not queued | No | Phase 13 |
-| Auth / users / watchlists / alerts | NOT IMPLEMENTED | — | — | Explicitly absent | — | Open API | No | Phase 12–13 |
+| Research persistence service | IMPLEMENTED | `services/research_persistence.py` | Offline bundle writer | `test_research_persistence.py` | DB | Not full experiment platform | No | Expand |
+| In-process TTL cache | PARTIAL | `core/cache.py` | Market OHLCV cache ~60s | `test_cache_reliability.py` | — | Not Redis | No | Shared cache if needed |
+| Backend configuration | IMPLEMENTED | `backend/app/core/config.py` | Typed env settings | config tests | — | — | Partial | Keep |
+| Domain contracts | IMPLEMENTED | `ml/contracts/` | Boundary specs | `test_domain_contracts.py` | — | — | Partial | Keep |
+| Model registry | PARTIAL | `ml/registry/` | Filesystem registry | `test_model_registry.py` | — | Empty default | No | Wire checkpoints |
+| Monitoring / drift | PARTIAL | `ml/monitoring/` | PSI/KS + rolling errors | `test_monitoring.py` | — | Not scheduled | No | Jobs |
+| News / NLP / AI | PARTIAL | `ml/news`, `ml/nlp`, `ml/ai` | Ports + keyword sentiment + tools | matching tests | — | Null news; no LLM | No | Providers |
+| Background jobs | PARTIAL | `backend/app/jobs/` | In-process queue | `test_job_queue.py` | — | No Redis/Celery | No | Workers |
+| Auth | PARTIAL | `core/auth.py` | Optional API key | `test_auth.py` | — | No user accounts | No | User platform |
 
 ## Frontend
 
@@ -126,9 +129,9 @@ Production-ready means safe for multi-user production SaaS without major hardeni
 
 | Capability | Status | Notes |
 |------------|--------|-------|
-| News ingestion | NOT IMPLEMENTED | Future Phase 6 |
-| Sentiment / NLP | NOT IMPLEMENTED | Future Phase 7 |
-| AI research copilot | NOT IMPLEMENTED | Future Phase 8 |
+| News ingestion | PARTIAL | Port + null provider; live credentials not configured |
+| Sentiment / NLP | PARTIAL | Keyword lexicon baseline + PIT features; not SOTA |
+| AI research copilot | PARTIAL | Evidence tools + safety; LLM provider not wired |
 
 ## Ops / quality
 

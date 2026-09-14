@@ -25,7 +25,8 @@ semantics, LSTM context-aware sequences, fold-aware OOS stitching, horizon=1
 strategy backtests, prediction GET-from-DB, documentation aligned to the real
 system)—not on inventing empirical wins.
 
-Architecture detail: [docs/system-design.md](docs/system-design.md) ·
+Architecture detail: [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md) ·
+[docs/system-design.md](docs/system-design.md) ·
 [docs/architecture.md](docs/architecture.md)
 
 ## Status
@@ -35,13 +36,17 @@ leakage-aware quant/ML modular monolith (API + PostgreSQL + Next.js + `ml/`).
 That legacy milestone describes **implemented software capability**, not
 attested trading performance.
 
-**Startup transformation:** a new Phase 1–15 product roadmap is underway
-(`docs/startup/ROADMAP.md`). Phase 1 Prompt 1 establishes architecture and
-audit baselines under `docs/startup/`.
+**Startup transformation:** in progress under `docs/startup/MASTER_EXECUTION_PLAN.md`
+and `docs/startup/ROADMAP.md`. Architecture: `docs/architecture/SYSTEM_DESIGN.md`.
 
-Empirical report sections remain **placeholders** until a legitimate,
-provenance-backed experiment is executed and rendered
-(`docs/startup/EMPIRICAL_RESULTS_AUDIT.md`).
+**Empirics:** a legitimate multi-asset walk-forward study was executed
+(experiment `7cb28b547e7c63e2`, universe AAPL/MSFT/NVDA/SPY, 2018–2025 unadjusted
+Yahoo). Summary: `docs/research/empirics/`; narrative:
+`docs/final-research-report.md`. **LSTM did not beat naive/linear on MAE/RMSE**
+in that configuration — a valid negative result.
+
+This platform provides research and historical simulation. It does **not**
+guarantee profits or future prices.
 
 ## Architecture
 
