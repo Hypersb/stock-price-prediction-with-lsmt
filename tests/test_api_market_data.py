@@ -116,13 +116,14 @@ def test_market_data_validation_error_for_bad_symbol_type_path(monkeypatch) -> N
 
 def test_market_data_pagination_reports_total_and_slice(monkeypatch) -> None:
     dates = pd.date_range("2020-01-01", periods=10, freq="D")
+    closes = [100.0 + index for index in range(10)]
     frame = pd.DataFrame(
         {
             "Date": dates.strftime("%Y-%m-%d"),
-            "Open": [100.0] * 10,
-            "High": [101.0] * 10,
-            "Low": [99.0] * 10,
-            "Close": [100.0 + index for index in range(10)],
+            "Open": closes,
+            "High": [value + 1.0 for value in closes],
+            "Low": [value - 1.0 for value in closes],
+            "Close": closes,
             "Volume": [1000] * 10,
         }
     )

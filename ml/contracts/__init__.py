@@ -14,7 +14,10 @@ from ml.contracts.evaluation import CLASSIFICATION_METRIC_NAMES, REGRESSION_METR
 from ml.contracts.experiments import ExperimentSpec
 from ml.contracts.features import FeatureSetSpec
 from ml.contracts.market_data import (
+    ADJUSTMENT_POLICY_ADJUSTED,
     ADJUSTMENT_POLICY_UNADJUSTED,
+    MARKET_DATA_SCHEMA_VERSION,
+    OHLCV_OPTIONAL_COLUMNS,
     OHLCV_REQUIRED_COLUMNS,
     MarketDataSemantics,
 )
@@ -23,8 +26,11 @@ from ml.contracts.predictions import PredictionRecord
 from ml.contracts.targets import TargetSpec
 
 __all__ = [
+    "ADJUSTMENT_POLICY_ADJUSTED",
     "ADJUSTMENT_POLICY_UNADJUSTED",
     "CLASSIFICATION_METRIC_NAMES",
+    "MARKET_DATA_SCHEMA_VERSION",
+    "OHLCV_OPTIONAL_COLUMNS",
     "OHLCV_REQUIRED_COLUMNS",
     "REGRESSION_METRIC_NAMES",
     "SUPPORTED_BACKTEST_HORIZON",

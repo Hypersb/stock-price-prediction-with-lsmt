@@ -19,9 +19,11 @@ def _synthetic_ohlcv(rows: int = 120, seed: int = 0, drift: float = 0.001) -> pd
     dates = pd.date_range("2020-01-01", periods=rows, freq="D")
     noise = rng.normal(0.0, 0.01, size=rows)
     close = 100 * np.cumprod(1 + drift + noise)
-    high = close * (1 + rng.uniform(0.0, 0.01, size=rows))
-    low = close * (1 - rng.uniform(0.0, 0.01, size=rows))
     open_ = close * (1 + rng.normal(0.0, 0.002, size=rows))
+    body_high = np.maximum(open_, close)
+    body_low = np.minimum(open_, close)
+    high = body_high * (1 + rng.uniform(0.0, 0.01, size=rows))
+    low = body_low * (1 - rng.uniform(0.0, 0.01, size=rows))
     volume = rng.integers(100_000, 500_000, size=rows)
     return pd.DataFrame(
         {
