@@ -1,51 +1,52 @@
 # Technical Debt Register
 
 Audit date: 2026-09-13 (Prompt 1)  
-Prompt 2 update: 2026-09-13  
-Prompt 3 update: 2026-09-13  
+Updates: Prompt 2–4 on 2026-09-13  
 
 IDs are stable. Do not delete historical entries.
 
-| ID | Severity | Area | Description | Evidence | Impact | Recommended fix | Target phase | Prompt 2 | Prompt 3 |
-|----|----------|------|-------------|----------|--------|-----------------|--------------|----------|----------|
-| TD-001 | HIGH | Market data | Unadjusted Yahoo OHLCV by default | `ml/data/yahoo.py` `auto_adjust=False` | Distorted returns around corporate actions | Add adjustment policy + provenance field | 2–3 | DEFERRED | DEFERRED |
-| TD-002 | HIGH | Market data | Survivorship / static universe | `ml/research/universe.py` | Overstated robustness | PIT universe or explicit bias docs in every report | 2, 10 | DEFERRED | DEFERRED |
-| TD-003 | HIGH | ML validation | Chronological split lacks purge | `ml/splitting.py` | Label-boundary leakage for horizon>1 | Purge/embargo helper for single splits | 3 | DEFERRED | DEFERRED |
-| TD-004 | HIGH | Backtesting | Multi-horizon economics unsupported | `execution.py` hard fail | Incomplete strategy evaluation | Design multi-horizon model | 3, 9 | DEFERRED | DEFERRED |
-| TD-005 | MEDIUM | Research config | Horizon vs WF forecast_horizon desync | `ml/research/config.py` | Methodological mismatch | Enforce equality | 3 | DEFERRED | DEFERRED |
-| TD-006 | MEDIUM | Provenance | Experiments lack full artifact contract | DB vs provenance doc | Unreproducible claims | Extend schema | 2, 4 | DEFERRED | DEFERRED |
-| TD-007 | MEDIUM | Model lifecycle | Catalog `trained=False` hardcoded | `services/models.py` | UI not artifact-backed | Registry | 4 | DEFERRED | DEFERRED |
-| TD-008 | MEDIUM | Frontend | Cumulative chart vs analysis divergence | market page | Confusion | Chart from analysis payload | 1–2 | DEFERRED | DEFERRED |
-| TD-009 | MEDIUM | Dependencies | Unpinned Docker requirements | `requirements-docker.txt` | Image drift | Pin ranges | 3 | **RESOLVED** | — |
-| TD-010 | MEDIUM | DX | Frontend tests fail on Node 18 | Vitest ESM | Friction | engines/nvmrc | 1 | **RESOLVED** | — |
-| TD-011 | MEDIUM | Security | No authentication on API | open routers | Exposure | Authn/z | 12, 14 | DEFERRED | DEFERRED |
-| TD-012 | MEDIUM | Jobs | No worker system | sync/offline | Timeouts | Job queue | 13 | DEFERRED | DEFERRED |
-| TD-013 | LOW | Data validation | No high≥low checks | `validation.py` | Bad ticks | Expand validators | 3 | DEFERRED | DEFERRED |
-| TD-014 | LOW | Backtesting | Default zero costs | `BacktestConfig` | Optimistic nets | Safer defaults | 3 | DEFERRED | DEFERRED |
-| TD-015 | LOW | Features | Absolute SMA/EMA levels | feature modules | Nonstationarity | Prefer ratios | 3 | DEFERRED | DEFERRED |
-| TD-016 | LOW | Observability | No metrics/tracing | logging only | Ops gap | OTEL later | 8, 15 | DEFERRED | DEFERRED (logging config foundation only) |
-| TD-017 | LOW | Docs/product | Legacy vs startup roadmap confusion | README | Confusion | Clarified | 1 | **RESOLVED** | — |
-| TD-018 | LOW | API/UI | Unused prediction/POST backtest UI | contracts | Perception | Wire later | 7 | **REDUCED** | DEFERRED |
-| TD-019 | LOW | Cache | Process-local TTL only | `core/cache.py` | Multi-worker drift | Redis later | 14 | DEFERRED | DEFERRED |
-| TD-020 | MEDIUM | Empirics | Final research report empty | report doc | No attested narrative | Run experiment | 2 | DEFERRED | DEFERRED |
-| TD-021 | LOW | Structure | Split drawdown/Sharpe defs | analysis vs backtest | Drift risk | Risk domain | 9 | **NEW** | DEFERRED |
-| TD-022 | LOW | Time | Naive calendar dates | provider/API | Timezone risk | Market calendar | 11 | **NEW** | DEFERRED |
-| TD-023 | LOW | Symbols | HTTP rejects `^INDEX` | security allow-list | API gap | Quote-path design | 7/11 | **NEW** | DEFERRED |
-| TD-024 | LOW | DX | Remaining symbol normalize call sites | repositories | Duplication | Migrate | 3–4 | **NEW** | DEFERRED |
-| TD-025 | LOW | Config | Compose still uses well-known placeholder DB password | `docker-compose.yml` | Fine locally; unsafe if copied to prod | Keep documented; forbid in deploy | 14 | — | **NEW** (accepted for local only) |
-| TD-026 | LOW | Config | Minimal dotenv parser (no multiline) | `config.maybe_load_dotenv` | Rare .env edge cases | Optional python-dotenv later if needed | 3–8 | — | **NEW** |
+| ID | Severity | Area | Description | Target | P2 | P3 | P4 |
+|----|----------|------|-------------|--------|----|----|-----|
+| TD-001 | HIGH | Market data | Unadjusted Yahoo OHLCV default | 2–3 | DEF | DEF | **REDUCED** (semantics explicit in contracts; still unadjusted) |
+| TD-002 | HIGH | Survivorship | Static universe | 2,10 | DEF | DEF | DEF |
+| TD-003 | HIGH | Splits | Chronological split lacks purge | 3 | DEF | DEF | DEF |
+| TD-004 | HIGH | Backtest | Multi-horizon unsupported | 3,9 | DEF | DEF | **REDUCED** (shared `assert_supported_backtest_horizon`) |
+| TD-005 | MEDIUM | Research config | Horizon vs WF desync | 3 | DEF | DEF | DEF |
+| TD-006 | MEDIUM | Provenance | Incomplete experiment contract in DB | 2,4 | DEF | DEF | **REDUCED** (`ExperimentSpec`/`ArtifactRef`/`DatasetSpec` contracts; DB still partial) |
+| TD-007 | MEDIUM | Registry | Catalog trained=False | 4 | DEF | DEF | DEF |
+| TD-008 | MEDIUM | Frontend | Cum chart vs analysis | 1–2 | DEF | DEF | DEF |
+| TD-009 | MEDIUM | Docker pins | Unpinned docker reqs | 3 | **RES** | — | — |
+| TD-010 | MEDIUM | Node 18 | Vitest fail | 1 | **RES** | — | — |
+| TD-011 | MEDIUM | Auth | None | 12,14 | DEF | DEF | DEF |
+| TD-012 | MEDIUM | Jobs | None | 13 | DEF | DEF | DEF |
+| TD-013 | LOW | OHLC checks | Missing | 3 | DEF | DEF | DEF |
+| TD-014 | LOW | Zero costs default | Optimistic | 3 | DEF | DEF | DEF |
+| TD-015 | LOW | Absolute MAs | Nonstationary | 3 | DEF | DEF | DEF |
+| TD-016 | LOW | Observability | No OTEL | 8,15 | DEF | RED | DEF |
+| TD-017 | LOW | Docs confusion | Legacy phases | 1 | **RES** | — | — |
+| TD-018 | LOW | Unused API UI | Predictions/POST BT | 7 | RED | DEF | DEF |
+| TD-019 | LOW | Cache | Process TTL | 14 | DEF | DEF | DEF |
+| TD-020 | MEDIUM | Empirics empty | Report placeholders | 2 | DEF | DEF | DEF |
+| TD-021 | LOW | Risk split | analysis vs backtest metrics | 9 | NEW | DEF | DEF |
+| TD-022 | LOW | Timezones | Naive dates | 11 | NEW | DEF | DEF |
+| TD-023 | LOW | `^INDEX` HTTP | Allow-list | 7/11 | NEW | DEF | DEF |
+| TD-024 | LOW | Symbol helpers | Remaining call sites | 3–4 | NEW | DEF | DEF |
+| TD-025 | LOW | Compose password | Placeholder | 14 | — | NEW | DEF |
+| TD-026 | LOW | Dotenv parser | Minimal | 3–8 | — | NEW | DEF |
+| TD-027 | LOW | Architecture | Future domains not packaged | docs | — | — | **NEW** (intentional; create packages when implementing) |
 
----
+RES=RESOLVED, RED=REDUCED, DEF=DEFERRED, NEW=NEW
 
-## Prompt 3 configuration outcomes
+## Prompt 4 outcomes
 
-- **RESOLVED:** fragmented settings ownership (single `backend.app.core.config`), missing fail-fast CORS/log/path validation, missing safe diagnostics, missing test DB isolation guardrails, missing config contract docs  
-- **REDUCED:** TD-016 (log level now configurable; full observability still deferred)  
+- **RESOLVED:** missing explicit domain dependency map; missing typed internal contracts package; yfinance leakage risk (already confined, now tested); unclear prediction/experiment/artifact shapes  
+- **REDUCED:** TD-001, TD-004, TD-006  
 - **DEFERRED:** methodology and product debts above  
+- **NEW:** TD-027  
 
-## Priority order (nearest)
+## Priority order
 
-1. TD-020 + TD-006 reproducibility  
-2. TD-001/TD-003/TD-005 methodology hardening  
+1. TD-020 + TD-006 empirics/provenance population  
+2. TD-001/TD-003/TD-005 methodology  
 3. TD-007 registry  
 4. TD-011/TD-012 before public deploy  

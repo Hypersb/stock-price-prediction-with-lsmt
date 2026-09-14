@@ -7,7 +7,7 @@ Phase objective: truthful repository baseline, product definition, and architect
 | 1 | Repository audit + product/architecture baseline | **COMPLETE** |
 | 2 | Repository structural cleanup | **COMPLETE** |
 | 3 | Configuration and environment architecture | **COMPLETE** |
-| 4 | Domain boundaries and internal interfaces | NOT STARTED |
+| 4 | Domain boundaries and internal interfaces | **COMPLETE** |
 | 5 | Data contracts and schemas | NOT STARTED |
 | 6 | Persistence architecture | NOT STARTED |
 | 7 | Service/API foundation | NOT STARTED |
@@ -17,36 +17,21 @@ Phase objective: truthful repository baseline, product definition, and architect
 
 ---
 
-## Prompt 1 completion checklist
+## Prompt 4 completion checklist
 
-- [x] Startup audit docs + ADRs + README discipline  
-
----
-
-## Prompt 2 completion checklist
-
-- [x] Structure docs, boundaries tests, Node/Docker hygiene, health check  
-
----
-
-## Prompt 3 completion checklist
-
-- [x] Prompt 2 state verified (COMPLETE; tree clean at start)  
-- [x] `CONFIGURATION_ARCHITECTURE.md` + `CONFIGURATION_CONTRACT.md`  
-- [x] development/test/production model documented and enforced  
-- [x] Canonical backend settings ownership (`backend.app.core.config`)  
-- [x] Fail-fast validation (CORS, log level, limits, production DB)  
-- [x] Secret classification + safe diagnostics (`print_config`)  
-- [x] Frontend client/server env boundary documented + tested  
-- [x] Test configuration isolation (`tests/conftest.py`)  
-- [x] Path roots (`QUANT_DATA_ROOT` / `QUANT_ARTIFACT_ROOT`)  
-- [x] Docker/CI alignment notes; Compose does not bake secrets from `.env` copy  
-- [x] Configuration regression tests  
-- [x] Technical debt + tracker updated  
+- [x] Prompt 2/3 verified COMPLETE; clean tree at start  
+- [x] `DOMAIN_DEPENDENCY_MAP.md` (current vs target)  
+- [x] `INTERNAL_CONTRACTS.md` + updated `DOMAIN_BOUNDARIES.md`  
+- [x] `ml/contracts/*` + `ml/errors.py`  
+- [x] yfinance confined; provider boundary documented/tested  
+- [x] Backtest h=1 fail-loud via contract helper  
+- [x] Architecture + contract tests  
+- [x] ADRs 006–007  
+- [x] Technical debt + feature inventory updated  
 - [x] Full regression green; **not pushed**  
 
 ---
 
 ## Notes
 
-Prompts 4–10 remain pending. Prompt 3 did not change ML/research methodology.
+Prompts 5–10 remain pending. Prompt 4 did not change quantitative methodology or fabricate empirics.
