@@ -30,11 +30,18 @@ Architecture detail: [docs/system-design.md](docs/system-design.md) ·
 
 ## Status
 
-**All 15 core phases are complete**, including final multi-asset robustness,
-regime analysis, explainability, ablation, complexity comparison, statistical
-comparison, backtest sensitivity, the final research pipeline, and research
-reporting. Empirical report sections remain placeholders until a legitimate
-experiment is executed and rendered.
+**Legacy research-engine build (prior core phases 1–15): complete** as a
+leakage-aware quant/ML modular monolith (API + PostgreSQL + Next.js + `ml/`).
+That legacy milestone describes **implemented software capability**, not
+attested trading performance.
+
+**Startup transformation:** a new Phase 1–15 product roadmap is underway
+(`docs/startup/ROADMAP.md`). Phase 1 Prompt 1 establishes architecture and
+audit baselines under `docs/startup/`.
+
+Empirical report sections remain **placeholders** until a legitimate,
+provenance-backed experiment is executed and rendered
+(`docs/startup/EMPIRICAL_RESULTS_AUDIT.md`).
 
 ## Architecture
 
@@ -108,7 +115,7 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-Frontend (Node 20+ recommended):
+Frontend (**Node 20+ required**; CI uses Node 22 — Vitest fails on Node 18):
 
 ```bash
 cd frontend
@@ -225,7 +232,7 @@ print(render_final_research_report(None).markdown)
 
 ## Future Extensions
 
-Labeled **future work only** (not implemented):
+Labeled **PLANNED** (not implemented — see `docs/startup/ROADMAP.md`):
 
 - Licensed real-time market feeds
 - News/NLP sentiment
@@ -233,15 +240,28 @@ Labeled **future work only** (not implemented):
 - Portfolio optimization / multi-asset allocation
 - Paper trading
 - Model monitoring
+- Authentication, watchlists, alerts, background jobs
+- Cloud deployment hardening and full observability
 
 ## Docs
+
+### Startup baseline (new)
+
+- [phase 1 tracker](docs/startup/PHASE_1_TRACKER.md)
+- [product definition](docs/startup/PRODUCT_DEFINITION.md)
+- [feature inventory](docs/startup/FEATURE_INVENTORY.md)
+- [roadmap](docs/startup/ROADMAP.md)
+- [target architecture](docs/startup/TARGET_ARCHITECTURE.md)
+- [ADRs](docs/adr/README.md)
+
+### Research platform
 
 - [system design](docs/system-design.md)
 - [architecture](docs/architecture.md)
 - [development](docs/development.md)
-- [project status](docs/project-status.md)
+- [project status](docs/project-status.md) (legacy engineering checklist)
 - [research methodology](docs/research-methodology.md)
-- [final research report](docs/final-research-report.md)
+- [final research report](docs/final-research-report.md) (empirics placeholder)
 - [backend](docs/backend.md) · [frontend](docs/frontend.md) · [database](docs/database.md) · [deployment](docs/deployment.md)
 
 ## Disclaimer

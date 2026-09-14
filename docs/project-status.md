@@ -65,4 +65,10 @@ No brokerage connectivity, live orders, or authentication functionality exists.
 
 ## Next Milestone
 
-Awaiting operator approval. Do not begin optional Phase 16 extensions until approved.
+**Superseded for planning:** a new startup Phase 1–15 roadmap now governs product
+work (`docs/startup/ROADMAP.md`, `docs/startup/PHASE_1_TRACKER.md`).
+
+This file remains a historical checklist of the **legacy research-engine** build.
+It must not be read as “production SaaS complete” or as evidence of empirical
+model outperformance. Empirics remain placeholders until provenance-backed runs
+exist.
