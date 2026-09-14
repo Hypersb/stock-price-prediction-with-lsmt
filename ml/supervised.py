@@ -73,6 +73,7 @@ def build_supervised_dataset(
         train_fraction,
         validation_fraction,
         test_fraction,
+        forecast_horizon=horizon,
     )
     validate_temporal_split(split)
     preprocessor = TrainOnlyScaler.create()

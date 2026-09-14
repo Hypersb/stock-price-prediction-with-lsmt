@@ -142,7 +142,13 @@ def run_final_research_evaluation(
             dates=frame.dates,
             feature_names=frame.feature_names,
         )
-        split = chronological_split(supervised, 0.7, 0.15, 0.15)
+        split = chronological_split(
+            supervised,
+            0.7,
+            0.15,
+            0.15,
+            forecast_horizon=config.horizon,
+        )
         validate_temporal_split(split)
         if config.include_complexity:
             complexity = compare_model_complexity(

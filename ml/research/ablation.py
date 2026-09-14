@@ -106,7 +106,13 @@ def run_feature_ablation_study(
         dates=frame.dates,
         feature_names=frame.feature_names,
     )
-    split = chronological_split(supervised, train_fraction, validation_fraction, test_fraction)
+    split = chronological_split(
+        supervised,
+        train_fraction,
+        validation_fraction,
+        test_fraction,
+        forecast_horizon=horizon,
+    )
     validate_temporal_split(split)
 
     baseline_metrics = _fit_and_evaluate(
