@@ -39,16 +39,21 @@ REQUIRED_STARTUP_DOCS = (
     "REPOSITORY_STRUCTURE.md",
     "ENTRY_POINTS.md",
     "DEVELOPER_WORKFLOW.md",
+    "CONFIGURATION_ARCHITECTURE.md",
+    "CONFIGURATION_CONTRACT.md",
 )
 
 REQUIRED_ENTRY_POINTS = (
     "backend/app/main.py",
+    "backend/app/core/config.py",
     "scripts/docker_backend_entrypoint.py",
     "scripts/fetch_market_data.py",
     "scripts/check_repo_health.py",
+    "scripts/print_config.py",
     "alembic.ini",
     "frontend/package.json",
     "docker-compose.yml",
+    ".env.example",
 )
 
 FORBIDDEN_TRACKED_GLOBS = (

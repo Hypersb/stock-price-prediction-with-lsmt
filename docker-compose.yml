@@ -28,6 +28,8 @@ services:
       APP_ENV: development
       APP_NAME: stock-price-prediction-research-api
       APP_VERSION: 0.1.0
+      LOG_LEVEL: DEBUG
+      QUANT_LOAD_DOTENV: "false"
       FRONTEND_ORIGIN: http://localhost:3000
       DATABASE_URL: postgresql+psycopg://user:password@postgres:5432/quant_research
       MAX_MARKET_DATA_DAYS: "3650"
