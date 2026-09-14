@@ -1,7 +1,7 @@
 # Product Definition
 
 **Product name (working):** Fold — AI-Powered Quantitative Research & Market Intelligence Platform  
-**Repository heritage:** Stock Price Prediction with LSTM research codebase  
+**Repository heritage:** Began as a Stock Price Prediction with LSTM research codebase; evolved into a modular quantitative research platform.  
 **Positioning:** Research and analytics platform. **Not** trading advice. **Not** guaranteed prediction.
 
 ---

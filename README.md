@@ -1,283 +1,202 @@
-# Stock Price Prediction with LSTM
+# AI-Powered Quantitative Research & Market Intelligence Platform
 
-## Purpose
+A modular full-stack platform for **leakage-resistant** financial machine learning research:
+market data → features → models → walk-forward validation → cost-aware backtesting → risk → reproducible reports.
 
-This project is a full-stack **quantitative ML research platform**. It is **not**
-a claim that an LSTM can magically predict the stock market, and it makes **no**
-promise of profitable trading.
+Built as a serious research system — not a “predict stocks with LSTM” tutorial, and **not** financial advice.
 
-A scientifically valid conclusion includes:
+> In a multi-asset walk-forward study (AAPL, MSFT, NVDA, SPY; 2018–2025; experiment `7cb28b547e7c63e2`), **naive and linear models beat the LSTM on MAE/RMSE**. Negative results are first-class outcomes here.
 
-> The evidence does not demonstrate that the LSTM consistently outperforms simpler models.
+[Architecture](docs/architecture/SYSTEM_DESIGN.md) · [Methodology](docs/research/METHODOLOGY.md) · [Empirical report](docs/final-research-report.md) · [Feature inventory](docs/startup/FEATURE_INVENTORY.md)
 
-## Recruiter-Useful Summary
+![CI](https://github.com/Hypersb/stock-price-prediction-with-lsmt/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
+![Next.js](https://img.shields.io/badge/UI-Next.js-black)
 
-Honest capabilities of the shipped platform (not trading performance claims):
+---
 
-- Leakage-safe chronological time-series ML (features, targets, splits, purging)
-- Baseline models compared against a PyTorch LSTM under the same rules
-- Walk-forward validation with true out-of-sample prediction collection
-- Transaction-cost-aware historical strategy backtesting and risk analytics
-- FastAPI + PostgreSQL persistence, Next.js dashboard, Docker Compose, and CI
+## Why this exists
 
-The final engineering pass focused on **research integrity** (direction-label
-semantics, LSTM context-aware sequences, fold-aware OOS stitching, horizon=1
-strategy backtests, prediction GET-from-DB, documentation aligned to the real
-system)—not on inventing empirical wins.
+Ad-hoc notebooks and demo LSTMs often leak the future, tune on the test set, hide failed experiments, and invent impressive metrics.
 
-Architecture detail: [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md) ·
-[docs/system-design.md](docs/system-design.md) ·
-[docs/architecture.md](docs/architecture.md)
+This repository prioritizes:
 
-## Status
+- chronological, purged evaluation
+- baseline comparisons under identical rules
+- transaction-cost-aware historical simulation
+- provenance for datasets, configs, and reports
+- tests that protect research integrity
 
-**Legacy research-engine build (prior core phases 1–15): complete** as a
-leakage-aware quant/ML modular monolith (API + PostgreSQL + Next.js + `ml/`).
-That legacy milestone describes **implemented software capability**, not
-attested trading performance.
+## Core capabilities (implemented)
 
-**Startup transformation:** in progress under `docs/startup/MASTER_EXECUTION_PLAN.md`
-and `docs/startup/ROADMAP.md`. Architecture: `docs/architecture/SYSTEM_DESIGN.md`.
+| Area | What exists |
+|------|-------------|
+| Market data | Provider abstraction (Yahoo), validation, optional `adj_close`, dataset fingerprints |
+| Features / targets | Leakage-aware feature pipeline; future-return and direction targets |
+| Models | Naive, linear/logistic, random forest, gradient boosting, PyTorch LSTM |
+| Validation | Expanding/rolling walk-forward with purge; train-only scaling per fold |
+| Evaluation | MAE, RMSE, directional accuracy, and related metrics |
+| Backtesting | Signal → next-bar execution (`h=1`), costs/slippage, fold-aware stitching |
+| Risk | Sharpe, Sortino, drawdown, Calmar, historical VaR/ES, beta helpers |
+| Research ops | Multi-asset research pipeline, markdown report renderer, empirics artifacts |
+| Product surface | FastAPI `/api/v1`, PostgreSQL/Alembic, Next.js research dashboard, Docker Compose, CI |
+| Foundations | Domain contracts, model registry (filesystem), monitoring helpers, news/NLP ports, optional API key |
 
-**Empirics:** a legitimate multi-asset walk-forward study was executed
-(experiment `7cb28b547e7c63e2`, universe AAPL/MSFT/NVDA/SPY, 2018–2025 unadjusted
-Yahoo). Summary: `docs/research/empirics/`; narrative:
-`docs/final-research-report.md`. **LSTM did not beat naive/linear on MAE/RMSE**
-in that configuration — a valid negative result.
+**Partial / not production-complete:** live news credentials, LLM copilot provider, multi-user accounts/watchlists, Redis/Celery workers, hardened cloud deploy.
 
-This platform provides research and historical simulation. It does **not**
-guarantee profits or future prices.
+## Research integrity
+
+- No fabricated metrics or placeholder results presented as real
+- Walk-forward out-of-sample predictions (not in-sample scoreboards)
+- Purging for forecast horizon leakage
+- Fail-loud multi-horizon backtests (engine supports `h=1` today)
+- Explicit **unadjusted** Yahoo price basis (adjusted close is optional metadata, not a silent switch)
 
 ## Architecture
 
 ```mermaid
+flowchart TB
+  UI[Next.js research UI]
+  API[FastAPI /api/v1]
+  SVC[Application services]
+  ML[ml research engine]
+  DB[(PostgreSQL)]
+  FS[Filesystem artifacts]
+  YF[Yahoo market-data provider]
+  UI --> API --> SVC
+  SVC --> ML
+  SVC --> DB
+  ML --> FS
+  ML --> YF
+```
+
+Canonical write-up: [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md).
+
+## Quantitative research pipeline
+
+```mermaid
 flowchart LR
-    User[User] --> FE[Next.js]
-    FE --> API[FastAPI]
-    API --> Svc[Services]
-    Svc --> Repo[Repositories]
-    Repo --> DB[(PostgreSQL)]
-    Svc --> Eng[Quant / ML Engine]
-    Eng --> Repo
+  A[Market data] --> B[Validate / fingerprint]
+  B --> C[Features + target]
+  C --> D[Walk-forward + purge]
+  D --> E[OOS predictions]
+  E --> F[Evaluate]
+  F --> G[Backtest h=1]
+  G --> H[Risk]
+  H --> I[Experiment artifacts / report]
 ```
 
-Conceptual research flow:
+Entry points: `ml/research/pipeline.py`, `python -m scripts.run_startup_empirical_study`.
+
+## Empirical results (honest excerpt)
+
+**Experiment** `7cb28b547e7c63e2` · **Universe** AAPL, MSFT, NVDA, SPY · **Period** 2018-01-01 → 2025-01-01 · **Price basis** unadjusted Yahoo close · **Validation** expanding walk-forward with purge · **Horizon** 1 · **Folds** 22 · **Costs (base backtest)** 10 bps + 5 bps slippage
+
+Mean OOS MAE (lower is better):
+
+| Symbol | Naive | Linear | Gradient boosting | LSTM |
+|--------|------:|-------:|------------------:|-----:|
+| AAPL | **0.0138** | 0.0167 | 0.0222 | 0.0302 |
+| MSFT | **0.0130** | 0.0178 | 0.0200 | 0.0337 |
+| NVDA | **0.0244** | 0.0305 | 0.0340 | 0.0460 |
+| SPY | **0.0085** | 0.0127 | 0.0118 | 0.0273 |
+
+Full tables, fold diagnostics, and limitations: [docs/final-research-report.md](docs/final-research-report.md) · [docs/research/empirics/](docs/research/empirics/).
+
+## Product screenshots
+
+No committed UI screenshots yet (avoid outdated or fabricated captures).
+
+Suggested captures for later: market overview, features page, walk-forward results, backtest equity, experiments list. Store under `docs/screenshots/` when available.
+
+## Technology stack
+
+- **Python 3.12** — pandas, NumPy, scikit-learn, PyTorch
+- **FastAPI** + SQLAlchemy + Alembic + PostgreSQL
+- **Next.js** + TypeScript + Recharts (Node ≥ 20)
+- **Docker Compose** + GitHub Actions CI
+
+## Repository structure
 
 ```text
-Market Data → Validation → Features → Targets → Temporal ML
-  → Baseline + LSTM → Walk-Forward OOS → Evaluation
-  → Backtesting / Risk → PostgreSQL → FastAPI → Next.js
+backend/     FastAPI app, services, persistence
+ml/          Quantitative + ML research engine
+frontend/    Next.js research dashboard
+alembic/     Database migrations
+tests/       Pytest suite + architecture/contract tests
+docs/        Architecture, methodology, startup audits, empirics
+scripts/     Health checks, config printer, empirical study runner
 ```
 
-## Research Methodology
-
-See [docs/research-methodology.md](docs/research-methodology.md) and
-[docs/final-research-report.md](docs/final-research-report.md).
-
-Highlights:
-
-- Leakage-safe features and separated targets
-- Chronological splits and walk-forward validation with purging
-- Multi-asset robustness without hiding weak assets
-- Causal rule-based regime labels
-- Tree/linear explainability and LSTM permutation sensitivity (non-causal)
-- Feature-group ablations on aligned splits
-- Complexity versus performance diagnostics
-- Block-bootstrap paired model comparison
-- Cost/threshold sensitivity (diagnostic; no holdout threshold cherry-picking)
-- Final orchestration via `ml/research/pipeline.py`
-
-## Technology Stack
-
-- **Python**: pandas, NumPy, scikit-learn, PyTorch, Jupyter
-- **API**: FastAPI, SQLAlchemy, Alembic, PostgreSQL
-- **Frontend**: Next.js, TypeScript, Recharts
-- **Ops**: Docker Compose, GitHub Actions CI
-
-## Directory Structure
-
-```text
-backend/       FastAPI research API and persistence layer
-alembic/       Database migrations
-frontend/      Next.js quantitative research dashboard
-data/          Raw and processed data locations
-docs/          Project documentation
-ml/            Reusable quantitative and machine-learning code
-ml/research/   Final evaluation: robustness, regimes, ablation, report
-notebooks/     Exploratory notebooks (01–09)
-tests/         Automated tests
-```
-
-## Setup
-
-Prefer Python 3.12 for PyTorch compatibility on macOS Intel.
+## Quick start
 
 ```bash
 python3.12 -m venv .venv
-source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-```
-
-Frontend (**Node ≥ 20 required**; CI uses Node 22 — Vitest fails on Node 18).
-See `frontend/package.json` `engines` and `frontend/.nvmrc`.
-
-```bash
-cd frontend
-npm install
-cp .env.example .env.local
-```
-
-Copy root env template:
-
-```bash
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
 cp .env.example .env
-```
 
-## Quick Start (Full Stack)
-
-```bash
+cd frontend && npm install && cp .env.example .env.local && cd ..
 docker compose up --build
 ```
 
-- Dashboard: `http://localhost:3000`
-- API docs: `http://localhost:8000/docs`
-- Health: `GET /api/v1/health`
-- Ready: `GET /api/v1/ready`
+- UI: http://localhost:3000  
+- API docs: http://localhost:8000/docs  
 
-Manual alternative:
+Manual Postgres + API + frontend steps: [docs/startup/DEVELOPER_WORKFLOW.md](docs/startup/DEVELOPER_WORKFLOW.md).
+
+Reproduce the startup empirics (network required):
 
 ```bash
-docker compose up -d postgres
-export DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/quant_research"
-alembic upgrade head
-uvicorn backend.app.main:app --reload
-# separate terminal
-cd frontend && npm run dev
+python -m scripts.run_startup_empirical_study --write-docs-report
 ```
-
-## Market-Data Ingestion
-
-Provider abstraction with Yahoo Finance historical OHLCV, request validation,
-normalization, and local CSV persistence (`ml/data/`).
-
-## Feature Engineering
-
-Lagged returns, momentum, SMA/EMA, volatility, volume, RSI, MACD, ATR with
-leakage validation (`ml/features/`).
-
-## Baseline Models
-
-Naive, linear/logistic, random forest, gradient boosting (`ml/models/`).
-
-## LSTM
-
-PyTorch sequence datasets, LSTM regression/classification, training with
-validation-only early stopping and checkpointing (`ml/neural/`, `ml/training/`).
-Sequences may use prior within-fold features as lookback context only.
-
-## Walk-Forward Validation
-
-Expanding/rolling folds, purging, gaps, fold preprocessing, OOS prediction
-collection, stability aggregates (`ml/validation/`).
-
-## Backtesting
-
-Signals, forward execution alignment (`forecast_horizon=1`), transaction
-costs/slippage, equity curves, Sharpe/Sortino/drawdown/turnover, fold-aware OOS
-stitching, benchmark comparison (`ml/backtesting/`).
-
-## FastAPI / PostgreSQL / Next.js
-
-Versioned research APIs, SQLAlchemy models, Alembic migrations, and a Next.js
-dashboard for market, features, experiments, walk-forward, and backtests.
-Prediction GET endpoints read persisted OOS rows and never train.
-
-## Docker and CI
-
-- `docker compose` for Postgres, API, and frontend
-- `.github/workflows/ci.yml`: ruff, pytest, frontend lint/typecheck/test/build,
-  Postgres migration checks
 
 ## Testing
 
 ```bash
-# Python
 ruff check backend tests ml scripts
 pytest -q
 PYTHONPATH=. python -m scripts.check_repo_health
 
-# Frontend (Node ≥ 20)
-cd frontend
-npm run lint
-npm run typecheck
+cd frontend   # Node ≥ 20
 npm test
 npm run build
 ```
 
-Canonical workflow notes: [docs/startup/DEVELOPER_WORKFLOW.md](docs/startup/DEVELOPER_WORKFLOW.md).
+## Reproducibility
 
-## Final Evaluation
+- Research configs fingerprint via `FinalResearchConfig.fingerprint()`
+- Dataset identity helpers in `ml/data/fingerprint.py`
+- Committed empirics summaries under `docs/research/empirics/`
+- Exact bitwise reproduction across hardware/BLAS stacks is not guaranteed; methodology and config IDs are.
 
-```python
-from ml.research.config import tiny_fixture_config
-from ml.research.pipeline import run_final_research_evaluation
-from ml.research.report import render_final_research_report
+## API
 
-# Production research: load provider OHLCV for config.symbols
-# result = run_final_research_evaluation(market_data, config)
-# print(render_final_research_report(result).markdown)
-print(render_final_research_report(None).markdown)
-```
+Versioned research API under `/api/v1` (market data, features, analysis, models, experiments, walk-forward, backtests, health/ready). Prediction GETs read persisted OOS rows and do not train.
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md) | Product / domain architecture |
+| [METHODOLOGY.md](docs/research/METHODOLOGY.md) | Research methodology |
+| [FEATURE_INVENTORY.md](docs/startup/FEATURE_INVENTORY.md) | Capability status (honest) |
+| [ROADMAP.md](docs/startup/ROADMAP.md) | Startup roadmap |
+| [ADRs](docs/adr/README.md) | Architecture decisions |
 
 ## Limitations
 
-- Research/education only — not financial advice
-- No live trading, brokerage APIs, or profitability guarantees
-- Regime labels and feature sensitivities are diagnostics, not causal proof
-- Cost and threshold assumptions are configurable research scenarios
-- Provider data quality limits apply
+- Research and education only — **not** investment advice
+- No live trading or brokerage execution
+- Default market data is Yahoo historical (quality/survivorship limits apply)
+- Backtests are historical simulations with simplified costs
+- Auth is optional API-key mode today (not a full multi-user product)
 
-## Future Extensions
+## Roadmap
 
-Labeled **PLANNED** (not implemented — see `docs/startup/ROADMAP.md`):
-
-- Licensed real-time market feeds
-- News/NLP sentiment
-- Transformer sequence models
-- Portfolio optimization / multi-asset allocation
-- Paper trading
-- Model monitoring
-- Authentication, watchlists, alerts, background jobs
-- Cloud deployment hardening and full observability
-
-## Docs
-
-### Startup baseline (new)
-
-- [phase 1 tracker](docs/startup/PHASE_1_TRACKER.md)
-- [product definition](docs/startup/PRODUCT_DEFINITION.md)
-- [feature inventory](docs/startup/FEATURE_INVENTORY.md)
-- [repository structure](docs/startup/REPOSITORY_STRUCTURE.md)
-- [entry points](docs/startup/ENTRY_POINTS.md)
-- [developer workflow](docs/startup/DEVELOPER_WORKFLOW.md)
-- [roadmap](docs/startup/ROADMAP.md)
-- [target architecture](docs/startup/TARGET_ARCHITECTURE.md)
-- [ADRs](docs/adr/README.md)
-
-### Research platform
-
-- [system design](docs/system-design.md)
-- [architecture](docs/architecture.md)
-- [development](docs/development.md)
-- [project status](docs/project-status.md) (legacy engineering checklist)
-- [research methodology](docs/research-methodology.md)
-- [final research report](docs/final-research-report.md) (empirics placeholder)
-- [backend](docs/backend.md) · [frontend](docs/frontend.md) · [database](docs/database.md) · [deployment](docs/deployment.md)
+See [docs/startup/ROADMAP.md](docs/startup/ROADMAP.md) and [PRODUCTION_READINESS.md](docs/startup/PRODUCTION_READINESS.md). Production SaaS hardening (users, workers, live providers, deploy) remains in progress.
 
 ## Disclaimer
 
-This project is for research and educational purposes only. It is not financial
-advice, and no implementation should be interpreted as a promise of accuracy or
-profitability.
+This software is for research and educational purposes only. It does not provide financial advice. Historical simulations and model outputs do not guarantee future performance.
