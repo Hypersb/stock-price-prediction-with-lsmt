@@ -135,3 +135,17 @@ Docker API image installs from `requirements-docker.txt` (pinned compatible rang
 | `make frontend-test` | vitest |
 | `make health` | repo health check |
 | `make migrate` | alembic upgrade head |
+
+---
+
+## Git authorship
+
+Commit messages must start with lowercase `fix: `.
+
+Install the repository commit-msg hook (strips Cursor/agent `Co-authored-by` trailers):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Policy: [AGENTS.md](../../AGENTS.md).
