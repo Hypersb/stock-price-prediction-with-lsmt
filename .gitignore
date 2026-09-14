@@ -8,6 +8,12 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+.tox/
+.nox/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -29,6 +35,13 @@ Thumbs.db
 node_modules/
 .next/
 out/
+frontend/coverage/
+.turbo/
+
+# Logs and local reports
+logs/
+*.log
+/reports/
 
 # Python build artifacts
 build/
