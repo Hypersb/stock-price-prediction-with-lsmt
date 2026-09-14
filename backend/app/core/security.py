@@ -11,15 +11,21 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from backend.app.core.config import get_settings
 from backend.app.schemas.common import ErrorResponse
+from ml.data.symbols import normalize_symbol
 
 _TICKER_PATTERN = re.compile(r"^[A-Z][A-Z0-9.\-]{0,15}$")
 
 
 def validate_ticker_symbol(symbol: str) -> str:
-    """Normalize and reject unsafe ticker path values."""
-    if not isinstance(symbol, str):
-        raise TypeError("symbol must be a string")
-    normalized = symbol.strip().upper()
+    """Normalize and reject unsafe ticker path values.
+
+    Normalization uses the shared research contract in ``ml.data.symbols``.
+    HTTP path safety additionally requires an allow-list pattern (letters,
+    digits, ``.``, ``-``). Indices such as ``^GSPC`` are valid research symbols
+    but are rejected at the HTTP boundary until a dedicated quote-path design
+    exists.
+    """
+    normalized = normalize_symbol(symbol)
     if not _TICKER_PATTERN.fullmatch(normalized):
         raise ValueError(
             "symbol must be 1-16 characters: letters, digits, '.', or '-'"

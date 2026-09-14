@@ -6,6 +6,7 @@ from datetime import date, datetime
 import pandas as pd
 
 from ml.data.provider import DateLike
+from ml.data.symbols import normalize_symbol
 
 
 @dataclass(frozen=True)
@@ -23,11 +24,7 @@ class MarketDataRequest:
         start_date: DateLike,
         end_date: DateLike,
     ) -> "MarketDataRequest":
-        if not isinstance(symbol, str):
-            raise TypeError("symbol must be a string")
-        normalized_symbol = symbol.strip().upper()
-        if not normalized_symbol:
-            raise ValueError("symbol must be provided")
+        normalized_symbol = normalize_symbol(symbol)
 
         normalized_start = _parse_date(start_date, "start_date")
         normalized_end = _parse_date(end_date, "end_date")

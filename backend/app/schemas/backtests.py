@@ -73,11 +73,10 @@ class BacktestRequest(BaseModel):
 
     @field_validator("symbol")
     @classmethod
-    def normalize_symbol(cls, value: str) -> str:
-        normalized = value.strip().upper()
-        if not normalized:
-            raise ValueError("symbol must be provided")
-        return normalized
+    def normalize_symbol_field(cls, value: str) -> str:
+        from ml.data.symbols import normalize_symbol
+
+        return normalize_symbol(value)
 
 
 class EquityPoint(BaseModel):
