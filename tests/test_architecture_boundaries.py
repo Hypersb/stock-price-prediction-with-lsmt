@@ -49,6 +49,41 @@ def test_ml_does_not_import_fastapi() -> None:
     assert violations == []
 
 
+def test_ml_does_not_import_backend_api_schemas() -> None:
+    violations: list[str] = []
+    for path in _iter_python_files("ml"):
+        for module in _imported_modules(path):
+            if module.startswith("backend.app.schemas"):
+                violations.append(f"{path.relative_to(REPO_ROOT)} imports {module}")
+    assert violations == []
+
+
+def test_yfinance_is_confined_to_yahoo_adapter() -> None:
+    allowed = {
+        REPO_ROOT / "ml" / "data" / "yahoo.py",
+        REPO_ROOT / "tests" / "test_yahoo_provider.py",
+    }
+    violations: list[str] = []
+    for relative in ("ml", "backend", "scripts"):
+        for path in _iter_python_files(relative):
+            modules = _imported_modules(path)
+            uses_yfinance = "yfinance" in modules or any(
+                m.startswith("yfinance.") for m in modules
+            )
+            if uses_yfinance and path not in allowed:
+                violations.append(str(path.relative_to(REPO_ROOT)))
+    assert violations == []
+
+
+def test_api_routes_do_not_import_yfinance_or_yahoo_provider() -> None:
+    violations: list[str] = []
+    for path in _iter_python_files("backend/app/api"):
+        for module in _imported_modules(path):
+            if module in {"yfinance", "ml.data.yahoo"} or module.startswith("yfinance."):
+                violations.append(f"{path.relative_to(REPO_ROOT)} imports {module}")
+    assert violations == []
+
+
 def test_core_quantitative_modules_import_without_network(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -64,7 +99,9 @@ def test_core_quantitative_modules_import_without_network(
         "ml.analysis.drawdown",
         "ml.analysis.returns",
         "ml.backtesting.metrics",
+        "ml.contracts",
         "ml.data.symbols",
+        "ml.errors",
         "ml.features.pipeline",
         "ml.preprocessing",
     ):
