@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s · fold",
   },
   description:
-    "Market data, features, walk-forward evaluation, and cost-aware backtests.",
+    "AI-powered quantitative research platform: market data, walk-forward evaluation, and cost-aware backtests.",
 };
 
 export default function RootLayout({

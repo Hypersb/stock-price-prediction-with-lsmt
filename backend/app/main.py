@@ -15,10 +15,10 @@ from backend.app.core.security import (
     SecurityHeadersMiddleware,
 )
 
-APP_TITLE = "Stock Price Prediction Research API"
+APP_TITLE = "Quantitative Research Platform API"
 APP_DESCRIPTION = (
-    "HTTP API boundary for the quantitative finance and machine learning "
-    "research platform. Routes delegate to existing domain services."
+    "HTTP API for an AI-powered quantitative research and market-intelligence "
+    "platform. Routes delegate to domain services; not a trading advice system."
 )
 APP_VERSION = "0.1.0"
 
