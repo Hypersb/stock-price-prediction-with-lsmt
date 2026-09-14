@@ -3,9 +3,10 @@
 import pandas as pd
 
 from ml.data.schema import REQUIRED_COLUMNS
+from ml.errors import DataValidationError
 
 
-class MarketDataValidationError(ValueError):
+class MarketDataValidationError(DataValidationError):
     """Raised when historical market data violates the canonical contract."""
 
 

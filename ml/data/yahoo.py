@@ -1,4 +1,10 @@
-"""Yahoo Finance implementation of the market-data provider interface."""
+"""Yahoo Finance implementation of the market-data provider interface.
+
+Infrastructure adapter: the only production module allowed to import yfinance.
+Consumers must depend on ``MarketDataProvider``, not this module directly.
+
+CURRENT semantics: ``auto_adjust=False`` → unadjusted OHLCV (TD-001).
+"""
 
 from collections.abc import Hashable
 
@@ -10,7 +16,7 @@ from ml.data.schema import REQUIRED_COLUMNS
 
 
 class YahooFinanceProvider(MarketDataProvider):
-    """This helps Retrieve historical OHLCV data from Yahoo Finance."""
+    """Retrieve historical OHLCV data from Yahoo Finance."""
 
     def get_historical_data(
         self,
