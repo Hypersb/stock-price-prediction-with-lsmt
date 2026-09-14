@@ -48,5 +48,5 @@ def test_prediction_time_must_be_timezone_aware() -> None:
     with pytest.raises(ValueError, match="timezone-aware"):
         aggregate_sentiment_before(
             [],
-            datetime(2024, 1, 1),
+            datetime(2024, 1, 1),  # noqa: DTZ001 — intentionally naive
         )
