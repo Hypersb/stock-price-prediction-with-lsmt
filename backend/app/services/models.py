@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -16,6 +17,7 @@ from backend.app.schemas.models import (
     PredictionResponse,
     SupportedModel,
 )
+from ml.registry.store import ModelRegistryStore
 
 SUPPORTED_MODELS: tuple[SupportedModel, ...] = (
     SupportedModel(
@@ -66,11 +68,32 @@ SUPPORTED_MODELS: tuple[SupportedModel, ...] = (
 class ModelService:
     """Expose model metadata and persisted OOS prediction lookups without training."""
 
-    def __init__(self, session: Session | None = None) -> None:
+    def __init__(
+        self,
+        session: Session | None = None,
+        *,
+        registry: ModelRegistryStore | None = None,
+        registry_path: Path | str | None = None,
+    ) -> None:
         self.session = session
+        self._registry = registry
+        self._registry_path = registry_path
+
+    def _registry_store(self) -> ModelRegistryStore:
+        if self._registry is not None:
+            return self._registry
+        return ModelRegistryStore(self._registry_path)
 
     def list_models(self) -> ModelCatalogResponse:
-        models = list(SUPPORTED_MODELS)
+        # Algorithm catalog stays fixed; trained=True only when a registry
+        # record points at an existing artifact file. Empty registry → all False.
+        trained_algorithms = self._registry_store().algorithms_with_artifacts()
+        models = [
+            item.model_copy(
+                update={"trained": item.name.lower() in trained_algorithms}
+            )
+            for item in SUPPORTED_MODELS
+        ]
         return ModelCatalogResponse(models=models, count=len(models))
 
     def get_predictions(
