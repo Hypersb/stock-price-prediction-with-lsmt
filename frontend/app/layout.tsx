@@ -1,27 +1,35 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
 
 import { AppShell } from "@/components/layout/AppShell";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const display = Archivo_Black({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ui = Archivo({
+  variable: "--font-ui",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const data = IBM_Plex_Mono({
+  variable: "--font-data",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Quant Research Dashboard",
-    template: "%s · Quant Research",
+    default: "fold",
+    template: "%s · fold",
   },
   description:
-    "Quantitative research dashboard for market data, features, experiments, walk-forward validation, and backtests.",
+    "Market data, features, walk-forward evaluation, and cost-aware backtests.",
 };
 
 export default function RootLayout({
@@ -32,9 +40,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${ui.variable} ${data.variable} h-full`}
     >
-      <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-full bg-background text-foreground antialiased">
         <AppShell>{children}</AppShell>
       </body>
     </html>

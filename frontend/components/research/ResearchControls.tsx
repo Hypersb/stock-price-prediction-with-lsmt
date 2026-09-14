@@ -42,12 +42,14 @@ export function ResearchControls({
   return (
     <form
       onSubmit={onSubmit}
-      className="grid gap-3 rounded-md border border-border bg-surface p-4 md:grid-cols-[1fr_1fr_1fr_auto]"
+      className="grid gap-4 border-2 border-border bg-surface p-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end"
     >
       <label className="block text-sm">
-        <span className="mb-1 block text-muted">Ticker</span>
+        <span className="mb-2 block text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-muted">
+          Ticker
+        </span>
         <input
-          className="w-full rounded-md border border-border bg-background px-3 py-2"
+          className="field-input font-data"
           value={symbol}
           onChange={(event) => setSymbol(event.target.value.toUpperCase())}
           name="symbol"
@@ -56,10 +58,12 @@ export function ResearchControls({
         />
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-muted">Start date</span>
+        <span className="mb-2 block text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-muted">
+          Start
+        </span>
         <input
           type="date"
-          className="w-full rounded-md border border-border bg-background px-3 py-2"
+          className="field-input font-data"
           value={startDate}
           onChange={(event) => setStartDate(event.target.value)}
           name="start"
@@ -67,25 +71,21 @@ export function ResearchControls({
         />
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-muted">End date</span>
+        <span className="mb-2 block text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-muted">
+          End
+        </span>
         <input
           type="date"
-          className="w-full rounded-md border border-border bg-background px-3 py-2"
+          className="field-input font-data"
           value={endDate}
           onChange={(event) => setEndDate(event.target.value)}
           name="end"
           required
         />
       </label>
-      <div className="flex items-end">
-        <button
-          type="submit"
-          className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60 dark:text-background"
-          disabled={pending}
-        >
-          {pending ? "Updating…" : "Apply"}
-        </button>
-      </div>
+      <button type="submit" className="btn-primary w-full md:w-auto" disabled={pending}>
+        {pending ? "Updating…" : "Apply"}
+      </button>
     </form>
   );
 }

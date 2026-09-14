@@ -3,12 +3,16 @@ import type { Metadata } from "next";
 
 import { TimeSeriesChart } from "@/components/charts/TimeSeriesChart";
 import { ResearchControls } from "@/components/research/ResearchControls";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricGrid } from "@/components/ui/MetricGrid";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingPanel, StatePanel } from "@/components/ui/StatePanel";
 import { getAnalysisSummary, getMarketData } from "@/lib/api";
 import {
   defaultDateRange,
   formatDate,
+  formatNumber,
   formatPercent,
   formatPrice,
 } from "@/lib/format";
@@ -48,12 +52,14 @@ function MarketSuccess({
   analysis: AnalysisSummaryResponse;
 }) {
   const closes = market.data.map((row) => ({ date: row.date, value: row.close }));
+  const volumes = market.data.map((row) => ({ date: row.date, value: row.volume }));
   const cumulativeSeries = buildCumulativeSeries(market);
   const latest = market.data[market.data.length - 1];
+  const rangeLabel = `${formatDate(analysis.start_date)} → ${formatDate(analysis.end_date)}`;
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-10">
+      <MetricGrid>
         <MetricCard label="Symbol" value={market.symbol} />
         <MetricCard
           label="Latest close"
@@ -63,21 +69,21 @@ function MarketSuccess({
         <MetricCard
           label="Observations"
           value={String(analysis.observation_count)}
-          hint={`${formatDate(analysis.start_date)} → ${formatDate(analysis.end_date)}`}
+          hint={rangeLabel}
         />
         <MetricCard
           label="Chart rows"
           value={`${market.returned} / ${market.total}`}
           hint={
             market.returned < market.total
-              ? `Paginated (limit=${market.limit}, offset=${market.offset})`
+              ? `Paginated · limit ${market.limit}`
               : "Full series in response"
           }
         />
         <MetricCard
           label="Cumulative return"
           value={formatPercent(analysis.cumulative_return)}
-          hint="Historical, not a forecast"
+          hint="Historical path, not a forecast"
         />
         <MetricCard
           label="Volatility"
@@ -88,41 +94,56 @@ function MarketSuccess({
           label="Maximum drawdown"
           value={formatPercent(analysis.maximum_drawdown)}
         />
-        <MetricCard label="Mean return" value={formatPercent(analysis.mean_return)} />
         <MetricCard
-          label="Median return"
-          value={formatPercent(analysis.median_return)}
+          label="Mean / median"
+          value={`${formatPercent(analysis.mean_return)} · ${formatPercent(analysis.median_return)}`}
         />
-      </div>
+      </MetricGrid>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Closing price</h3>
-        <p className="mt-1 text-xs text-muted">
-          Historical closes for the selected range. This is not a forecast chart.
-        </p>
-        <div className="mt-4">
+      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+        <ChartFrame
+          title="Closing price"
+          subtitle="Daily closes for the selected window. This chart is history, not a model prediction."
+          meta={`${market.returned} pts`}
+        >
           <TimeSeriesChart
             data={closes}
             valueLabel="Close"
             valueFormat="price"
+            variant="area"
+            height={340}
           />
-        </div>
-      </section>
+        </ChartFrame>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Cumulative return</h3>
-        <p className="mt-1 text-xs text-muted">
-          Compounded simple returns derived from closing prices.
-        </p>
-        <div className="mt-4">
+        <ChartFrame
+          title="Cumulative return"
+          subtitle="Compounded simple returns from closing prices."
+          meta={formatPercent(analysis.cumulative_return)}
+        >
           <TimeSeriesChart
             data={cumulativeSeries}
-            valueLabel="Cumulative return"
+            valueLabel="Cumulative"
             valueFormat="percent"
             color="var(--positive)"
+            variant="area"
+            height={340}
           />
-        </div>
-      </section>
+        </ChartFrame>
+      </div>
+
+      <ChartFrame
+        title="Volume"
+        subtitle="Share volume paired with the same observation window."
+        meta={`last ${formatNumber(latest.volume, 0)}`}
+      >
+        <TimeSeriesChart
+          data={volumes}
+          valueLabel="Volume"
+          valueFormat="number"
+          variant="volume"
+          height={180}
+        />
+      </ChartFrame>
     </div>
   );
 }
@@ -170,14 +191,12 @@ export default function MarketPage({
   searchParams: SearchParams;
 }) {
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Market</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Inspect historical OHLCV and quantitative summary statistics from the
-          FastAPI research backend.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Prices"
+        title="Market"
+        description="Inspect historical OHLCV and quantitative summary statistics. Nothing on this page is a buy or sell call."
+      />
       <Suspense fallback={<LoadingPanel label="Loading controls" />}>
         <ResearchControls basePath="/market" />
       </Suspense>

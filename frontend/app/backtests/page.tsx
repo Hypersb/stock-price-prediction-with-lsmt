@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { TimeSeriesChart } from "@/components/charts/TimeSeriesChart";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricGrid } from "@/components/ui/MetricGrid";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatePanel } from "@/components/ui/StatePanel";
 import { getBacktest, listBacktests } from "@/lib/api";
 import { formatDate, formatNumber, formatPercent } from "@/lib/format";
@@ -48,10 +51,10 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
   const drawdown = buildDrawdownSeries(detail.equity_curve);
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Configuration</h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-10">
+      <section>
+        <h3 className="font-display text-3xl text-foreground">Configuration</h3>
+        <MetricGrid>
           <MetricCard label="Model" value={detail.model_name} />
           <MetricCard label="Task" value={detail.task} />
           <MetricCard label="Strategy mode" value={detail.strategy_mode} />
@@ -72,16 +75,13 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
             label="Date range"
             value={`${formatDate(detail.start_date)} → ${formatDate(detail.end_date)}`}
           />
-        </div>
+        </MetricGrid>
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Performance and risk</h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <MetricCard
-            label="Total return"
-            value={formatPercent(metrics.total_return)}
-          />
+      <section>
+        <h3 className="font-display text-3xl text-foreground">Performance and risk</h3>
+        <MetricGrid>
+          <MetricCard label="Total return" value={formatPercent(metrics.total_return)} />
           <MetricCard
             label="Annualized return"
             value={formatPercent(metrics.annualized_return)}
@@ -102,24 +102,18 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
             label="Maximum drawdown"
             value={formatPercent(metrics.maximum_drawdown)}
           />
-        </div>
+        </MetricGrid>
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Trading analytics</h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <MetricCard
-            label="Long exposure"
-            value={formatPercent(metrics.long_exposure)}
-          />
+      <section>
+        <h3 className="font-display text-3xl text-foreground">Trading analytics</h3>
+        <MetricGrid>
+          <MetricCard label="Long exposure" value={formatPercent(metrics.long_exposure)} />
           <MetricCard
             label="Short exposure"
             value={formatPercent(metrics.short_exposure)}
           />
-          <MetricCard
-            label="Flat exposure"
-            value={formatPercent(metrics.flat_exposure)}
-          />
+          <MetricCard label="Flat exposure" value={formatPercent(metrics.flat_exposure)} />
           <MetricCard
             label="Total turnover"
             value={formatNumber(metrics.total_turnover, 2)}
@@ -136,39 +130,39 @@ function BacktestDetailView({ detail }: { detail: PersistedBacktestDetail }) {
             label="Trade win rate"
             value={formatPercent(metrics.trade_win_rate)}
           />
-        </div>
+        </MetricGrid>
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Strategy equity curve</h3>
-        <p className="mt-1 text-xs text-muted">
-          Net equity after configured transaction costs and slippage.
-        </p>
-        <div className="mt-4">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <ChartFrame
+          title="Strategy equity"
+          subtitle="Net equity after configured transaction costs and slippage."
+          meta={`${equity.length} pts`}
+        >
           <TimeSeriesChart
             data={equity}
             valueLabel="Equity"
             valueFormat="number3"
+            variant="area"
+            height={320}
           />
-        </div>
-      </section>
-
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Drawdown</h3>
-        <p className="mt-1 text-xs text-muted">
-          Peak-to-trough decline of the strategy equity path.
-        </p>
-        <div className="mt-4">
+        </ChartFrame>
+        <ChartFrame
+          title="Drawdown"
+          subtitle="Peak-to-trough decline of the strategy equity path."
+          meta={formatPercent(metrics.maximum_drawdown)}
+        >
           <TimeSeriesChart
             data={drawdown}
             valueLabel="Drawdown"
             valueFormat="percent"
-            color="var(--negative)"
+            variant="drawdown"
+            height={320}
           />
-        </div>
-      </section>
+        </ChartFrame>
+      </div>
 
-      <p className="rounded-md border border-border bg-surface-muted px-4 py-3 text-sm text-muted">
+      <p className="border-l-2 border-warning pl-4 text-sm leading-6 text-muted">
         Historical simulation does not guarantee future performance. Costs and
         drawdowns are first-class research outputs, not secondary details.
       </p>
@@ -208,8 +202,12 @@ export default async function BacktestsPage({
 
   if (!list || list.total === 0) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold tracking-tight">Backtests</h2>
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Simulation"
+          title="Backtests"
+          description="Research backtests with visible cost assumptions and risk metrics."
+        />
         <StatePanel
           title="No backtests yet"
           message="No persisted backtest results were returned by the API. Empty states are shown instead of fabricated profitability."
@@ -221,44 +219,35 @@ export default async function BacktestsPage({
   const activeId = detail?.id ?? list.items[0].id;
 
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Backtests</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Research backtests with visible cost assumptions and risk metrics.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Simulation"
+        title="Backtests"
+        description="Research backtests with visible cost assumptions and risk metrics."
+      />
 
-      <div className="overflow-x-auto rounded-md border border-border bg-surface">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-[0.08em] text-muted">
+      <div className="overflow-x-auto border-y border-border">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3">Created</th>
-              <th className="px-4 py-3">Symbol</th>
-              <th className="px-4 py-3">Model</th>
-              <th className="px-4 py-3">Mode</th>
-              <th className="px-4 py-3">Observations</th>
-              <th className="px-4 py-3">Open</th>
+              <th>Created</th>
+              <th>Symbol</th>
+              <th>Model</th>
+              <th>Mode</th>
+              <th>Observations</th>
+              <th>Open</th>
             </tr>
           </thead>
           <tbody>
             {list.items.map((item) => (
-              <tr
-                key={item.id}
-                className={`border-b border-border last:border-b-0 ${
-                  item.id === activeId ? "bg-accent-muted/40" : ""
-                }`}
-              >
-                <td className="px-4 py-3">{formatDate(item.created_at)}</td>
-                <td className="px-4 py-3">{item.symbol}</td>
-                <td className="px-4 py-3">{item.model_name}</td>
-                <td className="px-4 py-3">{item.strategy_mode}</td>
-                <td className="px-4 py-3">{item.observation_count}</td>
-                <td className="px-4 py-3">
-                  <Link
-                    className="text-accent underline"
-                    href={`/backtests?id=${item.id}`}
-                  >
+              <tr key={item.id} data-active={item.id === activeId ? "true" : "false"}>
+                <td className="font-data">{formatDate(item.created_at)}</td>
+                <td>{item.symbol}</td>
+                <td>{item.model_name}</td>
+                <td>{item.strategy_mode}</td>
+                <td className="font-data">{item.observation_count}</td>
+                <td>
+                  <Link className="font-semibold text-accent underline-offset-2 hover:underline" href={`/backtests?id=${item.id}`}>
                     View
                   </Link>
                 </td>

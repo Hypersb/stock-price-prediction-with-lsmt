@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { MetricCard } from "@/components/ui/MetricCard";
 import { LoadingPanel, StatePanel } from "@/components/ui/StatePanel";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { WalkForwardRunForm } from "@/components/walkforward/WalkForwardRunForm";
 import { getWalkForwardRun } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -89,8 +90,8 @@ async function WalkForwardContent({
         <MetricCard label="Step size" value={String(run.step_size)} />
       </div>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Stability summary</h3>
+      <section className="border-t border-border pt-5">
+        <h3 className="text-sm font-semibold tracking-wide">Stability summary</h3>
         <p className="mt-1 text-xs text-muted">
           Aggregate statistics across folds when numeric fold metrics exist.
         </p>
@@ -135,8 +136,8 @@ async function WalkForwardContent({
         )}
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Fold timeline</h3>
+      <section className="border-t border-border pt-5">
+        <h3 className="text-sm font-semibold tracking-wide">Fold timeline</h3>
         <p className="mt-1 text-xs text-muted">
           Each fold evaluates a distinct future period. Weak folds remain visible.
         </p>
@@ -195,13 +196,12 @@ export default function WalkForwardPage({
   searchParams: SearchParams;
 }) {
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Walk Forward</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Temporal validation analytics for expanding or rolling research runs.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Validation"
+        title="Walk-forward"
+        description="Temporal validation analytics for expanding or rolling research runs."
+      />
       <Suspense fallback={<LoadingPanel label="Loading run form" />}>
         <WalkForwardRunForm />
       </Suspense>

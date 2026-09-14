@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatePanel } from "@/components/ui/StatePanel";
 import { listModels } from "@/lib/api";
 import { ApiError } from "@/types/api";
@@ -26,34 +27,32 @@ export default async function ModelsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Models</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Supported research model families. A family being listed does not mean
-          a trained artifact exists.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Families"
+        title="Models"
+        description="Supported research model families. Being listed does not mean a trained artifact exists."
+      />
       <MetricCard label="Supported families" value={String(catalog?.count ?? 0)} />
-      <div className="overflow-x-auto rounded-md border border-border bg-surface">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-[0.08em] text-muted">
+      <div className="overflow-x-auto border-y border-border">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Family</th>
-              <th className="px-4 py-3 font-medium">Tasks</th>
-              <th className="px-4 py-3 font-medium">Trained artifact</th>
-              <th className="px-4 py-3 font-medium">Description</th>
+              <th>Name</th>
+              <th>Family</th>
+              <th>Tasks</th>
+              <th>Trained artifact</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
             {(catalog?.models ?? []).map((model) => (
-              <tr key={model.name} className="border-b border-border last:border-b-0">
-                <td className="px-4 py-3 font-medium">{model.name}</td>
-                <td className="px-4 py-3">{model.family}</td>
-                <td className="px-4 py-3">{model.tasks.join(", ")}</td>
-                <td className="px-4 py-3">{model.trained ? "yes" : "no"}</td>
-                <td className="px-4 py-3 text-muted">{model.description}</td>
+              <tr key={model.name}>
+                <td className="font-semibold">{model.name}</td>
+                <td>{model.family}</td>
+                <td className="font-data text-xs">{model.tasks.join(", ")}</td>
+                <td>{model.trained ? "yes" : "no"}</td>
+                <td className="max-w-md text-muted">{model.description}</td>
               </tr>
             ))}
           </tbody>
@@ -61,7 +60,7 @@ export default async function ModelsPage() {
       </div>
       <p className="text-sm text-muted">
         Review stored runs on the{" "}
-        <Link className="text-accent underline" href="/experiments">
+        <Link className="font-semibold text-accent underline-offset-2 hover:underline" href="/experiments">
           Experiments
         </Link>{" "}
         page.

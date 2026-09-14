@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f5f7;
-  --foreground: #12141a;
+  --background: #f2f2f0;
+  --foreground: #111111;
   --surface: #ffffff;
-  --surface-muted: #e9ebf0;
-  --border: #d5d8e0;
-  --accent: #1f4b99;
-  --accent-muted: #e8eef8;
-  --positive: #0f7b4c;
-  --negative: #b42318;
-  --warning: #9a6700;
-  --muted: #5c6578;
+  --surface-muted: #e4e4e1;
+  --border: #111111;
+  --accent: #ff2e00;
+  --accent-muted: #ffd8cf;
+  --positive: #0a7a45;
+  --negative: #ff2e00;
+  --warning: #b45f00;
+  --muted: #5c5c5c;
+  --ink-soft: #2a2a2a;
+  --rule: #111111;
 }
 
 @theme inline {
@@ -26,24 +28,10 @@
   --color-negative: var(--negative);
   --color-warning: var(--warning);
   --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0d12;
-    --foreground: #e8eaef;
-    --surface: #141821;
-    --surface-muted: #1c2230;
-    --border: #2a3142;
-    --accent: #6ea0ff;
-    --accent-muted: #18233a;
-    --positive: #3dcf8e;
-    --negative: #f07167;
-    --warning: #e0b34d;
-    --muted: #9aa3b5;
-  }
+  --color-ink-soft: var(--ink-soft);
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-data);
 }
 
 * {
@@ -57,9 +45,9 @@ body {
 
 body {
   margin: 0;
-  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-ui), "Helvetica Neue", sans-serif;
+  background: var(--background);
 }
 
 a {
@@ -69,5 +57,170 @@ a {
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
+}
+
+.font-display {
+  font-family: var(--font-display), Impact, sans-serif;
+}
+
+.font-data {
+  font-family: var(--font-data), ui-monospace, monospace;
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: 1200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fill-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-rise {
+  animation: page-rise 280ms ease both;
+}
+
+.hero-line {
+  stroke-dasharray: 1200;
+  animation: draw-line 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.hero-fill {
+  animation: fill-in 900ms ease 500ms both;
+}
+
+.section-rule {
+  height: 4px;
+  width: 3.5rem;
+  background: var(--accent);
+}
+
+.field-input {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 0;
+  background: var(--surface);
+  padding: 0.6rem 0.7rem;
+  color: var(--foreground);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.btn-primary {
+  border: 2px solid var(--border);
+  background: var(--accent);
+  color: #111111;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 0;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.btn-primary:hover {
+  background: #ff5533;
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+}
+
+.btn-ghost {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 0;
+}
+
+.btn-ghost:hover {
+  background: var(--foreground);
+  color: var(--surface);
+}
+
+.chart-frame {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0;
+}
+
+.chart-tooltip {
+  background: var(--foreground);
+  color: #f5f5f5;
+  border: 0;
+  border-radius: 0;
+  padding: 0.55rem 0.7rem;
+}
+
+.chart-tooltip .text-muted {
+  color: #bdbdbd;
+}
+
+.chart-tooltip .text-foreground {
+  color: #f5f5f5;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+
+.data-table th {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-muted);
+}
+
+.data-table td {
+  padding: 0.8rem 0.9rem;
+  border-bottom: 1px solid #d2d2ce;
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: var(--accent-muted);
+}
+
+.data-table tbody tr[data-active="true"] {
+  background: var(--accent-muted);
 }

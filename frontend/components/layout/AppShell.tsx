@@ -16,73 +16,66 @@ function isActive(pathname: string, href: string): boolean {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isHome = pathname === "/";
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside
-        className="border-b border-border bg-surface lg:border-b-0 lg:border-r"
-        aria-label="Primary"
-      >
-        <div className="flex items-center justify-between px-4 py-4 lg:block lg:px-5 lg:py-6">
-          <div>
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted">
-              Quant Research
-            </p>
-            <h1 className="mt-1 text-base font-semibold tracking-tight">
-              LSTM Platform
-            </h1>
-          </div>
+    <div className="min-h-screen">
+      <header className="border-b-2 border-border bg-surface">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <Link href="/" className="font-display text-2xl tracking-tight">
+            fold
+          </Link>
+
           <button
             type="button"
-            className="rounded-md border border-border px-3 py-1.5 text-sm lg:hidden"
+            className="border-2 border-border bg-surface px-3 py-1 text-sm font-bold uppercase sm:hidden"
             aria-expanded={mobileOpen}
             aria-controls="primary-navigation"
             onClick={() => setMobileOpen((value) => !value)}
           >
             Menu
           </button>
+
+          <nav
+            id="primary-navigation"
+            className={`${mobileOpen ? "absolute left-4 right-4 top-14 z-20 block border-2 border-border bg-surface p-3" : "hidden"} sm:static sm:block sm:border-0 sm:p-0`}
+            aria-label="Primary"
+          >
+            <ul className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
+              {NAV_ITEMS.filter((item) => item.href !== "/").map((item) => {
+                const active = isActive(pathname, item.href);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={`text-sm font-bold uppercase tracking-wide ${
+                        active ? "text-accent" : "text-foreground hover:text-accent"
+                      }`}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
         </div>
+      </header>
 
-        <nav
-          id="primary-navigation"
-          className={`${mobileOpen ? "block" : "hidden"} border-t border-border px-2 py-3 lg:block lg:border-t-0 lg:px-3`}
-          aria-label="Research sections"
-        >
-          <ul className="space-y-1">
-            {NAV_ITEMS.map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={`block rounded-md px-3 py-2 transition-colors ${
-                      active
-                        ? "bg-accent-muted text-accent"
-                        : "text-foreground hover:bg-surface-muted"
-                    }`}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <span className="block text-sm font-medium">{item.label}</span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {item.description}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </aside>
-
-      <div className="min-w-0">
-        <header className="border-b border-border bg-surface px-4 py-3 lg:px-8">
-          <p className="text-sm text-muted">
-            Historical research only. Not investment advice.
-          </p>
-        </header>
-        <main className="px-4 py-6 lg:px-8 lg:py-8">{children}</main>
-      </div>
+      {isHome ? (
+        children
+      ) : (
+        <>
+          <main className="page-rise mx-auto max-w-6xl px-4 py-8 sm:px-6">
+            {children}
+          </main>
+          <footer className="mx-auto max-w-6xl border-t-2 border-border px-4 py-6 text-xs text-muted sm:px-6">
+            Historical simulation only. No claim of future performance.
+          </footer>
+        </>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatePanel } from "@/components/ui/StatePanel";
 import { listExperiments } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -28,8 +29,12 @@ export default async function ExperimentsPage() {
 
   if (!data || data.total === 0) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold tracking-tight">Experiments</h2>
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Persistence"
+          title="Experiments"
+          description="Stored research runs from PostgreSQL-backed persistence."
+        />
         <StatePanel
           title="No experiments yet"
           message="The persistence API returned no stored experiments. Empty history is preferred over fabricated results."
@@ -39,43 +44,44 @@ export default async function ExperimentsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Experiments</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Stored research runs from PostgreSQL-backed persistence. High training
-          performance alone does not imply a successful strategy.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Persistence"
+        title="Experiments"
+        description="Stored research runs from PostgreSQL-backed persistence. High training performance alone does not imply a successful strategy."
+      />
       <MetricCard label="Stored experiments" value={String(data.total)} />
-      <div className="overflow-x-auto rounded-md border border-border bg-surface">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-[0.08em] text-muted">
+      <div className="overflow-x-auto border-y border-border">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Created</th>
-              <th className="px-4 py-3 font-medium">Symbol</th>
-              <th className="px-4 py-3 font-medium">Model</th>
-              <th className="px-4 py-3 font-medium">Task</th>
-              <th className="px-4 py-3 font-medium">Horizon</th>
-              <th className="px-4 py-3 font-medium">Best epoch</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Detail</th>
+              <th>Created</th>
+              <th>Symbol</th>
+              <th>Model</th>
+              <th>Task</th>
+              <th>Horizon</th>
+              <th>Best epoch</th>
+              <th>Status</th>
+              <th>Detail</th>
             </tr>
           </thead>
           <tbody>
             {data.items.map((item) => (
-              <tr key={item.id} className="border-b border-border last:border-b-0">
-                <td className="px-4 py-3">{formatDate(item.created_at)}</td>
-                <td className="px-4 py-3">{item.symbol}</td>
-                <td className="px-4 py-3">{item.model_name}</td>
-                <td className="px-4 py-3">{item.task}</td>
-                <td className="px-4 py-3">{item.forecast_horizon}</td>
-                <td className="px-4 py-3">
+              <tr key={item.id}>
+                <td className="font-data">{formatDate(item.created_at)}</td>
+                <td>{item.symbol}</td>
+                <td>{item.model_name}</td>
+                <td>{item.task}</td>
+                <td className="font-data">{item.forecast_horizon}</td>
+                <td className="font-data">
                   {item.best_epoch === null ? "—" : item.best_epoch}
                 </td>
-                <td className="px-4 py-3">{item.status}</td>
-                <td className="px-4 py-3">
-                  <Link className="text-accent underline" href={`/experiments/${item.id}`}>
+                <td>{item.status}</td>
+                <td>
+                  <Link
+                    className="font-semibold text-accent underline-offset-2 hover:underline"
+                    href={`/experiments/${item.id}`}
+                  >
                     Open
                   </Link>
                 </td>

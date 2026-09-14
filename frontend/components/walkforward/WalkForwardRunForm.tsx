@@ -23,23 +23,21 @@ export function WalkForwardRunForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4 sm:flex-row sm:items-end"
+      className="flex flex-col gap-4 border-y border-border py-5 sm:flex-row sm:items-end"
     >
       <label className="block flex-1 text-sm">
-        <span className="mb-1 block text-muted">Walk-forward run id</span>
+        <span className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
+          Walk-forward run id
+        </span>
         <input
-          className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm"
+          className="field-input font-data text-sm"
           value={runId}
           onChange={(event) => setRunId(event.target.value)}
-          placeholder="uuid from persistence api"
+          placeholder="uuid from the persistence API"
           aria-label="Walk-forward run id"
         />
       </label>
-      <button
-        type="submit"
-        className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60 dark:text-background"
-        disabled={pending}
-      >
+      <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Loading…" : "Load run"}
       </button>
     </form>

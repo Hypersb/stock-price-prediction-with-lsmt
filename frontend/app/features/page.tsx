@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { FeatureExplorerClient } from "@/components/features/FeatureExplorerClient";
 import { ResearchControls } from "@/components/research/ResearchControls";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricGrid } from "@/components/ui/MetricGrid";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingPanel, StatePanel } from "@/components/ui/StatePanel";
 import { getFeatures } from "@/lib/api";
 import { defaultDateRange, formatDate } from "@/lib/format";
@@ -49,8 +51,8 @@ async function FeaturesContent({ searchParams }: { searchParams: SearchParams })
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-8">
+      <MetricGrid>
         <MetricCard label="Symbol" value={data.symbol} />
         <MetricCard label="Feature count" value={String(data.feature_count)} />
         <MetricCard
@@ -62,7 +64,7 @@ async function FeaturesContent({ searchParams }: { searchParams: SearchParams })
           label="Range"
           value={`${formatDate(data.start_date)} → ${formatDate(data.end_date)}`}
         />
-      </div>
+      </MetricGrid>
       <FeatureExplorerClient data={data} />
     </div>
   );
@@ -74,14 +76,12 @@ export default function FeaturesPage({
   searchParams: SearchParams;
 }) {
   return (
-    <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight">Features</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-          Inspect leakage-aware engineered features used for research. Indicators
-          here are model inputs, not automatic buy or sell signals.
-        </p>
-      </section>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Inputs"
+        title="Features"
+        description="Leakage-aware engineered inputs for research models. These are diagnostics, not trading signals."
+      />
       <Suspense fallback={<LoadingPanel label="Loading controls" />}>
         <ResearchControls basePath="/features" />
       </Suspense>

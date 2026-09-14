@@ -3,11 +3,38 @@
 import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/TimeSeriesChart";
+import { ChartFrame } from "@/components/ui/ChartFrame";
 import { describeFeature } from "@/lib/featureNotes";
 import type { FeatureResponse } from "@/types/api";
 
+const FEATURE_GROUPS: { label: string; match: (name: string) => boolean }[] = [
+  { label: "Returns", match: (name) => name.includes("return") || name.includes("momentum") },
+  { label: "Moving averages", match: (name) => name.includes("sma") || name.includes("ema") },
+  { label: "Volatility", match: (name) => name.includes("volatility") || name.includes("atr") },
+  { label: "Volume", match: (name) => name.includes("volume") },
+  {
+    label: "Oscillators",
+    match: (name) => name.includes("rsi") || name.includes("macd"),
+  },
+];
+
+function groupFor(name: string): string {
+  return FEATURE_GROUPS.find((group) => group.match(name))?.label ?? "Other";
+}
+
 export function FeatureExplorerClient({ data }: { data: FeatureResponse }) {
   const [selected, setSelected] = useState(data.feature_names[0] ?? "");
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const name of data.feature_names) {
+      const key = groupFor(name);
+      const bucket = map.get(key) ?? [];
+      bucket.push(name);
+      map.set(key, bucket);
+    }
+    return Array.from(map.entries());
+  }, [data.feature_names]);
 
   const series = useMemo(() => {
     if (!selected) {
@@ -29,50 +56,77 @@ export function FeatureExplorerClient({ data }: { data: FeatureResponse }) {
   }, 0);
 
   if (data.feature_names.length === 0) {
-    return (
-      <p className="text-sm text-muted">No feature columns were returned.</p>
-    );
+    return <p className="text-sm text-muted">No feature columns were returned.</p>;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-[16rem_1fr]">
-        <label className="block text-sm">
-          <span className="mb-1 block text-muted">Feature</span>
-          <select
-            className="w-full rounded-md border border-border bg-background px-3 py-2"
-            value={selected}
-            onChange={(event) => setSelected(event.target.value)}
-            aria-label="Selected feature"
-          >
-            {data.feature_names.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="rounded-md border border-border bg-surface px-4 py-3">
-          <p className="text-sm font-medium">{selected}</p>
-          <p className="mt-1 text-sm leading-6 text-muted">
-            {describeFeature(selected)} Warm-up periods may appear as missing values.
+    <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
+      <aside className="space-y-5">
+        <div>
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
+            Feature catalog
           </p>
-          <p className="mt-2 text-xs text-muted">
-            Plotted points: {series.length}. Missing in returned window: {missingCount}.
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Pick a column. Warm-up windows stay missing on purpose.
           </p>
         </div>
-      </div>
+        <div className="max-h-[34rem] space-y-4 overflow-y-auto pr-1">
+          {grouped.map(([group, names]) => (
+            <div key={group}>
+              <p className="mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-accent">
+                {group}
+              </p>
+              <ul className="space-y-1">
+                {names.map((name) => {
+                  const active = name === selected;
+                  return (
+                    <li key={name}>
+                      <button
+                        type="button"
+                        className={`w-full border-l-2 px-3 py-1.5 text-left font-data text-xs transition-colors ${
+                          active
+                            ? "border-accent bg-accent-muted/70 text-foreground"
+                            : "border-transparent text-muted hover:border-border hover:bg-surface"
+                        }`}
+                        onClick={() => setSelected(name)}
+                      >
+                        {name}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </aside>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <h3 className="text-sm font-semibold">Feature series</h3>
-        <div className="mt-4">
+      <div className="space-y-5">
+        <div className="border-t border-border pt-5">
+          <h3 className="font-display text-3xl text-foreground">{selected}</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+            {describeFeature(selected)}
+          </p>
+          <p className="font-data mt-3 text-xs text-muted">
+            plotted {series.length} · missing {missingCount}
+          </p>
+        </div>
+
+        <ChartFrame
+          title="Feature series"
+          subtitle="Null warm-up values are omitted from the plot rather than invented."
+          meta={selected}
+        >
           <TimeSeriesChart
             data={series}
             valueLabel={selected}
             valueFormat="number4"
+            variant="area"
+            height={360}
+            color="var(--ink-soft)"
           />
-        </div>
-      </section>
+        </ChartFrame>
+      </div>
     </div>
   );
 }

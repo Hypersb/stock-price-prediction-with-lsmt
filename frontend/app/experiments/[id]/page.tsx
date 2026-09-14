@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricGrid } from "@/components/ui/MetricGrid";
 import { StatePanel } from "@/components/ui/StatePanel";
 import {
   getExperiment,
@@ -71,25 +72,29 @@ export default async function ExperimentDetailPage({
   const backtests = related?.backtests ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <section>
         <p className="text-sm text-muted">
-          <Link href="/experiments" className="text-accent underline">
+          <Link
+            href="/experiments"
+            className="font-semibold text-accent underline-offset-2 hover:underline"
+          >
             Experiments
           </Link>
         </p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+        <h2 className="font-display mt-3 text-4xl leading-none text-foreground sm:text-5xl">
           {experiment.symbol} · {experiment.model_name}
         </h2>
-        <p className="mt-2 font-mono text-xs text-muted">{experiment.id}</p>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
+        <p className="font-data mt-3 text-xs text-muted">{experiment.id}</p>
+        <p className="mt-4 max-w-3xl text-base leading-7 text-muted">
           Persisted experiment metadata and linked research artifacts. Advanced
           multi-asset or sensitivity reports are produced by the offline research
           pipeline and are not executed by this page.
         </p>
+        <div className="section-rule mt-7 max-w-sm" />
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricGrid>
         <MetricCard label="Task" value={experiment.task} />
         <MetricCard label="Status" value={experiment.status} />
         <MetricCard label="Forecast horizon" value={String(experiment.forecast_horizon)} />
@@ -111,14 +116,14 @@ export default async function ExperimentDetailPage({
           value={experiment.checkpoint_reference ? "referenced" : "none"}
           hint={experiment.checkpoint_reference ?? undefined}
         />
-      </div>
+      </MetricGrid>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <MetricGroup title="Validation metrics" rows={validation} />
         <MetricGroup title="Test metrics" rows={test} />
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
+      <section className="border-t border-border pt-5">
         <h3 className="text-sm font-semibold">Linked walk-forward runs</h3>
         <p className="mt-1 text-xs text-muted">
           Out-of-sample fold metadata persisted with this experiment.
@@ -147,7 +152,7 @@ export default async function ExperimentDetailPage({
         )}
       </section>
 
-      <section className="rounded-md border border-border bg-surface p-4">
+      <section className="border-t border-border pt-5">
         <h3 className="text-sm font-semibold">Linked backtests</h3>
         <p className="mt-1 text-xs text-muted">
           Historical strategy simulations only. Past performance does not
@@ -185,7 +190,7 @@ function MetricGroup({
   rows: { metric_name: string; metric_value: number | null }[];
 }) {
   return (
-    <section className="rounded-md border border-border bg-surface p-4">
+    <section className="border-t border-border pt-5">
       <h3 className="text-sm font-semibold">{title}</h3>
       {rows.length === 0 ? (
         <p className="mt-3 text-sm text-muted">No metrics stored for this split.</p>
