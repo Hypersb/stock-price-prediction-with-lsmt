@@ -11,7 +11,7 @@ Decision stance: **modular monolith first** (matches the existing FastAPI + `ml/
 |-------|---------|------------------|
 | Frontend | Next.js research dashboard | Same; richer research UX later |
 | API | FastAPI `/api/v1` | Same modular API; versioned contracts |
-| Domain engine | `ml/` package imported by services | Keep in-process domain libraries |
+| Domain engine | `ml/` + `ml/contracts` | Same; contracts document boundaries |
 | Persistence | PostgreSQL + Alembic | Same + richer provenance schema |
 | Cache | In-process TTL | Redis only when multi-instance requires it |
 | Configuration | `backend.app.core.config` typed settings | Same ownership; extend fields when services land |

@@ -2,105 +2,89 @@
 
 Purpose: keep the modular monolith from becoming a ball of mud as Phase 2–15 features land.
 
-Dependency rule of thumb: **inner domain libraries (`ml/`) must not import FastAPI, Next.js, or UI code.** API services may import `ml/`. Frontend may not reimplement domain math beyond presentation helpers.
+**Dependency rule:** `ml/` (domain) must not import FastAPI, Next.js, backend schemas, or UI code.  
+API services may import `ml/`. Frontend may not reimplement domain math beyond presentation helpers.
+
+See also: [`DOMAIN_DEPENDENCY_MAP.md`](DOMAIN_DEPENDENCY_MAP.md), [`INTERNAL_CONTRACTS.md`](INTERNAL_CONTRACTS.md).
 
 ---
 
-## Domains
+## CURRENT domains
 
 ### `market_data`
 
-- **Responsibility:** Acquire, normalize, validate, and serve OHLCV  
-- **Belongs:** providers, request validation, schema, storage adapters, freshness metadata  
-- **Does not belong:** features, models, backtests, UI formatting  
-- **Allowed deps:** pandas/numpy, provider SDKs, settings  
-- **Public interfaces:** `MarketDataProvider`, ingestion service, API market-data DTOs  
+- **Purpose:** Acquire, normalize, validate, serve OHLCV  
+- **Owned:** providers, request validation, schema, CSV storage, symbols  
+- **Inputs:** symbol + date range  
+- **Outputs:** OHLCV frames / API pages  
+- **Allowed deps:** pandas; provider SDKs **only inside adapters**  
+- **Forbidden:** features, models, backtests, FastAPI  
 
 ### `features`
 
-- **Responsibility:** Leakage-aware feature construction and validation  
-- **Belongs:** lag/momentum/trend/vol/volume/indicators, feature schemas/version ids (future)  
-- **Does not belong:** targets used as inputs, model training, backtest costs  
-- **Allowed deps:** `market_data` outputs (frames), pandas  
-- **Public interfaces:** `build_features`, `validate_features`  
+- **Purpose:** Leakage-aware feature construction  
+- **Inputs:** validated OHLCV  
+- **Outputs:** feature frames (+ warm-up NaNs)  
+- **Allowed:** market_data frames, `ml.analysis.returns` helpers  
+- **Forbidden:** downloads, training, HTTP  
 
-### `research` (quant analysis)
+### `targets`
 
-- **Responsibility:** Exploratory stats, regimes, ablation orchestration helpers, report structuring  
-- **Belongs:** returns/vol/drawdown summaries, research pipeline coordination, diagnostics  
-- **Does not belong:** HTTP routing, user accounts  
-- **Allowed deps:** `features`, `models`, `evaluation`, `validation`, `backtesting`  
-- **Public interfaces:** `run_final_research_evaluation`, analysis helpers  
+- **Purpose:** Future-return / direction labels  
+- **Forbidden:** inclusion in model `X`  
+
+### `datasets`
+
+- **Purpose:** Assemble supervised frames; drop incomplete rows  
+- **Public:** `SupervisedFrame`, `assemble_supervised`, `DatasetSpec`  
 
 ### `models`
 
-- **Responsibility:** Model definitions and fit/predict APIs  
-- **Belongs:** naive/linear/tree/boosting/LSTM wrappers  
-- **Does not belong:** walk-forward orchestration, persistence, UI catalog hardcoding long-term  
-- **Allowed deps:** features matrices, training utilities, torch/sklearn  
-- **Public interfaces:** model classes with `fit`/`predict`  
+- **Purpose:** Fit/predict implementations  
+- **Public:** model classes; `Predictor` Protocol for tabular baselines  
+- **Forbidden:** walk-forward orchestration, DB sessions  
 
 ### `evaluation`
 
-- **Responsibility:** Predictive metrics from actual vs predicted  
-- **Belongs:** regression/classification metrics  
-- **Does not belong:** trading PnL, Sharpe (those are backtest/risk)  
-- **Allowed deps:** numpy/sklearn  
-- **Public interfaces:** `evaluate_regression`, `evaluate_classification`  
+- **Purpose:** Predictive metrics from actual vs predicted  
+- **Forbidden:** trading PnL / Sharpe (backtest/risk)  
+
+### `walk_forward` (`ml.validation`)
+
+- **Purpose:** Temporal folds, purge, retrain, OOS collection  
+- **Forbidden:** HTTP/UI  
 
 ### `backtesting`
 
-- **Responsibility:** Signals → execution alignment → costs → strategy returns  
-- **Belongs:** engine, costs, fold-aware stitch, strategy metrics  
-- **Does not belong:** feature engineering, news NLP  
-- **Allowed deps:** predictions, price/return series  
-- **Public interfaces:** `run_backtest`, `run_fold_aware_backtest`  
+- **Purpose:** Signals → h=1 execution → costs → equity/metrics  
+- **Forbidden:** retraining; silent multi-horizon  
 
 ### `risk`
 
-- **Responsibility:** Risk measures and diagnostics over return/equity paths  
-- **Belongs:** drawdown, vol, Sharpe/Sortino definitions, future VaR/ES  
-- **Does not belong:** signal generation  
-- **Allowed deps:** return series  
-- **Public interfaces:** metric functions (today split across `ml/analysis` and `ml/backtesting/metrics`)  
-- **Note:** consolidate conceptually under risk in later phases without breaking imports overnight  
+- **Purpose (CURRENT):** drawdown/vol/Sharpe/Sortino on return paths  
+- **Note:** ownership still split (`ml.analysis` vs `ml.backtesting.metrics`) — TD-021  
 
-### `news` (future)
+### `research`
 
-- **Responsibility:** Ingest and store financial news with timestamps  
-- **Does not belong:** silent joining onto features without point-in-time rules  
+- **Purpose:** Final evaluation orchestration + diagnostics/report  
+- **Allowed:** features/targets/models/validation/evaluation/backtesting  
 
-### `nlp` (future)
+### `contracts`
 
-- **Responsibility:** Sentiment/theme extraction with model cards  
-- **Does not belong:** portfolio optimization  
+- **Purpose:** Typed boundary objects (`ml.contracts`)  
+- **Forbidden:** network I/O, SQLAlchemy  
 
-### `portfolio` (future)
+### `application` / `api` / `persistence`
 
-- **Responsibility:** Multi-asset allocation analytics  
-- **Does not belong:** single-asset feature pipelines  
+- **Purpose:** Orchestration, HTTP, Postgres  
+- **Allowed:** call into `ml` + repositories  
+- **Forbidden:** reimplementing quant formulas in routes  
 
-### `ai_research` (future)
+---
 
-- **Responsibility:** Evidence-grounded copilot over persisted artifacts  
-- **Does not belong:** unconstrained market advice; must cite experiment ids  
+## FUTURE domains (docs only — no empty packages)
 
-### `users` / `watchlists` / `alerts` (future)
-
-- **Responsibility:** Identity, saved symbols/research, notification rules  
-- **Does not belong:** ML training logic  
-
-### `jobs`
-
-- **Responsibility:** Async execution, retries, progress  
-- **Belongs (future):** queues, schedulers  
-- **Does not belong:** domain formulas  
-
-### `observability`
-
-- **Responsibility:** Logging, metrics, tracing, audit trails  
-- **Belongs:** request context, redaction  
-- **Does not belong:** business metric fabrication  
+`news`, `nlp`, `portfolio`, `ai_research`, `users`, `watchlists`, `alerts`, `jobs`, `monitoring`
 
 ---
 
@@ -108,34 +92,14 @@ Dependency rule of thumb: **inner domain libraries (`ml/`) must not import FastA
 
 ```mermaid
 flowchart TD
-    API[backend API services]
     FE[frontend]
-    MD[market_data]
-    FEAT[features]
-    TGT[targets]
-    MOD[models]
-    VAL[validation]
-    EVAL[evaluation]
-    BT[backtesting]
-    RISK[risk]
-    RES[research]
-    DB[(persistence)]
+    API[API routes]
+    APP[application services]
+    DOM[ml domain + contracts]
+    PORTS[ports / ABCs]
+    ADAPT[adapters Yahoo SQL FS]
 
-    FE --> API
-    API --> MD & FEAT & RES & MOD & BT & DB
-    RES --> FEAT & TGT & MOD & VAL & EVAL & BT & RISK
-    VAL --> MOD & FEAT
-    BT --> RISK
-    FEAT --> MD
-    TGT --> MD
+    FE --> API --> APP --> DOM --> PORTS --> ADAPT
 ```
 
 Forbidden: `ml/*` → `backend.app` or `frontend/*`.
-
----
-
-## Boundary enforcement tactics (later)
-
-- Keep packages import-linter / tests like existing API contract tests  
-- Prefer passing frames/DTOs over reaching into foreign internals  
-- New domains get a folder + README/ADR when introduced  
