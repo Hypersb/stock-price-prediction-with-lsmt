@@ -108,6 +108,7 @@ Production-ready means safe for multi-user production SaaS without major hardeni
 | PostgreSQL models + Alembic | IMPLEMENTED | `backend/app/db/`, `alembic/` | Experiments, metrics, WF, preds, backtests | db + migration tests | SQLAlchemy, Alembic, psycopg | SQLite used in unit tests | Partial | Expand provenance fields |
 | Research persistence service | IMPLEMENTED | `services/research_persistence.py` | Offline bundle writer | `test_research_persistence.py` | DB | Not full experiment platform | No | Phase 4 |
 | In-process TTL cache | PARTIAL | `core/cache.py` | Market OHLCV cache ~60s | `test_cache_reliability.py` | — | Not Redis; process-local | No | Redis only if multi-instance |
+| Backend configuration | IMPLEMENTED | `backend/app/core/config.py` | Typed env settings, fail-fast, safe summary | `test_fullstack_config.py`, `test_configuration_architecture.py` | — | No pydantic-settings (intentional) | Partial | Extend per future services |
 | Background jobs / scheduler | NOT IMPLEMENTED | — | — | Sync request path / offline scripts | — | Long research not queued | No | Phase 13 |
 | Auth / users / watchlists / alerts | NOT IMPLEMENTED | — | — | Explicitly absent | — | Open API | No | Phase 12–13 |
 

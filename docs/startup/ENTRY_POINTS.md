@@ -47,6 +47,7 @@ There is **no** dedicated CLI for walk-forward or backtests beyond Python APIs a
 | Ruff | `ruff check backend tests ml scripts` | Lint | development |
 | Frontend test | `cd frontend && npm test` | Vitest | development |
 | Repo health | `PYTHONPATH=. python -m scripts.check_repo_health` | Structural invariants | development |
+| Config summary | `PYTHONPATH=. python -m scripts.print_config` | Non-secret effective settings | development |
 | Compose stack | `docker compose up --build` | Full local stack | development |
 
 ---

@@ -6,7 +6,7 @@ Phase objective: truthful repository baseline, product definition, and architect
 |--------|-------|--------|
 | 1 | Repository audit + product/architecture baseline | **COMPLETE** |
 | 2 | Repository structural cleanup | **COMPLETE** |
-| 3 | Configuration and environment architecture | NOT STARTED |
+| 3 | Configuration and environment architecture | **COMPLETE** |
 | 4 | Domain boundaries and internal interfaces | NOT STARTED |
 | 5 | Data contracts and schemas | NOT STARTED |
 | 6 | Persistence architecture | NOT STARTED |
@@ -19,33 +19,34 @@ Phase objective: truthful repository baseline, product definition, and architect
 
 ## Prompt 1 completion checklist
 
-- [x] Forensic repository audit performed from code (not README alone)  
-- [x] Startup audit docs under `docs/startup/`  
-- [x] Initial ADRs under `docs/adr/`  
-- [x] README discipline updates  
-- [x] No major feature implementation / no fabricated metrics / no secret exposure  
+- [x] Startup audit docs + ADRs + README discipline  
 
 ---
 
 ## Prompt 2 completion checklist
 
-- [x] Pre-change baseline captured (working tree was clean; prior frontend dirty work already committed as `1bb72fd`)  
-- [x] `REPOSITORY_STRUCTURE.md`  
-- [x] `ENTRY_POINTS.md`  
-- [x] `DEVELOPER_WORKFLOW.md`  
-- [x] Canonical symbol helper + primary path wiring  
-- [x] Script hygiene (`python -m scripts...`, exit codes)  
-- [x] Generated-artifact `.gitignore` hygiene  
-- [x] Node ≥20 `engines` + `.nvmrc`  
-- [x] Docker `requirements-docker.txt` pinned ranges  
-- [x] Repository health check  
-- [x] Architecture boundary tests  
-- [x] Technical debt register updated  
-- [x] Tests/lint/health green at/above baseline  
-- [x] Local commits created; **not pushed**  
+- [x] Structure docs, boundaries tests, Node/Docker hygiene, health check  
+
+---
+
+## Prompt 3 completion checklist
+
+- [x] Prompt 2 state verified (COMPLETE; tree clean at start)  
+- [x] `CONFIGURATION_ARCHITECTURE.md` + `CONFIGURATION_CONTRACT.md`  
+- [x] development/test/production model documented and enforced  
+- [x] Canonical backend settings ownership (`backend.app.core.config`)  
+- [x] Fail-fast validation (CORS, log level, limits, production DB)  
+- [x] Secret classification + safe diagnostics (`print_config`)  
+- [x] Frontend client/server env boundary documented + tested  
+- [x] Test configuration isolation (`tests/conftest.py`)  
+- [x] Path roots (`QUANT_DATA_ROOT` / `QUANT_ARTIFACT_ROOT`)  
+- [x] Docker/CI alignment notes; Compose does not bake secrets from `.env` copy  
+- [x] Configuration regression tests  
+- [x] Technical debt + tracker updated  
+- [x] Full regression green; **not pushed**  
 
 ---
 
 ## Notes
 
-Prompts 3–10 remain pending. Prompt 2 did not rewrite ML methodology or add product features.
+Prompts 4–10 remain pending. Prompt 3 did not change ML/research methodology.

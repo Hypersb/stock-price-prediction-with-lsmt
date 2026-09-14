@@ -16,16 +16,24 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 
-# Frontend
+# Frontend (Node ≥ 20; CI uses 22)
 cd frontend
 npm ci   # or npm install
 cp .env.example .env.local
 cd ..
 
 cp .env.example .env
+# Edit .env with local placeholders only — never commit it.
 ```
 
-Or: `make install` (venv assumed activated for pip).
+Configuration contract: [CONFIGURATION_CONTRACT.md](CONFIGURATION_CONTRACT.md) ·
+architecture: [CONFIGURATION_ARCHITECTURE.md](CONFIGURATION_ARCHITECTURE.md)
+
+Inspect non-secret effective backend settings:
+
+```bash
+PYTHONPATH=. python -m scripts.print_config
+```
 
 ---
 

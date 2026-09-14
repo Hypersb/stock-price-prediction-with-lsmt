@@ -14,6 +14,7 @@ Decision stance: **modular monolith first** (matches the existing FastAPI + `ml/
 | Domain engine | `ml/` package imported by services | Keep in-process domain libraries |
 | Persistence | PostgreSQL + Alembic | Same + richer provenance schema |
 | Cache | In-process TTL | Redis only when multi-instance requires it |
+| Configuration | `backend.app.core.config` typed settings | Same ownership; extend fields when services land |
 | Jobs | Offline scripts / sync requests | Background workers + scheduler |
 | Artifacts | Local/CSV/DB JSON fields | Object storage + model registry metadata |
 | Auth | None | Users/sessions (later phase) |
