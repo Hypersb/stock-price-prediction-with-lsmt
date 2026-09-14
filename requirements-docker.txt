@@ -1,12 +1,16 @@
 # Runtime dependencies for the Dockerized FastAPI research API.
 # Excludes local-only tooling (jupyter) and heavy training stacks (torch).
-pandas
-numpy
-scikit-learn
-yfinance
-fastapi
-uvicorn
-sqlalchemy
-alembic
-psycopg[binary]
-pydantic
+#
+# Strategy: use the same compatible-release pins as requirements.txt for the
+# shared runtime set so Compose builds track the same lower bounds as local/
+# CI installs without freezing an entire developer virtualenv.
+pandas~=3.0
+numpy~=1.26
+scikit-learn~=1.5
+yfinance~=0.2
+fastapi~=0.115
+uvicorn~=0.30
+sqlalchemy~=2.0
+alembic~=1.13
+psycopg[binary]~=3.2
+pydantic~=2.7

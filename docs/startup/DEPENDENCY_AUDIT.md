@@ -32,10 +32,15 @@ Policy for this prompt: **document only — no broad upgrades.**
 
 ### Docker API (`requirements-docker.txt`)
 
-Unpinned names for: pandas, numpy, scikit-learn, yfinance, fastapi, uvicorn, sqlalchemy, alembic, psycopg[binary], pydantic.  
-**Excludes** jupyter and torch intentionally (API image is inference/research-serving oriented without training stack).
+Pinned with the same compatible-release operators as `requirements.txt` for the
+shared API runtime set (pandas, numpy, scikit-learn, yfinance, fastapi, uvicorn,
+sqlalchemy, alembic, psycopg[binary], pydantic).
 
-**Risk:** Docker requirements are unpinned while root requirements use compatible-release pins → image drift vs local/CI.
+**Excludes** jupyter and torch intentionally (API image is inference/research-serving
+oriented without training stack).
+
+**Prompt 2:** unpinned Docker requirements debt (TD-009) resolved via aligned `~=` pins.
+Does **not** freeze an entire developer virtualenv into the image.
 
 ---
 
@@ -86,7 +91,7 @@ No Redux, no chart-library duplicates, no auth SDKs, no ORMs on the frontend.
 |---------|-------|
 | torch heavy + CI special-case CPU index | Documented in workflow; keep |
 | Node 18 vs Vite/Vitest ESM | Frontend tests require Node ≥20 |
-| Unpinned `requirements-docker.txt` | Align pins with `requirements.txt` in a later config prompt |
+| Unpinned `requirements-docker.txt` | **Resolved in Prompt 2** — aligned `~=` pins |
 
 ### Obsolete
 
@@ -113,8 +118,8 @@ None obviously obsolete among declared majors. Stack versions are relatively cur
 
 ## Recommendations (later prompts)
 
-1. Pin `requirements-docker.txt` to the same lower bounds as `requirements.txt` (minus torch/jupyter).
+1. Pin `requirements-docker.txt` to the same lower bounds as `requirements.txt` (minus torch/jupyter). **Done (Prompt 2).**
 2. Split notebook extras from API runtime deps.
-3. Document Node 20+/22 in README developer prerequisites (small README fix allowed).
+3. Document Node 20+/22 in README developer prerequisites. **Done (Prompt 1–2; engines enforced).**
 4. Periodic `pip audit` / `npm audit` in Phase 14 — not now.
 5. Do not add microservices libraries, Kafka, or unused cloud SDKs until a concrete requirement exists.
