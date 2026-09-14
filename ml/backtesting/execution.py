@@ -2,6 +2,8 @@
 
 import pandas as pd
 
+from ml.contracts.backtesting import assert_supported_backtest_horizon
+
 
 def align_execution(
     signals: pd.DataFrame,
@@ -15,20 +17,21 @@ def align_execution(
     same-date returns are never assigned to a prediction. Only one-day horizon
     is supported until overlapping multi-day accounting is specified.
     """
-    if forecast_horizon != 1:
-        raise ValueError(
-            "execution alignment currently supports forecast_horizon=1 only; "
-            "multi-period strategy backtesting is not implemented"
-        )
+    assert_supported_backtest_horizon(forecast_horizon)
     required_signal = {"date", "signal"}
     required_returns = {"date", "realized_return"}
-    if not required_signal.issubset(signals.columns) or not required_returns.issubset(market_returns.columns):
+    if not required_signal.issubset(signals.columns) or not required_returns.issubset(
+        market_returns.columns
+    ):
         raise ValueError("signals and market_returns have missing required columns")
     predictions = signals.copy()
     returns = market_returns.copy()
     predictions["prediction_date"] = pd.to_datetime(predictions["date"])
     returns["realization_date"] = pd.to_datetime(returns["date"])
-    if returns["realization_date"].duplicated().any() or not returns["realization_date"].is_monotonic_increasing:
+    if (
+        returns["realization_date"].duplicated().any()
+        or not returns["realization_date"].is_monotonic_increasing
+    ):
         raise ValueError("market returns must have unique chronological dates")
     return pd.merge_asof(
         predictions.sort_values("prediction_date"),
