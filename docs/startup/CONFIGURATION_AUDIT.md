@@ -1,6 +1,8 @@
 # Configuration & Secret Audit
 
 Audit date: 2026-09-13  
+Prompt 3 update: 2026-09-13 — living contract in `CONFIGURATION_ARCHITECTURE.md` and `CONFIGURATION_CONTRACT.md`.
+
 Policy: **do not print secret values**. If a secret appears committed, report file/pattern only.
 
 ---
@@ -10,80 +12,39 @@ Policy: **do not print secret values**. If a secret appears committed, report fi
 | Source | Role |
 |--------|------|
 | `.env.example` | Documented placeholders for backend/frontend |
-| `.env` (local) | Present on disk; **gitignored** — not tracked |
-| `frontend/.env.example` | `NEXT_PUBLIC_API_BASE_URL` |
-| `frontend/.env.local` | Local public API URL; **gitignored** via frontend `.env*` rule |
-| `backend/app/core/config.py` | `Settings` loaded from environment |
-| `frontend/lib/env.ts` | Public API base URL + defaults |
-| `docker-compose.yml` | Dev service env (placeholder DB creds) |
-| `alembic.ini` / `alembic/env.py` | Migrations; DB URL from env |
+| `.env` (local) | Optional; loaded only in development (not production); **gitignored** |
+| `frontend/.env.example` | Public + documented server-only notes |
+| `frontend/.env.local` | Local public API URL; **gitignored** |
+| `backend/app/core/config.py` | **Canonical** typed `Settings` loader |
+| `frontend/lib/env.ts` | Public/server API base URL helpers |
+| `docker-compose.yml` | Dev service env (placeholder DB creds; no `.env` COPY into image) |
+| `alembic/env.py` | Migrations; `DATABASE_URL` from env |
 | CI workflow env | `APP_ENV=test`, ephemeral Postgres creds |
 
 ---
 
-## Secret handling verification
+## Secret handling verification (Prompt 3 re-check)
 
 | Check | Result |
 |-------|--------|
-| `.env` tracked by git? | **No** (`git check-ignore` → `.gitignore`; `git ls-files` has no `.env`) |
+| `.env` tracked by git? | **No** |
 | `frontend/.env.local` tracked? | **No** |
-| Real API keys found committed? | **No** — `MARKET_DATA_API_KEY` empty in examples |
-| Dev passwords in examples/compose? | Placeholder `user` / `password` documented as non-production |
-
-**No committed production secrets identified.**  
-Do not commit `.env` in future prompts.
+| Real API keys found committed? | **No** |
+| Safe summary / `print_config` | Redacts secrets; covered by tests |
 
 ---
 
-## Hardcoded / environment-specific settings
+## Prompt 3 remediations applied
 
-| Item | Where | Notes |
-|------|-------|-------|
-| Default CORS localhost | `Settings` | Dev-oriented |
-| Default page sizes / max rows | `Settings` + `.env.example` | Safety limits |
-| Market cache TTL 60s / size 64 | `Settings` | Process-local |
-| Model catalog entries | `backend/app/services/models.py` | Hardcoded metadata |
-| Default symbol `AAPL` | `frontend/lib/env.ts` | UI default |
-| Default date range ~1y | `frontend/lib/format.ts` | UI default |
-| Compose DB URL/password | `docker-compose.yml` | Dev placeholders |
-| App title/version strings | `main.py`, settings | Non-secret |
+- Fail-fast production/CORS/log/path validation  
+- Test isolation fixture + non-local DB guard  
+- Explicit PUBLIC/INTERNAL/SECRET classification  
+- Experiment params kept out of infrastructure env  
+- Path roots via `QUANT_DATA_ROOT` / `QUANT_ARTIFACT_ROOT`  
 
----
-
-## Model / research parameters
-
-Typically code defaults in:
-
-- `ml/training/config.py`  
-- `ml/validation/config.py`  
-- `ml/backtesting/config.py`  
-- `ml/research/config.py`  
-- `ml/neural/config.py`  
-
-These are research configuration, not secrets. Future: move critical run params into provenance records.
-
----
-
-## Provider settings
-
-- Yahoo via yfinance; optional `MARKET_DATA_API_KEY` reserved for future providers  
-- Never expose provider keys through `NEXT_PUBLIC_*` (documented and tested)
-
----
-
-## Risks / recommendations
+## Remaining
 
 | Severity | Issue | Recommendation |
 |----------|-------|----------------|
-| MEDIUM | Compose/dev passwords are well-known placeholders | Fine for local; forbid in prod deploy docs |
-| MEDIUM | `requirements-docker.txt` unpinned | Pin in config architecture prompt |
-| LOW | Settings use `os.getenv` + dataclass rather than pydantic-settings | Acceptable; standardize later |
-| LOW | Frontend default symbol/date are hardcoded | Keep as UX defaults |
-
----
-
-## Redaction rules going forward
-
-1. Never log `DATABASE_URL` password or `MARKET_DATA_API_KEY`  
-2. Existing middleware redacts Authorization/Cookie/API-key headers  
-3. Health/ready payloads must not include secrets (covered by tests)  
+| LOW | Compose placeholder password | Local only; never reuse in production deploy |
+| LOW | Minimal dotenv parser | Acceptable; add python-dotenv only if needed |
