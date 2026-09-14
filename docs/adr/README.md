@@ -7,3 +7,5 @@
 | [ADR-003](ADR-003-reproducible-experiment-provenance.md) | Reproducible experiment provenance |
 | [ADR-004](ADR-004-temporal-validation-requirement.md) | Temporal validation requirement |
 | [ADR-005](ADR-005-provider-abstraction.md) | Provider abstraction for market data |
+| [ADR-006](ADR-006-domain-application-separation.md) | Domain / application separation |
+| [ADR-007](ADR-007-experiment-artifact-contracts.md) | Experiment and artifact contracts |
