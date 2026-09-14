@@ -31,12 +31,14 @@ async def lifespan(_: FastAPI):
     from backend.app.db.session import configure_database, reset_database
 
     settings = get_settings()
-    configure_logging("DEBUG" if settings.app_env == "development" else "INFO")
+    configure_logging(settings.log_level)
+    settings.assert_startup_ready()
     logger.info(
-        "api_startup service=%s version=%s env=%s",
+        "api_startup service=%s version=%s env=%s log_level=%s",
         settings.app_name,
         settings.app_version,
         settings.app_env,
+        settings.log_level,
     )
     if settings.database_url:
         configure_database(settings=settings)
