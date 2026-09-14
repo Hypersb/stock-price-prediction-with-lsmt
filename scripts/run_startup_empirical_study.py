@@ -127,11 +127,9 @@ def main(argv: list[str] | None = None) -> int:
     }
     print("running walk-forward empirical evaluation (may take several minutes)...", flush=True)
     result = run_final_research_evaluation(market_data, config)  # type: ignore[arg-type]
-    document = render_final_research_report(result)
 
     out_dir = REPO_ROOT / "artifacts" / "empirics" / result.experiment_id
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "report.md").write_text(document.markdown, encoding="utf-8")
     (out_dir / "config.json").write_text(
         json.dumps(config.to_dict(), indent=2, default=str),
         encoding="utf-8",
@@ -142,6 +140,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     summary = result.multi_asset.summary_table()
     summary.to_csv(out_dir / "model_summary.csv", index=False)
+
+    document = render_final_research_report(result)
+    (out_dir / "report.md").write_text(document.markdown, encoding="utf-8")
     print(f"wrote artifacts to {out_dir}", flush=True)
     print(summary.to_string(index=False), flush=True)
 

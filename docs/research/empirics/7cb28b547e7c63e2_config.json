@@ -1,0 +1,103 @@
+{
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "SPY"
+  ],
+  "target_type": "regression",
+  "horizon": 1,
+  "feature_parameters": {
+    "return_lags": [
+      1,
+      2,
+      3,
+      5,
+      10
+    ],
+    "momentum_windows": [
+      5,
+      10,
+      20
+    ],
+    "moving_average_windows": [
+      5,
+      10,
+      20,
+      50
+    ],
+    "ema_spans": [
+      12,
+      26
+    ],
+    "volatility_windows": [
+      5,
+      10,
+      20
+    ],
+    "volume_window": 20,
+    "rsi_period": 14,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "atr_period": 14
+  },
+  "walk_forward": {
+    "window_type": "expanding",
+    "initial_train_size": 252,
+    "validation_size": 63,
+    "test_size": 63,
+    "step_size": 63,
+    "gap": 0,
+    "forecast_horizon": 1,
+    "maximum_train_size": null
+  },
+  "model_families": [
+    "naive",
+    "linear",
+    "boosting",
+    "lstm"
+  ],
+  "random_seed": 42,
+  "lookback": 20,
+  "hidden_size": 32,
+  "lstm_epochs": 8,
+  "regime": {
+    "trend_ma_window": 50,
+    "trend_return_window": 20,
+    "bullish_return_threshold": 0.0,
+    "bearish_return_threshold": 0.0,
+    "volatility_window": 20,
+    "volatility_low_quantile": 0.33,
+    "volatility_high_quantile": 0.67,
+    "volatility_min_history": 60,
+    "min_observations_per_regime": 30
+  },
+  "backtest": {
+    "strategy_mode": "long_only",
+    "signal_threshold": 0.0,
+    "transaction_cost_bps": 10.0,
+    "slippage_bps": 5.0,
+    "annualization_factor": 252.0,
+    "initial_capital": 1.0
+  },
+  "cost_scenarios_bps": [
+    0.0,
+    5.0,
+    10.0,
+    25.0
+  ],
+  "signal_thresholds": [
+    0.0
+  ],
+  "compare_model_a": "linear_regression",
+  "compare_model_b": "lstm",
+  "bootstrap_iterations": 200,
+  "block_length": 10,
+  "include_ablation": true,
+  "include_complexity": true,
+  "include_explainability": true,
+  "include_regimes": true,
+  "include_sensitivity": true,
+  "include_statistics": true
+}

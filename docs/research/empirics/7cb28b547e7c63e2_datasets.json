@@ -1,0 +1,54 @@
+{
+  "AAPL": {
+    "dataset_id": "yahoo:AAPL:cd75864a8b6689dcdbee971d87b65980",
+    "symbol": "AAPL",
+    "provider": "yahoo",
+    "start_date": "2018-01-02",
+    "end_date": "2024-12-31",
+    "frequency": "1d",
+    "classification": "raw",
+    "adjustment_policy": "unadjusted",
+    "feature_set_id": null,
+    "target_definition": null,
+    "source_metadata": "schema=v1;rows=1761;last=2024-12-31"
+  },
+  "MSFT": {
+    "dataset_id": "yahoo:MSFT:3bc87daaffe7252f1d60bf232138148c",
+    "symbol": "MSFT",
+    "provider": "yahoo",
+    "start_date": "2018-01-02",
+    "end_date": "2024-12-31",
+    "frequency": "1d",
+    "classification": "raw",
+    "adjustment_policy": "unadjusted",
+    "feature_set_id": null,
+    "target_definition": null,
+    "source_metadata": "schema=v1;rows=1761;last=2024-12-31"
+  },
+  "NVDA": {
+    "dataset_id": "yahoo:NVDA:43a5e7d2fa1c7fdf581930c6f460d290",
+    "symbol": "NVDA",
+    "provider": "yahoo",
+    "start_date": "2018-01-02",
+    "end_date": "2024-12-31",
+    "frequency": "1d",
+    "classification": "raw",
+    "adjustment_policy": "unadjusted",
+    "feature_set_id": null,
+    "target_definition": null,
+    "source_metadata": "schema=v1;rows=1761;last=2024-12-31"
+  },
+  "SPY": {
+    "dataset_id": "yahoo:SPY:c515c55dcf692d6f18a106e12ac51b35",
+    "symbol": "SPY",
+    "provider": "yahoo",
+    "start_date": "2018-01-02",
+    "end_date": "2024-12-31",
+    "frequency": "1d",
+    "classification": "raw",
+    "adjustment_policy": "unadjusted",
+    "feature_set_id": null,
+    "target_definition": null,
+    "source_metadata": "schema=v1;rows=1761;last=2024-12-31"
+  }
+}

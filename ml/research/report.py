@@ -145,10 +145,32 @@ monitoring remain future extensions and are not implemented in this phase.
 """
 
 
+def _dataframe_to_markdown(frame) -> str:
+    """Render a small DataFrame as a GitHub-flavored markdown table.
+
+    Avoids the optional pandas dependency on ``tabulate``.
+    """
+    if frame is None or getattr(frame, "empty", True):
+        return "_No rows._"
+    columns = [str(column) for column in frame.columns]
+    header = "| " + " | ".join(columns) + " |"
+    separator = "| " + " | ".join("---" for _ in columns) + " |"
+    rows: list[str] = []
+    for values in frame.itertuples(index=False, name=None):
+        cells = []
+        for value in values:
+            if isinstance(value, float):
+                cells.append(f"{value:.6g}")
+            else:
+                cells.append(str(value))
+        rows.append("| " + " | ".join(cells) + " |")
+    return "\n".join([header, separator, *rows])
+
+
 def _template_with_results(result: FinalResearchResult) -> str:
     summary_table = result.multi_asset.summary_table()
     multi_asset_md = (
-        summary_table.to_markdown(index=False)
+        _dataframe_to_markdown(summary_table)
         if not summary_table.empty
         else "_No multi-asset rows were produced._"
     )
