@@ -35,6 +35,7 @@ _SECRET_ENV_NAMES = frozenset(
         "POSTGRES_PASSWORD",
         "SECRET_KEY",
         "API_KEY",
+        "AUTH_API_KEY",
     }
 )
 
@@ -193,7 +194,12 @@ class Settings:
         default_factory=lambda: ["GET", "POST", "OPTIONS"]
     )
     cors_allow_headers: list[str] = field(
-        default_factory=lambda: ["Authorization", "Content-Type", "X-Request-ID"]
+        default_factory=lambda: [
+            "Authorization",
+            "Content-Type",
+            "X-Request-ID",
+            "X-API-Key",
+        ]
     )
     max_market_data_days: int = 3650
     max_market_rows: int = 5000
@@ -206,6 +212,7 @@ class Settings:
     market_data_provider: str = "yahoo"
     database_url: str = ""
     market_data_api_key: str = ""
+    auth_api_key: str = ""
     require_database: bool = False
     data_root: str = ""
     artifact_root: str = ""
@@ -261,6 +268,7 @@ class Settings:
             "require_database": self.require_database,
             "market_data_provider": self.market_data_provider,
             "market_data_api_key_configured": bool(self.market_data_api_key),
+            "auth_api_key_configured": bool(self.auth_api_key),
             "market_data_cache_ttl_seconds": self.market_data_cache_ttl_seconds,
             "market_data_cache_max_size": self.market_data_cache_max_size,
             "max_market_data_days": self.max_market_data_days,
@@ -431,6 +439,7 @@ def get_settings() -> Settings:
         market_data_provider=provider,
         database_url=database_url,
         market_data_api_key=os.getenv("MARKET_DATA_API_KEY", "").strip(),
+        auth_api_key=os.getenv("AUTH_API_KEY", "").strip(),
         require_database=require_database,
         data_root=data_root,
         artifact_root=artifact_root,
@@ -450,10 +459,19 @@ def assert_summary_has_no_secrets(summary: dict[str, object]) -> None:
         raise ConfigurationError("safe summary must not include database_url")
     if "market_data_api_key" in summary:
         raise ConfigurationError("safe summary must not include api key field")
+    if "auth_api_key" in summary:
+        raise ConfigurationError("safe summary must not include auth api key field")
     for name in _SECRET_ENV_NAMES:
         if name.lower() in {str(key).lower() for key in summary}:
             raise ConfigurationError(f"safe summary must not include {name}")
     blob = " ".join(f"{key}={value}" for key, value in summary.items()).lower()
-    for marker in ("password=", "api_key=", "secret_key=", "postgresql+", "postgres://"):
+    for marker in (
+        "password=",
+        "api_key=",
+        "auth_api_key=",
+        "secret_key=",
+        "postgresql+",
+        "postgres://",
+    ):
         if marker in blob:
             raise ConfigurationError("safe summary appears to contain secrets")
