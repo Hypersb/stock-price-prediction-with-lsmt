@@ -1,5 +1,6 @@
 """Local persistence for normalized historical market data."""
 
+import os
 import re
 from pathlib import Path
 
@@ -7,14 +8,28 @@ import pandas as pd
 
 from ml.data.normalize import normalize_ohlcv
 
-DEFAULT_RAW_DATA_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "raw"
+
+def default_raw_data_directory() -> Path:
+    """Resolve the default CSV store under QUANT_DATA_ROOT or repo ``data/raw``."""
+    override = os.getenv("QUANT_DATA_ROOT", "").strip()
+    if override:
+        root = Path(override)
+        if not root.is_absolute():
+            root = Path(__file__).resolve().parents[2] / root
+        return (root / "raw").resolve()
+    return (Path(__file__).resolve().parents[2] / "data" / "raw").resolve()
+
+
+DEFAULT_RAW_DATA_DIRECTORY = default_raw_data_directory()
 
 
 class HistoricalDataStore:
     """Save and load historical data as CSV files under one directory."""
 
     def __init__(self, directory: Path | str | None = None) -> None:
-        self.directory = Path(directory) if directory is not None else DEFAULT_RAW_DATA_DIRECTORY
+        self.directory = (
+            Path(directory) if directory is not None else default_raw_data_directory()
+        )
         self.directory.mkdir(parents=True, exist_ok=True)
         self.directory = self.directory.resolve()
 
